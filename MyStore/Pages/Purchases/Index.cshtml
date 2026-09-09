@@ -1,0 +1,2534 @@
+@page
+@model MyStore.Pages.Purchases.IndexModel
+@{
+    ViewData["Title"] = "کڕینەکان";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    /* ══ هێنانی فۆنتەکە ══ */
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    /* ══ سڕینەوەی پادینگە باوەکان بۆ ڕێکبوونی لەگەڵ لایئەوتە نوێیەکە ══ */
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    /* ══ گۆڕاوەکان کە لە لایئەوتەوە کۆنتڕۆڵ دەکرێن ══ */
+    :root {
+        --pu-page: #0b1120;
+        --pu-card: rgba(15,23,42,.7);
+        --pu-stat: rgba(15,23,42,.6);
+        --pu-thead: rgba(15,23,42,.5);
+        --pu-hover: rgba(99,102,241,.04);
+        --pu-input: rgba(30,41,59,.8);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --border-focus: rgba(129,140,248,.5);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --accent-border: rgba(99,102,241,.2);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --warning-bg: rgba(252,211,77,.1);
+        --info: #93c5fd;
+        --info-bg: rgba(59,130,246,.1);
+        --cyan: #67e8f9;
+        --cyan-bg: rgba(6,182,212,.1);
+        --gradient-top: linear-gradient(135deg, rgba(30,27,75,.4), rgba(49,46,129,.3), rgba(30,27,75,.2));
+        --shadow-sm: none;
+    }
+
+    /* ══ گۆڕاوەکان — ڕووناک ══ */
+    [data-theme="light"] {
+        --pu-page: #eef1f6;
+        --pu-card: #ffffff;
+        --pu-stat: #ffffff;
+        --pu-thead: #f8f9fb;
+        --pu-hover: rgba(99,102,241,.03);
+        --pu-input: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --border-focus: rgba(99,102,241,.45);
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --accent-border: rgba(99,102,241,.12);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --warning-bg: rgba(217,119,6,.08);
+        --info: #2563eb;
+        --info-bg: rgba(59,130,246,.08);
+        --cyan: #0891b2;
+        --cyan-bg: rgba(6,182,212,.08);
+        --gradient-top: linear-gradient(135deg, rgba(238,242,255,.95), rgba(224,231,255,.7), rgba(238,242,255,.5));
+        --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+    }
+
+    /* ══ ڕێکخستنی بنەڕەتی ══ */
+    .pu-page {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        background: var(--pu-page);
+        color: var(--text-primary);
+        min-height: 100vh;
+        position: relative;
+        transition: background .35s, color .35s;
+    }
+
+        .pu-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px; /* وەک فرۆشتنەکان 260px */
+            background: var(--gradient-top);
+            pointer-events: none;
+            transition: background .35s;
+        }
+
+    .pu-in {
+        position: relative;
+        z-index: 1;
+        padding: 20px 24px; /* وەک فرۆشتنەکان */
+        display: flex;
+        flex-direction: column;
+        gap: 12px; /* وەک فرۆشتنەکان */
+        height: 100vh;
+    }
+
+    /* ══ هێدەر ══ */
+    .pu-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px; /* وەک فرۆشتنەکان */
+        flex-shrink: 0;
+    }
+
+        .pu-top h1 {
+            font-size: 18px; /* وەک فرۆشتنەکان 18px */
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 2px;
+            transition: color .35s;
+        }
+
+        .pu-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+            transition: color .35s;
+        }
+
+    .pu-top-ico {
+        width: 32px; /* وەک فرۆشتنەکان 32px */
+        height: 32px;
+        border-radius: 50%; /* وەک فرۆشتنەکان 50% */
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        font-size: 14px;
+    }
+
+    /* ══ دوگمەی نوێ ══ */
+    .btn-act-main {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 30px;
+        padding: 0 20px;
+        border-radius: 8px;
+        border: none;
+        color: #ffffff !important;
+        font-size: 12px;
+        font-weight: 400;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        font-family: inherit;
+    }
+
+        .btn-act-main i {
+            font-size: 15px;
+        }
+
+        /* ئێفێکتی تێپەڕبوونی ڕووناکی (Shine) */
+        .btn-act-main::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s ease;
+        }
+
+        .btn-act-main:hover {
+            transform: translateY(-2px);
+        }
+
+            .btn-act-main:hover::after {
+                left: 150%;
+            }
+
+    /* ڕەنگی مۆری درەوشاوە بۆ دووگمەی سەرەکی */
+    .btn-act-primary {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+        .btn-act-primary:hover {
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+
+
+    /* ══ ٣ کارتی ئامار ══ */
+    .pu-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .pu-st {
+        background: var(--pu-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 14px 16px;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .pu-st:hover {
+            border-color: rgba(99,102,241,.3);
+            transform: translateY(-1px);
+        }
+
+    .pu-st-lbl {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 400;
+        margin-bottom: 6px;
+    }
+
+    .pu-st-val {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1;
+        transition: color .35s;
+    }
+
+    .pu-st-sub {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 4px;
+    }
+
+    .pu-st-ico {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .c-indigo {
+        color: var(--accent-text);
+    }
+
+    .bg-indigo {
+        background: var(--accent-bg);
+        color: var(--accent);
+    }
+
+    .c-cyan {
+        color: var(--cyan);
+    }
+
+    .bg-cyan {
+        background: var(--cyan-bg);
+        color: var(--cyan);
+    }
+
+    .c-info {
+        color: var(--info);
+    }
+
+    .bg-info-c {
+        background: var(--info-bg);
+        color: var(--info);
+    }
+
+    .c-emerald {
+        color: var(--success);
+    }
+
+    .bg-emerald {
+        background: var(--success-bg);
+        color: var(--success);
+    }
+
+    .c-rose {
+        color: var(--danger);
+    }
+
+    .bg-rose {
+        background: var(--danger-bg);
+        color: var(--danger);
+    }
+
+    .c-amber {
+        color: var(--warning);
+    }
+
+    .bg-amber {
+        background: var(--warning-bg);
+        color: var(--warning);
+    }
+
+    /* ══ کارتی سەرەکی (خشتە) ══ */
+    .pu-card {
+        background: var(--pu-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px; /* وەک فرۆشتنەکان 12px */
+        overflow: hidden;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* ══ گرووپی دوگمەی بەرواری پێشکەشکراو ══ */
+    .rc-btn-group {
+        display: inline-flex;
+        background: var(--pu-input);
+        border: 1px solid var(--border-card);
+        border-radius: 8px;
+        padding: 3px;
+        gap: 2px;
+    }
+
+        .rc-btn-group button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+            .rc-btn-group button:hover {
+                color: var(--text-primary);
+            }
+
+            .rc-btn-group button.active {
+                background: linear-gradient(135deg, var(--accent), #4f46e5);
+                color: #fff;
+                box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+            }
+
+    /* ══ تولبار ══ */
+    .pu-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 14px; /* وەک فرۆشتنەکان */
+        border-bottom: 1px solid var(--border-subtle);
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    /* ══ ئینپوت ══ */
+    .pu-inp {
+        height: 28px; /* وەک فرۆشتنەکان */
+        padding: 0 10px; /* وەک فرۆشتنەکان */
+        background: var(--pu-input);
+        border: 1px solid var(--border-card);
+        border-radius: 6px; /* وەک فرۆشتنەکان 6px */
+        color: var(--text-primary);
+        font-size: 11px; /* وەک فرۆشتنەکان */
+        font-family: inherit;
+        outline: none;
+        transition: all .25s;
+    }
+
+        .pu-inp option {
+            background-color: var(--pu-card);
+            color: var(--text-primary);
+        }
+
+        .pu-inp:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-bg); /* وەک فرۆشتنەکان 3px */
+        }
+
+        .pu-inp::placeholder {
+            color: var(--text-dim);
+            opacity: 0.7;
+        }
+
+        .pu-inp::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.6;
+            filter: invert(var(--icon-invert, 0));
+            padding: 0;
+            margin-right: 4px;
+        }
+
+    [data-theme="light"] .pu-inp::-webkit-calendar-picker-indicator {
+        --icon-invert: 0;
+    }
+
+    :root .pu-inp::-webkit-calendar-picker-indicator {
+        --icon-invert: 1;
+    }
+
+    /* ══ دوگمەکان ══ */
+    .pu-btn {
+        height: 28px; /* وەک فرۆشتنەکان */
+        padding: 0 12px; /* وەک فرۆشتنەکان */
+        border-radius: 6px; /* وەک فرۆشتنەکان */
+        font-size: 11px; /* وەک فرۆشتنەکان */
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: inherit;
+        transition: all .2s;
+        border: none;
+        text-decoration: none;
+    }
+
+    .pu-btn-ghost {
+        background: var(--pu-input);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-card);
+    }
+
+        .pu-btn-ghost:hover {
+            background: var(--pu-hover);
+            color: var(--text-primary);
+        }
+
+    /* ══ خشتە ══ */
+    .pu-tbl-scroll {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: auto;
+        min-height: 0;
+    }
+
+        .pu-tbl-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .pu-tbl-scroll::-webkit-scrollbar-track {
+            background: var(--pu-card);
+        }
+
+        .pu-tbl-scroll::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 6px;
+        }
+
+            .pu-tbl-scroll::-webkit-scrollbar-thumb:hover {
+                background: var(--text-secondary);
+            }
+
+    /* ══ سکڕۆڵی گشتی هاوشێوەی دەفتەری قەرزەکان ══ */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--pu-card);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--text-muted);
+        border-radius: 6px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--text-muted) var(--pu-card);
+    }
+
+    .pu-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .pu-tbl th {
+            padding: 8px 12px; /* وەک فرۆشتنەکان */
+            text-align: right;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--pu-thead);
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            transition: all .35s;
+        }
+
+        .pu-tbl td {
+            padding: 6px 12px; /* وەک فرۆشتنەکان */
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+            transition: all .35s;
+            white-space: nowrap;
+        }
+
+        .pu-tbl tr {
+            transition: background .15s;
+        }
+
+            .pu-tbl tr:hover {
+                background: var(--pu-hover);
+            }
+
+            .pu-tbl tr:last-child td {
+                border-bottom: none;
+            }
+
+    /* ══ badge ══ */
+    .pu-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px; /* وەک فرۆشتنەکان */
+        border-radius: 5px; /* وەک فرۆشتنەکان */
+        font-size: 12px; /* وەک فرۆشتنەکان */
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+        .pu-badge.product {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(52,211,153,.15);
+        }
+
+        .pu-badge.more {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border: 1px solid rgba(252,211,77,.15);
+        }
+
+        .pu-badge.supplier {
+            background: var(--info-bg);
+            color: var(--info);
+            border: 1px solid rgba(59,130,246,.15);
+        }
+
+    /* ══ دوگمەکانی کردار ══ */
+    .act-btn {
+        width: 28px; /* وەک فرۆشتنەکان */
+        height: 28px; /* وەک فرۆشتنەکان */
+        border-radius: 6px; /* وەک فرۆشتنەکان */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid transparent;
+        text-decoration: none;
+        transition: all .2s;
+        cursor: pointer;
+        font-size: 13px; /* وەک فرۆشتنەکان */
+    }
+
+        .act-btn.edit {
+            color: var(--warning);
+            background: var(--warning-bg);
+            border-color: rgba(252,211,77,.2);
+        }
+
+            .act-btn.edit:hover {
+                background: var(--warning);
+                color: #fff;
+            }
+
+        .act-btn.delete {
+            color: var(--danger);
+            background: var(--danger-bg);
+            border-color: rgba(251,113,133,.2);
+        }
+
+            .act-btn.delete:hover {
+                background: var(--danger);
+                color: #fff;
+            }
+
+    /* ══ Pagination ══ */
+    .pagination-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px; /* وەک فرۆشتنەکان */
+        background: var(--pu-card);
+        border-top: 1px solid var(--border-subtle);
+        gap: 10px; /* وەک فرۆشتنەکان */
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .pg-info {
+        font-size: 12px; /* وەک فرۆشتنەکان */
+        color: var(--text-dim);
+    }
+
+        .pg-info strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+    .pg-controls {
+        display: flex;
+        gap: 4px;
+    }
+
+    .pg-btn {
+        height: 28px; /* وەک فرۆشتنەکان */
+        min-width: 28px; /* وەک فرۆشتنەکان */
+        padding: 0 10px; /* وەک فرۆشتنەکان */
+        border-radius: 6px; /* وەک فرۆشتنەکان */
+        background: var(--pu-input);
+        border: 1px solid var(--border-card);
+        color: var(--text-primary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px; /* وەک فرۆشتنەکان */
+        cursor: pointer;
+        transition: all .2s;
+        text-decoration: none;
+        gap: 4px; /* وەک فرۆشتنەکان */
+    }
+
+        .pg-btn:hover:not(:disabled) {
+            background: var(--pu-hover);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .pg-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            cursor: default;
+        }
+
+        .pg-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+    .pg-dots {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center; /* وەک فرۆشتنەکان */
+        padding: 0 4px;
+        color: var(--text-dim);
+        font-weight: bold;
+    }
+
+    /* ══ Empty state ══ */
+    .pu-empty {
+        text-align: center;
+        padding: 30px 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .pu-empty i {
+            font-size: 24px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            opacity: .5;
+        }
+
+        .pu-empty h5 {
+            color: var(--text-muted);
+            margin: 0 0 4px;
+            font-size: 13px;
+        }
+
+        .pu-empty p {
+            color: var(--text-dim);
+            font-size: 11px;
+            margin: 0;
+        }
+
+    /* ══ Fullscreen ══ */
+    .pu-card.is-fullscreen, .pu-card:-webkit-full-screen, .pu-card:fullscreen {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        z-index: 2147483647 !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 16px !important; /* وەک فرۆشتنەکان 16px */
+        background-color: var(--pu-page) !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+    }
+
+    /* ══ مۆدال — گونجاندنی بۆ 12px چەماوەیی ══ */
+    .pu-modal .modal-content {
+        background: var(--pu-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px; /* گۆڕدرا بۆ 12px بۆ گونجان لەگەڵ دیزاینە نوێیەکە */
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0,0,0,.3);
+        color: var(--text-primary);
+    }
+
+    .pu-modal .modal-body {
+        background: var(--pu-card);
+    }
+
+    .pu-modal .modal-footer {
+        background: var(--pu-stat);
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .pm-hdr {
+        background: linear-gradient(135deg, rgba(99,102,241,.15), rgba(129,140,248,.1));
+        border-bottom: 1px solid var(--accent-border);
+        padding: 10px 14px; /* کەمێک گەورەتر کرا */
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .pm-hdr-ico {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%; /* بازنەیی وەک هێدەر */
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        font-size: 13px;
+    }
+
+    .pm-hdr-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+
+    .pm-hdr-sub {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 1px;
+    }
+
+    /* ══ فۆرمی ستونی ڕاست (مۆدال) ══ */
+    .pm-form-side {
+        width: 250px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        background: var(--pu-stat);
+        overflow: hidden;
+        border-right: 1px solid var(--border-subtle);
+    }
+
+    .pf-wrap {
+        position: relative;
+        margin-bottom: 8px; /* کەمێک زیادکرا */
+    }
+
+        .pf-wrap label {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            font-size: 10px;
+            color: var(--text-dim);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .2px;
+            pointer-events: none;
+            transition: color .15s;
+        }
+
+        .pf-wrap input, .pf-wrap select {
+            width: 100%;
+            height: 38px; /* کەمێک زیادکرا */
+            border: 1px solid var(--border-card);
+            border-radius: 6px; /* وەک ئینپوتە نوێیەکان 6px */
+            padding: 16px 8px 2px;
+            font-size: 12px;
+            outline: none;
+            transition: border .15s;
+            background: var(--pu-input);
+            color: var(--text-primary);
+            appearance: auto;
+            font-family: inherit;
+        }
+
+            .pf-wrap input:focus, .pf-wrap select:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px var(--accent-bg);
+            }
+
+                .pf-wrap input:focus + label, .pf-wrap select:focus + label,
+                .pf-wrap.has-val label {
+                    color: var(--accent);
+                }
+
+        .pf-wrap.loss input {
+            border-color: var(--danger) !important;
+            background: var(--danger-bg);
+        }
+
+        .pf-wrap.loss label {
+            color: var(--danger) !important;
+        }
+
+        .pf-wrap.readonly input {
+            background: var(--accent-bg);
+            color: var(--accent-text);
+            font-weight: 700;
+        }
+
+    /* ══ ستونی لیست (مۆدال) ══ */
+    .pm-list-side {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        background: var(--pu-card);
+        overflow: hidden;
+    }
+
+    .pm-list-header {
+        padding: 10px 14px;
+        background: var(--pu-stat);
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        flex-wrap: wrap;
+    }
+
+    /* ══ خشتەی کاڵاکانی مۆدال ══ */
+    .pm-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .pm-tbl thead th {
+            background: var(--accent-bg);
+            color: var(--accent-text);
+            font-weight: 700;
+            font-size: 11px;
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--accent-border);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .pm-tbl tbody tr {
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            transition: background .12s;
+        }
+
+            .pm-tbl tbody tr:hover {
+                background: var(--pu-hover);
+            }
+
+            .pm-tbl tbody tr.active-row {
+                background: var(--accent-bg) !important;
+            }
+
+        .pm-tbl tbody td {
+            padding: 6px 8px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .pm-tbl .td-name {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+            color: var(--accent-text);
+        }
+
+        .pm-tbl .td-barcode {
+            color: var(--text-dim);
+            font-size: 10px;
+            font-family: monospace;
+        }
+
+        .pm-tbl .td-unit {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .pm-tbl .td-cost {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .pm-tbl .td-total {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .pm-tbl .td-idx {
+            color: var(--text-dim);
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .pm-tbl .td-num {
+            font-weight: 700;
+            font-family: monospace;
+            color: var(--text-primary);
+        }
+
+    /* ══ دووگمەی سڕینەوەی ڕیز ══ */
+    .btn-del-row {
+        width: 24px;
+        height: 24px;
+        border: none;
+        border-radius: 6px;
+        background: var(--danger-bg);
+        color: var(--danger);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        transition: all .15s;
+        flex-shrink: 0;
+    }
+
+        .btn-del-row:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+    /* ══ قازانج/زەرەر pill ══ */
+    .pm-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+        .pm-pill.g {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .pm-pill.l {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .pm-pill.z {
+            background: rgba(148,163,184,.06);
+            color: var(--text-dim);
+        }
+
+    /* ══ profit bar ══ */
+    .pm-profit-bar {
+        border-radius: 6px; /* گۆڕدرا بۆ 6px */
+        padding: 6px 10px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+        .pm-profit-bar.gain {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(52,211,153,.2);
+        }
+
+        .pm-profit-bar.loss {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid rgba(251,113,133,.2);
+        }
+
+        .pm-profit-bar.zero {
+            background: rgba(148,163,184,.06);
+            color: var(--text-dim);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .pm-profit-bar.hidden {
+            display: none;
+        }
+
+    /* ══ دوگمەی زیادکردن ══ */
+    .pm-do-add {
+        width: 100%;
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        color: #fff;
+        border: none;
+        border-radius: 6px; /* گۆڕدرا بۆ 6px */
+        padding: 0;
+        height: 34px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all .18s;
+        margin-top: 4px;
+        font-family: inherit;
+    }
+
+        .pm-do-add:hover {
+            box-shadow: 0 4px 12px rgba(99,102,241,.3); /* گەورەتر کرا */
+        }
+
+        .pm-do-add.green {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+
+            .pm-do-add.green:hover {
+                box-shadow: 0 4px 12px rgba(16,185,129,.3);
+            }
+
+    /* ══ ئاماری خوارەوەی مۆدال ══ */
+    .pm-stats-bar {
+        flex-shrink: 0;
+        border-top: 1px solid var(--accent-border);
+        background: var(--pu-stat);
+        padding: 10px 14px;
+        display: flex;
+        gap: 0;
+        direction: rtl;
+    }
+
+    .pm-stat-item {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 10px;
+        border-left: 1px solid var(--border-subtle);
+    }
+
+        .pm-stat-item:last-child {
+            border-left: none;
+        }
+
+    .pm-stat-ico {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .pm-stat-lbl {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+
+    .pm-stat-val {
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1;
+        margin-top: 2px;
+    }
+
+    /* ══ فووتەری مۆدال ══ */
+    .pm-footer {
+        padding: 10px 14px;
+        background: var(--pu-stat);
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+    }
+
+    .pm-btn-cancel {
+        background: var(--pu-input);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-card);
+        border-radius: 6px; /* 6px */
+        height: 32px;
+        padding: 0 14px;
+        font-size: 12px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        transition: all .15s;
+        font-family: inherit;
+    }
+
+    .pm-btn-save {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: #fff;
+        border: none;
+        border-radius: 6px; /* 6px */
+        height: 32px;
+        padding: 0 18px;
+        font-weight: 700;
+        font-size: 12px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all .18s;
+        box-shadow: 0 2px 6px rgba(16,185,129,.25);
+        font-family: inherit;
+    }
+
+    /* ══ ستۆک chip ══ */
+    .pm-stock-chip {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 4px;
+        padding: 4px 8px;
+        background: var(--pu-stat);
+        border-radius: 6px;
+        border: 1px solid var(--border-card);
+    }
+
+        .pm-stock-chip .num {
+            font-weight: 700;
+            color: var(--info);
+        }
+
+            .pm-stock-chip .num.low {
+                color: var(--warning);
+            }
+
+            .pm-stock-chip .num.out {
+                color: var(--danger);
+            }
+
+    /* ══ پەیامەکان ══ */
+    .pm-msg-ok {
+        color: var(--success);
+        font-size: 11px;
+        padding: 2px 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pm-msg-err {
+        color: var(--danger);
+        font-size: 11px;
+        padding: 2px 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pm-msg-inf {
+        color: var(--info);
+        font-size: 11px;
+        padding: 2px 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* ══ بەتاڵ (مۆدال) ══ */
+    .pm-empty {
+        text-align: center;
+        padding: 30px 20px;
+        color: var(--text-dim);
+    }
+
+        .pm-empty i {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-dim);
+            opacity: .3;
+        }
+
+        .pm-empty p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+    /* ══ نرخی تاک و جوملە ══ */
+    .pm-price-info {
+        background: var(--accent-bg);
+        border: 1px solid var(--accent-border);
+        border-radius: 6px; /* 6px */
+        padding: 6px 8px;
+        margin-top: 6px;
+    }
+
+        .pm-price-info .lbl {
+            font-size: 10px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .pm-price-info .val {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+    /* ══ Delete modal ══ */
+    .del-warning {
+        text-align: center;
+        padding: 14px;
+        background: var(--danger-bg);
+        border: 1px solid rgba(251,113,133,.15);
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+
+        .del-warning i {
+            font-size: 26px;
+            color: var(--danger);
+        }
+
+        .del-warning h5 {
+            color: var(--danger);
+            font-weight: 700;
+            margin: 6px 0 2px;
+            font-size: 14px;
+        }
+
+        .del-warning p {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin: 0;
+        }
+
+    .del-info {
+        display: flex;
+        gap: 8px;
+        padding: 12px;
+        background: var(--pu-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 8px;
+    }
+
+        .del-info .item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .del-info .label {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+
+        .del-info .value {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+            .del-info .value.success {
+                color: var(--success);
+            }
+
+    /* ══ Responsive ══ */
+    @@media(max-width:1200px) {
+        .pu-stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @@media(max-width:768px) {
+        .pu-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .pu-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        /* وەک فرۆشتنەکان ستوونی کرا */
+        .pagination-bar {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+
+    @@media(max-width:576px) {
+        .pu-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .pu-in {
+            padding: 12px;
+        }
+    }
+</style>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- HTML بۆدی -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+
+<div class="pu-page">
+    <div class="pu-in">
+
+        <!-- ══ هێدەر ══ -->
+        <div class="pu-top">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="pu-top-ico"><i class="bi bi-truck"></i></div>
+                <div>
+                    <h1>کڕینەکان</h1>
+                    <p>پسوڵەکانی کڕین و بەڕێوەبردنی دابینکەران</p>
+                </div>
+            </div>
+
+            <!-- ══ دوگمەی نوێ بە دیزاینی مۆدێرن ══ -->
+            <div>
+                <!-- بەکارهێنانی کڵاسە نوێیەکان لێرە -->
+                <button type="button" class="btn-act-main btn-act-primary" data-bs-toggle="modal" data-bs-target="#purchaseModal" onclick="resetPurchaseModal()">
+                    <i class="bi bi-plus-lg"></i>
+                    کڕینی نوێ
+                </button>
+            </div>
+        </div>
+
+        <!-- ══ ٣ کارتی ئامار ══ -->
+        <div class="pu-stats">
+            <div class="pu-st">
+                <div><div class="pu-st-lbl">پسوڵەکان</div><div class="pu-st-val c-indigo" id="statInvoices">@Model.TotalInvoices</div><div class="pu-st-sub">دانە</div></div>
+                <div class="pu-st-ico bg-indigo"><i class="bi bi-receipt"></i></div>
+            </div>
+            <div class="pu-st">
+                <div><div class="pu-st-lbl">کۆی تێچوو</div><div class="pu-st-val c-cyan" id="statPurchases">@string.Format("{0:N0}", Model.TotalPurchases)</div><div class="pu-st-sub">دینار</div></div>
+                <div class="pu-st-ico bg-cyan"><i class="bi bi-cash-stack"></i></div>
+            </div>
+            <div class="pu-st">
+                <div><div class="pu-st-lbl">جۆری کاڵا</div><div class="pu-st-val c-info" id="statProducts">@Model.TotalProducts</div><div class="pu-st-sub">دانە</div></div>
+                <div class="pu-st-ico bg-info-c"><i class="bi bi-grid-3x3-gap"></i></div>
+            </div>
+        </div>
+
+        <!-- ══ کارتی خشتە ══ -->
+        <div class="pu-card" id="mainCard">
+
+            <!-- تولبار -->
+            <div class="pu-toolbar">
+                <div style="display:flex;align-items:center;gap:8px; flex: 1; flex-wrap: wrap;">
+                    <!-- گەڕان -->
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <input type="text" id="fInvoice" class="pu-inp" placeholder="ژمارەی پسوڵە..." style="width:120px;">
+                    </div>
+
+                    <!-- ماوە: hidden select بۆ backend + دوگمەگرووپ -->
+                    @{
+                        var fdr = Model.FilterDateRange ?? "Today";
+                    }
+                    <select id="fDateRange" style="display:none;">
+                        <option value="Today" @@(fdr =="Today" ?"selected":"")>ئەمڕۆ</option>
+                        <option value="Week" @@(fdr =="Week" ?"selected":"")>ئەم هەفتەیە</option>
+                        <option value="Month" @@(fdr =="Month" ?"selected":"")>ئەم مانگە</option>
+                        <option value="Custom" @@(fdr =="Custom" ?"selected":"")>بەروار</option>
+                    </select>
+
+                    <div class="rc-btn-group" id="dateRangeBtns">
+                        <button type="button" data-val="Today" class="@(fdr == "Today" ? "active" : "")">ئەمڕۆ</button>
+                        <button type="button" data-val="Week" class="@(fdr == "Week" ? "active" : "")">ئەم هەفتەیە</button>
+                        <button type="button" data-val="Month" class="@(fdr == "Month" ? "active" : "")">ئەم مانگە</button>
+                        <button type="button" data-val="Custom" class="@(fdr == "Custom" ? "active" : "")"><i class="bi bi-calendar3"></i> بەروار</button>
+                    </div>
+
+                    <!-- بەرواری دەستی -->
+                    <div id="fCustomDates" style="display:@(fdr == "Custom" ? "flex" : "none");align-items:center;gap:6px;">
+                        <input type="date" id="fStartDate" class="pu-inp" style="width:115px;"
+                               value="@(Model.StartDate.HasValue? Model.StartDate.Value.ToString("yyyy-MM-dd") : "")">
+                        <span style="font-size:12px;color:var(--text-dim);">→</span>
+                        <input type="date" id="fEndDate" class="pu-inp" style="width:115px;"
+                               value="@(Model.EndDate.HasValue? Model.EndDate.Value.ToString("yyyy-MM-dd") : "")">
+                    </div>
+
+                    <i class="bi bi-arrow-repeat" id="filterSpinner" style="display:none;color:var(--accent);font-size:14px;animation:spin .8s linear infinite;"></i>
+
+                    <!-- پاڵنانی ئەنجامەکان و فۆل سکرین بۆ لای چەپ -->
+                    <div style="margin-right:auto; display:flex; align-items:center; gap: 10px;">
+                        <span id="filterResultCount" style="font-size:12px;color:var(--text-dim);font-weight:600;">@Model.TotalFilteredCount پسوڵە</span>
+                        <button class="pu-btn pu-btn-ghost" onclick="toggleFullscreen()" title="گەورەکردن" style="padding:0 8px;">
+                            <i class="bi bi-arrows-fullscreen" id="expandIcon"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <style>
+                @@keyframes spin {
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }</style>
+
+            <!-- ══ خشتەی پسوڵەکان ══ -->
+            <div id="content-purchase" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+                @if (Model.PurchaseList.Any())
+                {
+                    <div class="pu-tbl-scroll">
+                        <table class="pu-tbl">
+                            <thead>
+                                <tr>
+                                    <th style="width:4%;text-align:center;">#</th>
+                                    <th style="width:8%">پسوڵە</th>
+                                    <th style="width:13%">بەروار</th>
+                                    <th style="width:14%">دابینکەر</th>
+                                    <th>کاڵاکان</th>
+                                    <th style="width:7%;text-align:center;">جۆر</th>
+                                    <th style="width:8%;text-align:center;">کۆی بڕ</th>
+                                    <th style="width:12%;text-align:center;">کۆی تێچوو</th>
+                                    <th style="width:9%;text-align:center;">کردار</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchaseTbody">
+                                @{
+                                    int rn = 1;
+                                }
+                                @foreach (var item in Model.PurchaseList)
+                                {
+                                    <tr data-id="@item.PurchaseId" style="cursor:pointer;" data-date="@item.PurchaseDate.ToString("yyyy-MM-dd")" data-invoice="@item.PurchaseId">
+                                        <td style="text-align:center;color:var(--text-dim);font-weight:500;">@rn</td>
+                                        <td><span style="color:var(--accent-text);font-weight:700;">#@item.PurchaseId</span></td>
+                                        <td>
+                                            <span style="font-weight:600;">@item.PurchaseDate.ToString("yyyy/MM/dd")</span>
+                                            <span style="color:var(--text-dim);margin-right:6px;font-size:11px;">@item.PurchaseDate.ToString("HH:mm")</span>
+                                        </td>
+                                        <td>
+                                            @if (item.SupplierId == 1)
+                                            {
+                                                <span style="color:var(--text-dim);">—</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="pu-badge supplier"><i class="bi bi-building"></i> @item.SupplierName</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @foreach (var detail in item.Items.Take(2))
+                                            {
+                                                <span class="pu-badge product">@detail.ProductName</span>
+                                            }
+                                            @if (item.Items.Count > 2)
+                                            {
+                                                <span class="pu-badge more">+@(item.Items.Count - 2) تر</span>
+                                            }
+                                            @if (!item.Items.Any())
+                                            {
+                                                <span style="color:var(--text-dim);">—</span>
+                                            }
+                                        </td>
+                                        <td style="text-align:center;font-weight:600;">@item.ItemCount</td>
+                                        <td style="text-align:center;font-weight:600;">@item.TotalQuantity</td>
+                                        <td style="text-align:center;font-weight:700;">@string.Format("{0:N0}", item.TotalAmount)</td>
+                                        <td style="text-align:center;">
+                                            <div style="display:flex;gap:6px;justify-content:center;">
+                                                <button type="button" class="act-btn edit edit-btn" data-id="@item.PurchaseId" title="دەستکاری"><i class="bi bi-pencil"></i></button>
+                                                <button type="button" class="act-btn delete delete-btn" data-id="@item.PurchaseId" data-total="@item.TotalAmount" data-date="@item.PurchaseDate.ToString("yyyy/MM/dd HH:mm")" data-count="@item.Items.Count" title="سڕینەوە"><i class="bi bi-trash"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    rn++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="pu-empty">
+                        <i class="bi bi-receipt"></i>
+                        <h5>هیچ پسوڵەیەک نییە</h5>
+                        <p>پسوڵەی کڕینی نوێ زیاد بکە</p>
+                    </div>
+                }
+                @if (Model.TotalFilteredCount > 0)
+                {
+                    <div class="pagination-bar" id="pgBar">
+                        <span class="pg-info" id="pgInfo"></span>
+                        <span style="font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:4px;"><i class="bi bi-hand-index-thumb"></i> دوو جار کلیک بکە بۆ وردەکاری</span>
+                        <div class="pg-controls" id="pgBtns"></div>
+                    </div>
+                    <script>
+                        var _pgData = {
+                            current: @Model.CurrentPage,
+                            total: @Model.TotalPages,
+                            filtered: @Model.TotalFilteredCount,
+                            pageSize: @IndexModel.PageSize
+                        };
+                        var _statsData = {
+                            invoices: @Model.TotalInvoices,
+                            purchases: @((long)Model.TotalPurchases),
+                            products: @Model.TotalProducts
+                        };
+                    </script>
+                }
+            </div>
+        </div><!-- /pu-card -->
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- مۆدالی کڕین -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="modal fade pu-modal" id="purchaseModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width:920px;">
+        <div class="modal-content">
+
+            <!-- هێدەر -->
+            <div class="pm-hdr" id="purchaseModalHeader">
+                <div class="pm-hdr-ico"><i class="bi bi-truck"></i></div>
+                <div style="min-width:0;">
+                    <div class="pm-hdr-title" id="purchaseModalTitle">تۆمارکردنی پسوڵەی کڕین</div>
+                    <div class="pm-hdr-sub">کۆگا / مەنجەمەنت</div>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" style="filter:var(--close-filter,invert(1));font-size:12px;"></button>
+                <span id="totalDisplay" style="display:none;"></span>
+            </div>
+
+            <!-- بۆدی: دوو ستون -->
+            <div style="display:flex;height:520px;overflow:hidden;">
+
+                <!-- ══ ستونی ڕاست: فۆرم ══ -->
+                <div class="pm-form-side">
+                    <!-- بەشی گەڕان -->
+                    <div style="flex-shrink:0;padding:10px 12px;border-bottom:1px dashed var(--border-subtle);">
+                        <div style="display:flex;gap:6px;margin-bottom:8px;">
+                            <input type="text" id="barcodeInput" placeholder="باڕکۆد یان ناو..."
+                                   class="pu-inp" style="flex:1;height:30px;border-radius:6px;">
+                            <button type="button" onclick="findProduct()" title="گەڕان لە سێرڤەر"
+                                    style="width:30px;height:30px;border:none;border-radius:6px;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+
+                        <!-- ══ ئینپوتی نوێ بۆ گەڕان لەناو درۆپداونەکە ══ -->
+                        <div style="margin-bottom:8px;">
+                            <input type="text" id="localSearchInput" class="pu-inp" placeholder="گەڕان لە لیستی کاڵاکان..." oninput="filterLocalProducts()" style="width:100%;height:30px;border-radius:6px;background:var(--pu-stat);">
+                        </div>
+
+                        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+                            <div class="pf-wrap" style="flex:1;margin-bottom:0;">
+                                <select id="productSelect" onchange="onProductSelect()" style="height:36px;padding:14px 6px 2px;">
+                                    <option value="">— کاڵا هەڵبژێرە —</option>
+                                    @foreach (var p in Model.ProductsForPurchase)
+                                    {
+                                        <option value="@p.ProductId" data-name="@p.Name" data-stock="@p.CurrentStock" data-sale="@p.SalePrice" data-carton="@p.QtyPerCarton" data-dozen="@p.QtyPerDozen" data-bundle="@p.QtyPerBundle">@p.Name (ستۆک: @p.CurrentStock)</option>
+                                    }
+                                </select>
+                                <label style="top:4px;">ناوی کاڵا</label>
+                            </div>
+                            <button type="button" onclick="openNewProductModal()" title="کاڵای نوێ"
+                                    style="width:36px;height:36px;flex-shrink:0;border:1px solid rgba(52,211,153,.3);border-radius:6px;background:var(--success-bg);color:var(--success);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+
+                        <div style="display:flex;align-items:center;gap:4px;min-height:16px;">
+                            <div id="searchMessage" style="flex:1;font-size:11px;"></div>
+                            <div id="stockChip" class="pm-stock-chip" style="display:none;">
+                                <i class="bi bi-archive" style="font-size:11px;"></i>
+                                <span class="num" id="stockChipNum">0</span> دانە
+                            </div>
+                        </div>
+
+                        <div id="priceInfoRow" class="pm-price-info" style="display:none;">
+                            <div style="display:flex;justify-content:space-between;">
+                                <div style="text-align:center;flex:1;border-left:1px solid var(--accent-border);padding:0 4px;">
+                                    <div class="lbl">نرخی تاک</div>
+                                    <div class="val" id="salePriceDisplay">—</div>
+                                </div>
+                                <div style="text-align:center;flex:1;padding:0 4px;">
+                                    <div class="lbl">نرخی جوملە</div>
+                                    <div class="val" id="wholesalePriceDisplay">—</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- بەشی تۆمارکردن -->
+                    <div style="flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 12px;">
+                        <div style="display:flex;gap:6px;margin-bottom:8px;">
+                            <div class="pf-wrap" style="flex:1;margin-bottom:0;">
+                                <select id="selectUnit" onchange="onUnitChange()">
+                                    <option value="1">دانە</option>
+                                </select>
+                                <label>یەکە</label>
+                            </div>
+                            <div class="pf-wrap" style="width:85px;flex-shrink:0;margin-bottom:0;">
+                                <input type="number" id="selectQty" value="1" min="1" placeholder=" " oninput="updateBuyPreview()">
+                                <label>بڕ</label>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;border:1px solid var(--border-card);border-radius:6px;overflow:hidden;margin-bottom:8px;">
+                            <button id="priceToggle1" type="button" onclick="setPriceMode('unit')"
+                                    style="flex:1;height:26px;border:none;padding:0;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;font-family:inherit;">
+                                نرخی ١ یەکە
+                            </button>
+                            <button id="priceToggle2" type="button" onclick="setPriceMode('total')"
+                                    style="flex:1;height:26px;border:none;padding:0;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;background:var(--pu-input);color:var(--accent);font-family:inherit;">
+                                کۆی گشتی
+                            </button>
+                        </div>
+
+                        <div class="pf-wrap" id="buyPriceWrap" style="margin-bottom:8px;">
+                            <input type="number" id="selectPrice" placeholder=" " step="250" oninput="updateBuyPreview()">
+                            <label id="priceLabel">نرخی ١ یەکە</label>
+                        </div>
+
+                        <div id="unitCostRow" style="display:none;background:var(--warning-bg);border:1px solid rgba(252,211,77,.2);border-radius:6px;padding:6px 8px;margin-bottom:8px;font-size:11px;color:var(--text-secondary);">
+                            تێچووی ١ دانە: <b id="unitCostCalc" style="color:var(--warning);">—</b>
+                        </div>
+
+                        <div class="pm-profit-bar hidden" id="profitBar" style="margin-bottom:8px;">
+                            <span id="profitBarText">—</span>
+                            <span id="profitBarPct" style="font-weight:800;">0%</span>
+                        </div>
+
+                        <button type="button" class="pm-do-add" onclick="addFromSelect()" style="margin-top:auto;">
+                            <i class="bi bi-plus-circle-fill"></i> زیادکردن
+                        </button>
+
+                        <input type="hidden" id="salePriceShow">
+                        <input type="hidden" id="wholesalePriceShow">
+                    </div>
+                </div>
+
+                <!-- ══ ناوەڕاست: لیست + ئامار ══ -->
+                <div class="pm-list-side">
+                    <div class="pm-list-header">
+                        <!-- گرووپی بەروار و کات -->
+                        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                            <i class="bi bi-calendar3" style="color:var(--accent);font-size:13px;"></i>
+                            <input type="date" id="purchaseDateOnly" class="pu-inp" style="width:130px;"
+                                   value="@(DateTime.Now.ToString("yyyy-MM-dd"))"
+                                   max="@(DateTime.Now.ToString("yyyy-MM-dd"))"
+                                   oninput="syncPurchaseDateTime()">
+                            <input type="time" id="purchaseTime" class="pu-inp" style="width:90px;"
+                                   value="@(DateTime.Now.ToString("HH:mm"))"
+                                   oninput="syncPurchaseDateTime()">
+                            <input type="hidden" id="purchaseDate">
+                        </div>
+
+                        <!-- جیاکەرەوە -->
+                        <div style="width:1px;height:20px;background:var(--border-subtle);margin:0 4px;flex-shrink:0;"></div>
+
+                        <!-- گرووپی دابینکەر -->
+                        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">
+                            <i class="bi bi-building" style="color:var(--accent);font-size:13px;flex-shrink:0;"></i>
+                            <select id="supplierSelect" class="pu-inp" style="flex:1;min-width:0;">
+                                @foreach (var sup in Model.SuppliersList)
+                                {
+                                    <option value="@sup.SupplierId">@sup.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- گرووپی چەپ: ژماردنی کاڵا + لە قاسە -->
+                        <span id="itemCountDisplay" style="background:var(--accent);color:#fff;border-radius:12px;font-size:11px;font-weight:700;padding:3px 10px;display:none;flex-shrink:0;">0</span>
+
+                        <div style="display:flex;align-items:center;gap:6px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:6px;padding:4px 10px;cursor:pointer;flex-shrink:0;height:30px;" onclick="toggleCashPay()">
+                            <input type="checkbox" id="cashPayCheck" style="accent-color:var(--accent);cursor:pointer;width:14px;height:14px;margin:0;">
+                            <label for="cashPayCheck" style="font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;white-space:nowrap;margin:0;">لە قاسە</label>
+                            <span id="cashBalDisplay" style="font-size:12px;font-weight:700;color:var(--success);margin-right:2px;"></span>
+                        </div>
+                    </div>
+
+                    <div id="itemsContainer" style="flex:1;overflow-y:auto;min-height:0;">
+                        <div class="pm-empty">
+                            <i class="bi bi-basket3"></i>
+                            <p>هێشتا کاڵایەک زیادنەکراوە</p>
+                        </div>
+                    </div>
+
+                    <!-- ئامارەکان -->
+                    <div class="pm-stats-bar">
+                        <div class="pm-stat-item">
+                            <div class="pm-stat-ico bg-indigo"><i class="bi bi-grid-3x3-gap-fill"></i></div>
+                            <div><div class="pm-stat-lbl">جۆری کاڵا</div><div class="pm-stat-val c-indigo" id="statItemTypes">0</div></div>
+                        </div>
+                        <div class="pm-stat-item">
+                            <div class="pm-stat-ico bg-info-c"><i class="bi bi-boxes"></i></div>
+                            <div><div class="pm-stat-lbl">کۆی بڕ</div><div class="pm-stat-val c-info" id="statTotalQty">0</div></div>
+                        </div>
+                        <div class="pm-stat-item">
+                            <div class="pm-stat-ico bg-emerald"><i class="bi bi-cash-stack"></i></div>
+                            <div><div class="pm-stat-lbl">کۆی تێچوو</div><div class="pm-stat-val c-emerald" id="statTotal">0</div></div>
+                        </div>
+                        <div class="pm-stat-item" style="border-left:none;">
+                            <div class="pm-stat-ico bg-amber"><i class="bi bi-graph-up-arrow"></i></div>
+                            <div><div class="pm-stat-lbl">قازانجی پێشبینی</div><div class="pm-stat-val" id="statProfit" style="color:var(--text-dim);">0</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فووتەر -->
+            <div class="pm-footer">
+                <div style="font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:6px;">
+                    <i class="bi bi-info-circle" style="color:var(--accent);"></i>
+                    <span>داتاکان لە ستونی ئامارەوە</span>
+                    <span id="mfItemCount" style="display:none;"></span>
+                    <span id="mfTotal" style="display:none;"></span>
+                    <span id="mfProfit" style="display:none;"></span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button type="button" class="pm-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x me-1"></i>داخستن
+                    </button>
+                    <button type="button" class="pm-btn-save" onclick="savePurchase()">
+                        <i class="bi bi-check-lg"></i>پاشەکەوتکردن
+                    </button>
+                </div>
+            </div>
+
+            <!-- NEW PRODUCT MODAL -->
+            <div id="newProductModal" tabindex="-1" style="display:none;position:fixed;inset:0;z-index:1080;align-items:center;justify-content:center;">
+                <div class="modal-dialog modal-dialog-centered" style="width:100%;max-width:420px;margin:0 auto;position:relative;z-index:1081;">
+                    <div class="modal-content" style="background:var(--pu-card);border:1px solid var(--border-card);border-radius:12px;">
+                        <div style="background:linear-gradient(135deg,#059669,#10b981);padding:12px 16px;display:flex;align-items:center;gap:10px;">
+                            <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="bi bi-plus-square" style="color:#fff;font-size:14px;"></i>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="color:#fff;font-size:14px;font-weight:700;">تۆمارکردنی کاڵای نوێ</div>
+                                <div style="color:rgba(255,255,255,.65);font-size:11px;">زیادکردن بۆ ئەم پسوڵەیە</div>
+                            </div>
+                            <button type="button" onclick="closeNewProductModal()"
+                                    style="background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;">
+                                ✕
+                            </button>
+                        </div>
+                        <div style="padding:16px;max-height:75vh;overflow-y:auto;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                                <div class="pf-wrap" style="margin-bottom:0;"><input type="text" id="newProdName" placeholder=" " maxlength="200"><label>ناوی کاڵا <span style="color:var(--danger);">*</span></label></div>
+                                <div class="pf-wrap" style="margin-bottom:0;"><input type="text" id="newProdBarcode" placeholder=" " maxlength="100"><label>باڕکۆد</label></div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                                <div class="pf-wrap" id="newBuyWrap" style="margin-bottom:0;"><input type="number" id="newProdBuyPrice" placeholder=" " step="250" oninput="updateNewProfit()"><label>تێچووی کڕین</label></div>
+                                <div class="pf-wrap" style="margin-bottom:0;"><input type="number" id="newProdSalePrice" placeholder=" " step="250" oninput="updateNewProfit()"><label>نرخی تاک *</label></div>
+                            </div>
+                            <div class="pf-wrap" style="margin-bottom:10px;"><input type="number" id="newProdWholesalePrice" placeholder=" " step="250"><label>نرخی جوملە</label></div>
+                            <div style="background:var(--pu-stat);border:1px solid var(--border-card);border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+                                <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:8px;"><i class="bi bi-boxes" style="color:var(--accent);"></i> یەکەکان</div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                                    <div class="pf-wrap" style="margin-bottom:0;"><input type="number" id="newProdCarton" placeholder=" " min="1" value="1"><label>📦 کارتۆن</label></div>
+                                    <div class="pf-wrap" style="margin-bottom:0;"><input type="number" id="newProdDozen" placeholder=" " min="1" value="1"><label>🔢 دەرزەن</label></div>
+                                    <div class="pf-wrap" style="margin-bottom:0;"><input type="number" id="newProdBundle" placeholder=" " min="1" value="1"><label>📎 بەستە</label></div>
+                                </div>
+                            </div>
+                            <div class="pm-profit-bar hidden" id="newProfitBar" style="margin-bottom:10px;">
+                                <span id="newProfitText">—</span>
+                                <span id="newProfitPct" style="font-weight:800;">0%</span>
+                            </div>
+                            <div class="pf-wrap" style="margin-bottom:12px;"><input type="number" id="newProdQty" value="1" min="1" placeholder=" "><label>بڕی کڕین (بۆ پسوڵەکە)</label></div>
+                            <div id="newProdMsg" style="font-size:12px;min-height:18px;margin-bottom:8px;"></div>
+                            <button type="button" onclick="saveNewProduct()" class="pm-do-add green" style="width:100%; height:36px; border-radius:6px; font-size:13px;">
+                                <i class="bi bi-check-circle-fill"></i> پاشەکەوتکردن
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="npBackdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1079;backdrop-filter:blur(2px);"></div>
+
+            <input type="hidden" id="editPurchaseId" value="0">
+        </div>
+    </div>
+</div>
+
+<!-- ══ مۆدالی سڕینەوە ══ -->
+<div class="modal fade pu-modal" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+        <div class="modal-content">
+            <div style="background:linear-gradient(135deg,rgba(251,113,133,.15),rgba(190,18,60,.1));padding:14px 18px;border-bottom:1px solid rgba(251,113,133,.15);">
+                <h5 style="color:var(--danger);font-weight:700;display:flex;align-items:center;gap:8px;margin:0;font-size:15px;">
+                    <i class="bi bi-trash"></i>سڕینەوەی پسوڵە
+                </h5>
+            </div>
+            <div class="modal-body" style="padding:16px;">
+                <div class="del-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <h5>ئاگاداری!</h5>
+                    <p>ئەم کردارە ناگەڕێتەوە. ستۆکی کاڵاکان دەگەڕێتەوە بۆ دۆخی پێش کڕین.</p>
+                </div>
+                <div class="del-info">
+                    <div class="item"><div class="label">پسوڵە</div><div class="value" id="deleteInvoiceId">#0</div></div>
+                    <div class="item"><div class="label">بەروار</div><div class="value" id="deleteInvoiceDate" style="font-size:12px;">-</div></div>
+                    <div class="item"><div class="label">کۆی گشتی</div><div class="value success" id="deleteInvoiceTotal">0</div></div>
+                </div>
+                <input type="hidden" id="deleteId">
+                <input type="hidden" id="deleteInvoiceCount">
+            </div>
+            <div class="modal-footer" style="justify-content:center;gap:10px;padding:12px;">
+                <button type="button" class="pm-btn-cancel" data-bs-dismiss="modal"><i class="bi bi-x me-1"></i>نەخێر</button>
+                <button type="button" onclick="confirmDelete()" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;border-radius:6px;padding:6px 16px;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;">
+                    <i class="bi bi-trash"></i>بەڵێ، بسڕەوە
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ══ هەموو JavaScript ـی ئۆریجیناڵ — بەبێ هیچ گۆڕانکارییەک ══
+        const $  = id => document.getElementById(id);
+        const fmt = n  => Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
+
+        let items = [];
+        const PD  = {};
+        @foreach (var p in Model.ProductsForPurchase)
+        {
+                @:PD[@p.ProductId] = { name:'@Html.Raw(p.Name.Replace("'", "\\'"))', barcode:'@Html.Raw((p.Barcode ?? "").Replace("'", "\\'"))', sale:@p.SalePrice, stock:@p.CurrentStock, carton:@p.QtyPerCarton, dozen:@p.QtyPerDozen, bundle:@p.QtyPerBundle };
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // فلتەری ناوخۆیی درۆپداونەکەی کاڵا بەبێ سێرڤەر
+        // ═══════════════════════════════════════════════════════
+        let allProductOptions = [];
+        document.addEventListener("DOMContentLoaded", function() {
+            var sel = $('productSelect');
+            if(sel) {
+                // هەموو ئۆپشنەکان خەزن دەکەین جگە لە یەکەم دانەیان (پێشنیارکراو)
+                for(var i = 1; i < sel.options.length; i++) {
+                    allProductOptions.push(sel.options[i]);
+                }
+            }
+        });
+
+        function filterLocalProducts() {
+            var input = $('localSearchInput');
+            if (!input) return;
+            var filter = input.value.toLowerCase();
+            var select = $('productSelect');
+            var firstOpt = select.options[0]; // هێشتنەوەی کاڵا هەڵبژێرە
+
+            // سڕینەوەی هەموویان لە سەلێکتەکە
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            // دانانەوەی ئەوانەی لەگەڵ گەڕانەکە دەگونجێن
+            allProductOptions.forEach(function(opt) {
+                if (opt.text.toLowerCase().indexOf(filter) > -1) {
+                    select.appendChild(opt);
+                }
+            });
+        }
+        // ═══════════════════════════════════════════════════════
+
+        function profitPill(cost, sale) {
+            if (!cost||cost<=0||sale<=0) return '<span class="pm-pill z">—</span>';
+            const d=sale-cost, p=((d/cost)*100).toFixed(0);
+            if(d>0) return `<span class="pm-pill g"><i class="bi bi-arrow-up-short"></i>${fmt(d)} (${p}%)</span>`;
+            if(d<0) return `<span class="pm-pill l"><i class="bi bi-arrow-down-short"></i>${fmt(Math.abs(d))} (${Math.abs(p)}%)</span>`;
+            return '<span class="pm-pill z">سەربەسەر</span>';
+        }
+
+        let activeRowIdx = -1;
+        function getUnitLabel(it) {
+            if(it.unit===1) return 'دانە';
+            if(it.unit===it.carton) return `کارتۆن(${it.carton})`;
+            if(it.unit===it.dozen)  return `دەرزەن(${it.dozen})`;
+            if(it.unit===it.bundle) return `بەستە(${it.bundle})`;
+            return `×${it.unit}`;
+        }
+
+        function renderItems() {
+            const box = $('itemsContainer');
+            if (!items.length) {
+                activeRowIdx = -1;
+                box.innerHTML = '<div class="pm-empty"><i class="bi bi-basket3"></i><p>هێشتا کاڵایەک زیادنەکراوە</p></div>';
+                updTotals(0,0,0); return;
+            }
+            let total=0, profit=0;
+            let html = `<table class="pm-tbl"><thead><tr>
+                <th style="width:24px;">#</th><th>ناو</th><th>باڕکۆد</th><th>یەکە</th><th>بڕ</th><th>تێچووی دانە</th><th>کۆی تێچوو</th><th style="width:34px;">کردار</th>
+            </tr></thead><tbody>`;
+
+            items.forEach((it,i) => {
+                const rq  = it.qty * it.unit;
+                const c1  = it.unit>1 ? it.price/it.unit : it.price;
+                const sub = rq * c1;
+                const isL = it.sale>0 && it.sale < c1;
+                total  += sub;
+                profit += (it.sale>0 ? it.sale-c1 : 0) * rq;
+                const pd = PD[it.productId]||{};
+                const barcode = pd.barcode || it.barcode || '—';
+                const rowCls  = (i===activeRowIdx) ? ' class="active-row"' : (isL ? ' class="loss-row"' : '');
+                const costStyle = isL ? 'color:var(--danger);font-weight:700;' : 'font-weight:700 regular;';
+
+                html += `<tr${rowCls} onclick="loadItemToForm(${i})" title="کلیک بکە بۆ دەستکاری">
+                    <td class="td-idx">${i+1}</td>
+                    <td class="td-name" title="${it.name}">${it.name}</td>
+                    <td class="td-barcode">${barcode}</td>
+                    <td class="td-unit">${getUnitLabel(it)}</td>
+                    <td class="td-num">${it.qty}</td>
+                    <td style="${costStyle}">${fmt(c1)}</td>
+                    <td class="td-total">${fmt(sub)}</td>
+                    <td><button class="btn-del-row" onclick="event.stopPropagation();removeItem(${i})" title="سڕینەوە"><i class="bi bi-trash3"></i></button></td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+            box.innerHTML = html;
+            updTotals(total, items.length, profit);
+        }
+
+        function updTotals(total, count, profit) {
+            ['totalDisplay','mfTotal'].forEach(id=>{ const e=$(id); if(e) e.textContent=fmt(total); });
+            ['mfItemCount'].forEach(id=>{ const e=$(id); if(e) e.textContent=count; });
+            const eBadge=$('itemCountDisplay'); if(eBadge){ eBadge.textContent=count; eBadge.style.display=count>0?'inline':'none'; }
+            ['mfProfit'].forEach(id=>{ const e=$(id); if(!e) return; e.textContent=fmt(profit); });
+            const eTypes=$('statItemTypes');  if(eTypes) eTypes.textContent=count;
+            const eTotal=$('statTotal');      if(eTotal) eTotal.textContent=fmt(total);
+            const eProfit=$('statProfit');
+            if(eProfit){
+                const totalQty = items.reduce((s,it)=>s+(it.qty*(it.unit||1)),0);
+                $('statTotalQty').textContent = totalQty;
+                eProfit.textContent = fmt(profit);
+                eProfit.style.color = profit>0?'var(--success)':profit<0?'var(--danger)':'var(--text-dim)';
+            }
+        }
+
+        function addItem(p) {
+            const ex=items.find(x=>x.productId===p.productId);
+            if(ex){ ex.qty++; renderItems(); return; }
+            const pd=PD[p.productId]||{};
+            items.push({ productId:p.productId, name:p.name||pd.name, barcode:p.barcode||pd.barcode||'', price:p.unitPrice||0, qty:1, unit:1,
+                carton:p.qtyPerCarton||pd.carton||1, dozen:p.qtyPerDozen||pd.dozen||1, bundle:p.qtyPerBundle||pd.bundle||1,
+                stock:p.currentStock||pd.stock||0, sale:p.salePrice||pd.sale||0 });
+            renderItems();
+        }
+        const removeItem = i => { items.splice(i,1); renderItems(); };
+
+        $('barcodeInput')?.addEventListener('keypress', e=>{ if(e.key==='Enter'){e.preventDefault();findProduct();}});
+        async function findProduct() {
+            const val=$('barcodeInput').value.trim(); if(!val) return;
+            showMsg('<i class="bi bi-arrow-repeat"></i>...','inf');
+            try {
+                const fd=new FormData();
+                fd.append('barcode',val);
+                fd.append('__RequestVerificationToken',document.querySelector('input[name="__RequestVerificationToken"]').value);
+                const r=await fetch('?handler=Barcode',{method:'POST',body:fd}), d=await r.json();
+                if(d.success){
+                    const sel=$('productSelect');
+                    const opt=Array.from(sel.options).find(o=>o.value==d.product.productId);
+                    if(opt){ sel.value=d.product.productId; onProductSelect(); showMsg('<i class="bi bi-check-circle-fill"></i> '+d.product.name+' دۆزرایەوە','ok'); }
+                    else {
+                        const o=new Option(d.product.name+' (ستۆک: '+(d.product.currentStock||0)+')', d.product.productId);
+                        o.dataset.name=d.product.name; o.dataset.stock=d.product.currentStock||0;
+                        o.dataset.sale=d.product.salePrice||0; o.dataset.wholesale=d.product.wholesalePrice||0;
+                        o.dataset.carton=d.product.qtyPerCarton||1; o.dataset.dozen=d.product.qtyPerDozen||1; o.dataset.bundle=d.product.qtyPerBundle||1;
+                        sel.appendChild(o); sel.value=d.product.productId; onProductSelect();
+                        
+                        allProductOptions.push(o); // زیادکرا بۆ ئەوەی بە فلتەر بدۆزرێتەوە ئەگەر نوێیە
+
+                        showMsg('<i class="bi bi-check-circle-fill"></i> '+d.product.name+' دۆزرایەوە','ok');
+                    }
+                    $('barcodeInput').value='';
+                } else showMsg('<i class="bi bi-x-circle-fill"></i> '+d.message,'err');
+            } catch(e){ showMsg('<i class="bi bi-x-circle-fill"></i> هەڵە','err'); }
+            setTimeout(()=>{ const m=$('searchMessage'); if(m) m.innerHTML=''; },3000);
+            $('barcodeInput').focus();
+        }
+        function showMsg(txt,type) {
+            const m=$('searchMessage'); if(!m) return;
+            const cls=type==='ok'?'pm-msg-ok':type==='err'?'pm-msg-err':'pm-msg-inf';
+            m.innerHTML=`<div class="${cls}">${txt}</div>`;
+        }
+
+        let priceMode = 'unit';
+        function setPriceMode(mode) {
+            priceMode = mode;
+            const b1=$('priceToggle1'), b2=$('priceToggle2'), lbl=$('priceLabel');
+            if(mode==='unit'){ b1.style.cssText='flex:1;height:26px;border:none;padding:0;font-size:11px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;font-family:inherit;'; b2.style.cssText='flex:1;height:26px;border:none;padding:0;font-size:11px;font-weight:600;cursor:pointer;background:var(--pu-input);color:var(--accent);font-family:inherit;'; if(lbl) lbl.textContent='نرخی ١ یەکە'; }
+            else { b2.style.cssText='flex:1;height:26px;border:none;padding:0;font-size:11px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;font-family:inherit;'; b1.style.cssText='flex:1;height:26px;border:none;padding:0;font-size:11px;font-weight:600;cursor:pointer;background:var(--pu-input);color:var(--accent);font-family:inherit;'; if(lbl) lbl.textContent='کۆی گشتی'; }
+            updateBuyPreview();
+        }
+
+        function clearProductForm() {
+            $('stockChip').style.display='none';
+            $('salePriceShow').value=''; $('wholesalePriceShow').value='';
+            $('priceInfoRow').style.display='none';
+            $('selectUnit').innerHTML='<option value="1">دانە</option>';
+            $('selectQty').value='1'; $('selectPrice').value='';
+            hidePB(); $('unitCostRow').style.display='none';
+            const wrap=$('buyPriceWrap'); if(wrap) wrap.classList.remove('loss');
+        }
+
+        function onProductSelect() {
+            const sel=$('productSelect'), opt=sel.selectedOptions[0];
+            if(!opt?.value){ clearProductForm(); return; }
+            const cr=parseInt(opt.dataset.carton)||1, dz=parseInt(opt.dataset.dozen)||1, bn=parseInt(opt.dataset.bundle)||1;
+            let uH='<option value="1">دانە</option>';
+            if(cr>1) uH+=`<option value="${cr}">کارتۆن (${cr})</option>`;
+            if(dz>1) uH+=`<option value="${dz}">دەرزەن (${dz})</option>`;
+            if(bn>1) uH+=`<option value="${bn}">بەستە (${bn})</option>`;
+            $('selectUnit').innerHTML=uH;
+            const st=parseInt(opt.dataset.stock)||0;
+            const chip=$('stockChip'); chip.style.display='flex';
+            const num=$('stockChipNum'); num.textContent=st;
+            num.className='num'+(st<=0?' out':st<5?' low':'');
+            const saleP = parseFloat(opt.dataset.sale)||0;
+            const pd    = PD[parseInt(opt.value)]||{};
+            const wsP   = pd.wholesale||0;
+            $('salePriceShow').value = saleP;
+            $('wholesalePriceShow').value = wsP;
+            $('salePriceDisplay').textContent  = saleP>0 ? fmt(saleP) : '—';
+            $('wholesalePriceDisplay').textContent = wsP>0 ? fmt(wsP) : '—';
+            $('priceInfoRow').style.display = (saleP>0||wsP>0) ? 'block' : 'none';
+            updateBuyPreview();
+        }
+
+        function onUnitChange(){ updateBuyPreview(); }
+
+        function syncPurchaseDateTime(){
+            const dEl=$('purchaseDateOnly'), tEl=$('purchaseTime'), hEl=$('purchaseDate');
+            if(!dEl||!tEl||!hEl) return;
+            const now=new Date(), _pad=n=>String(n).padStart(2,'0');
+            const todayStr=`${now.getFullYear()}-${_pad(now.getMonth()+1)}-${_pad(now.getDate())}`;
+            dEl.max=todayStr;
+            if(dEl.value>todayStr) dEl.value=todayStr;
+            if(dEl.value===todayStr){
+                const maxT=`${_pad(now.getHours())}:${_pad(now.getMinutes())}`;
+                tEl.max=maxT; if(tEl.value>maxT) tEl.value=maxT;
+            } else { tEl.max=''; }
+            const timeVal=tEl.value||`${_pad(now.getHours())}:${_pad(now.getMinutes())}`;
+            hEl.value=`${dEl.value||todayStr}T${timeVal}:00`;
+        }
+
+        function updateBuyPreview() {
+            const rawPrice = parseFloat($('selectPrice')?.value)||0;
+            const qty      = parseInt($('selectQty')?.value)||1;
+            const unit     = parseInt($('selectUnit')?.value)||1;
+            const sale     = parseFloat($('salePriceShow')?.value)||0;
+            const wrap     = $('buyPriceWrap');
+            let unitCost = 0;
+            if(rawPrice>0){
+                if(priceMode==='total'){ const totalUnits = qty * unit; unitCost = totalUnits>0 ? rawPrice/totalUnits : 0; }
+                else { unitCost = unit>1 ? rawPrice/unit : rawPrice; }
+            }
+            const ucRow=$('unitCostRow'), ucCalc=$('unitCostCalc');
+            if(unit>1 && rawPrice>0){ ucRow.style.display='block'; ucCalc.textContent = fmt(unitCost); } else { ucRow.style.display='none'; }
+            if(!rawPrice||!sale){ hidePB(); if(wrap) wrap.classList.remove('loss'); return; }
+            const diff=sale-unitCost, pct=((diff/unitCost)*100).toFixed(0);
+            const bar=$('profitBar'), txt=$('profitBarText'), pe=$('profitBarPct');
+            if(!bar) return;
+            if(diff<0){ bar.className='pm-profit-bar loss'; txt.innerHTML=`<i class="bi bi-exclamation-triangle-fill me-1"></i>زەرەر: ${fmt(Math.abs(diff))}`; pe.textContent=`${Math.abs(pct)}%`; if(wrap) wrap.classList.add('loss'); }
+            else if(diff===0){ bar.className='pm-profit-bar zero'; txt.textContent='سەربەسەر'; pe.textContent='0%'; if(wrap) wrap.classList.remove('loss'); }
+            else { bar.className='pm-profit-bar gain'; txt.innerHTML=`<i class="bi bi-arrow-up-circle-fill me-1"></i>قازانج: ${fmt(diff)}`; pe.textContent=`${pct}%`; if(wrap) wrap.classList.remove('loss'); }
+        }
+        function hidePB(){ const b=$('profitBar'); if(b) b.className='pm-profit-bar hidden'; }
+
+        function addFromSelect() {
+            const sel=$('productSelect'), opt=sel.selectedOptions[0];
+            if(!opt?.value){ showMsg('<i class="bi bi-x-circle-fill"></i> هەڵبژێرە','err'); return; }
+            const rawPrice=parseFloat($('selectPrice').value)||0;
+            if(rawPrice<=0){ showMsg('<i class="bi bi-x-circle-fill"></i> تێچوو بنووسە','err'); return; }
+            const qty=parseInt($('selectQty').value)||1;
+            const unit=parseInt($('selectUnit').value)||1;
+            const id=parseInt(opt.value);
+            let unitCost;
+            if(priceMode==='total'){ const totalUnits = qty * unit; unitCost = totalUnits>0 ? rawPrice/totalUnits : rawPrice; }
+            else { unitCost = unit>1 ? rawPrice/unit : rawPrice; }
+            const ex=items.find(x=>x.productId===id);
+            if(ex){ ex.qty=qty; ex.price=unitCost*unit; ex.unit=unit; }
+            else { const _pd=PD[id]||{}; items.push({ productId:id, name:opt.dataset.name, barcode:_pd.barcode||'', price:unitCost*unit, qty, unit,
+                carton:parseInt(opt.dataset.carton)||1, dozen:parseInt(opt.dataset.dozen)||1, bundle:parseInt(opt.dataset.bundle)||1,
+                stock:parseInt(opt.dataset.stock)||0, sale:parseFloat(opt.dataset.sale)||0 }); }
+            renderItems();
+            activeRowIdx = -1;
+            clearProductForm(); sel.value='';
+            showMsg('<i class="bi bi-check-circle-fill"></i> زیادکرا','ok');
+        }
+
+        function loadItemToForm(idx) {
+            const it=items[idx]; if(!it) return;
+            activeRowIdx = idx;
+            const sel=$('productSelect'); sel.value=it.productId; onProductSelect();
+            setTimeout(()=>{
+                $('selectUnit').value=it.unit; $('selectQty').value=it.qty;
+                $('selectPrice').value=it.price;
+                priceMode='unit'; setPriceMode('unit'); updateBuyPreview();
+            }, 30);
+            renderItems();
+        }
+
+        // مۆدالی کاڵای نوێ
+        function openNewProductModal() { $('newProductModal').style.display='flex'; $('npBackdrop').style.display='block'; setTimeout(()=>$('newProdName')?.focus(),80); }
+        function closeNewProductModal() { $('newProductModal').style.display='none'; $('npBackdrop').style.display='none'; }
+        $('npBackdrop')?.addEventListener('click',closeNewProductModal);
+
+        function updateNewProfit() {
+            const buy=parseFloat($('newProdBuyPrice')?.value)||0, sale=parseFloat($('newProdSalePrice')?.value)||0;
+            const bar=$('newProfitBar'), txt=$('newProfitText'), pct=$('newProfitPct'), wrap=$('newBuyWrap');
+            if(!buy||!sale){ if(bar) bar.className='pm-profit-bar hidden'; if(wrap) wrap.classList.remove('loss'); return; }
+            const diff=sale-buy, p=((diff/buy)*100).toFixed(0);
+            if(!bar) return;
+            if(diff<0){ bar.className='pm-profit-bar loss'; txt.innerHTML=`<i class="bi bi-exclamation-triangle-fill me-1"></i>زەرەر: ${fmt(Math.abs(diff))}`; pct.textContent=`${Math.abs(p)}%`; if(wrap) wrap.classList.add('loss'); }
+            else { bar.className=diff===0?'pm-profit-bar zero':'pm-profit-bar gain'; txt.innerHTML=diff===0?'سەربەسەر':`<i class="bi bi-arrow-up-circle-fill me-1"></i>قازانج: ${fmt(diff)}`; pct.textContent=`${Math.abs(p)}%`; if(wrap) wrap.classList.remove('loss'); }
+        }
+
+        async function saveNewProduct() {
+            const name=$('newProdName').value.trim();
+            if(!name){ $('newProdMsg').innerHTML='<span style="color:var(--danger);">ناوی کاڵا پێویستە</span>'; return; }
+            $('newProdMsg').innerHTML='<span style="color:var(--info);">پاشەکەوتکردن...</span>';
+            const fd=new FormData();
+            fd.append('NewProductName',name); fd.append('NewProductBarcode',$('newProdBarcode').value.trim());
+            fd.append('NewProductSalePrice',parseFloat($('newProdSalePrice').value)||0);
+            fd.append('NewProductWholesalePrice',parseFloat($('newProdWholesalePrice')?.value)||0);
+            fd.append('NewProductBuyPrice',parseFloat($('newProdBuyPrice').value)||0);
+            fd.append('NewProductCarton',parseInt($('newProdCarton')?.value)||1);
+            fd.append('NewProductDozen',parseInt($('newProdDozen')?.value)||1);
+            fd.append('NewProductBundle',parseInt($('newProdBundle')?.value)||1);
+            fd.append('__RequestVerificationToken',document.querySelector('input[name="__RequestVerificationToken"]').value);
+            try {
+                const r=await fetch('?handler=AddNewProduct',{method:'POST',body:fd}), d=await r.json();
+                if(d.success){
+                    const buy=parseFloat($('newProdBuyPrice').value)||0, sale=parseFloat($('newProdSalePrice').value)||0, qty=parseInt($('newProdQty').value)||1;
+                    const cr=parseInt($('newProdCarton')?.value)||1, dz=parseInt($('newProdDozen')?.value)||1, bn=parseInt($('newProdBundle')?.value)||1;
+                    PD[d.productId]={name,sale,stock:0,carton:cr,dozen:dz,bundle:bn};
+                    items.push({productId:d.productId,name,price:buy,qty,unit:1,carton:cr,dozen:dz,bundle:bn,stock:0,sale});
+                    
+                    const opt=new Option(name+' (ستۆک: 0)',d.productId);
+                    opt.dataset.name=name; opt.dataset.stock='0'; opt.dataset.sale=sale; opt.dataset.carton=cr; opt.dataset.dozen=dz; opt.dataset.bundle=bn;
+                    $('productSelect').appendChild(opt);
+                    allProductOptions.push(opt); // زیادکرا بۆ فلتەرەکە
+
+                    renderItems(); closeNewProductModal();
+                    showMsg('<i class="bi bi-check-circle-fill"></i> '+name+' تۆمارکرا و زیادکرا','ok');
+                    ['newProdName','newProdBarcode','newProdSalePrice','newProdBuyPrice','newProdWholesalePrice'].forEach(function(id){ var el=$(id); if(el) el.value=''; });
+                    if($('newProdCarton')) $('newProdCarton').value='1';
+                    if($('newProdDozen')) $('newProdDozen').value='1';
+                    if($('newProdBundle')) $('newProdBundle').value='1';
+                    $('newProdQty').value='1'; $('newProdMsg').innerHTML='';
+                    if($('newProfitBar')) $('newProfitBar').className='pm-profit-bar hidden';
+                } else $('newProdMsg').innerHTML='<span style="color:var(--danger);">'+(d.message||'هەڵە')+'</span>';
+            } catch(e){ $('newProdMsg').innerHTML='<span style="color:var(--danger);">هەڵەی پەیوەندی</span>'; }
+        }
+
+        // قاسە
+        var _cashBalance = 0;
+        async function loadCashBalance() {
+            try { var r = await fetch('/CashRegister?handler=Stats'); var d = await r.json(); if (d.success) { _cashBalance = d.current; updateCashDisplay(); } } catch(e){}
+        }
+        function updateCashDisplay() {
+            var el = $('cashBalDisplay');
+            if (el) { el.textContent = '(' + new Intl.NumberFormat('en').format(_cashBalance) + ')'; el.style.display = ''; el.style.color = _cashBalance > 0 ? 'var(--success)' : 'var(--danger)'; }
+        }
+        function toggleCashPay() { var cb = $('cashPayCheck'); if (cb) { cb.checked = !cb.checked; updateCashDisplay(); } }
+        document.getElementById('purchaseModal')?.addEventListener('show.bs.modal', function(){ loadCashBalance(); });
+
+        async function savePurchase() {
+            if(!items.length){ showMsg('<i class="bi bi-x-circle-fill"></i> تکایە کاڵا زیاد بکە','err'); return; }
+            if(items.some(i=>!i.price||i.price<=0)){ showMsg('<i class="bi bi-x-circle-fill"></i> پێویستە نرخی هەموو کاڵاکان بنووسرێت','err'); return; }
+            var payFromCash = $('cashPayCheck')?.checked || false;
+            if (payFromCash) {
+                var totalCost = items.reduce(function(s,i){ return s + (i.price * i.qty); }, 0);
+                if (totalCost > _cashBalance) { showMsg('<i class="bi bi-x-circle-fill"></i> باڵانسی قاسە بەسی نییە!','err'); return; }
+            }
+            const editId=$('editPurchaseId').value;
+            const toSend=items.map(i=>({ProductId:i.productId,Quantity:i.qty*i.unit,UnitPrice:i.unit>1?i.price/i.unit:i.price}));
+            const fd=new FormData();
+            fd.append('ItemsJson',JSON.stringify(toSend));
+            fd.append('NewPurchase.PurchaseDate',$('purchaseDate').value);
+            fd.append('NewPurchaseSupplierId', $('supplierSelect')?.value || '1');
+            fd.append('EditPurchaseId',editId);
+            fd.append('PayFromCash', payFromCash ? 'true' : 'false');
+            fd.append('__RequestVerificationToken',document.querySelector('input[name="__RequestVerificationToken"]').value);
+            try {
+                const h=editId&&editId!=='0'?'EditPurchase':'AddPurchase';
+                const r=await fetch('?handler='+h,{method:'POST',body:fd}), d=await r.json();
+                if(d.success) location.reload(); else showMsg('<i class="bi bi-x-circle-fill"></i> '+(d.message||'هەڵە'),'err');
+            } catch(e){ showMsg('<i class="bi bi-x-circle-fill"></i> هەڵە','err'); }
+        }
+
+        function resetPurchaseModal() {
+            $('editPurchaseId').value='0';
+            $('purchaseModalTitle').textContent='تۆمارکردنی پسوڵەی کڕین';
+            const hdr=$('purchaseModalHeader');
+            if(hdr){ hdr.style.background=''; hdr.style.borderBottomColor=''; }
+            const _now=new Date(), _pad=n=>String(n).padStart(2,'0');
+            const _dateStr=`${_now.getFullYear()}-${_pad(_now.getMonth()+1)}-${_pad(_now.getDate())}`;
+            const _timeStr=`${_pad(_now.getHours())}:${_pad(_now.getMinutes())}`;
+            if($('purchaseDateOnly')){ $('purchaseDateOnly').value=_dateStr; $('purchaseDateOnly').max=_dateStr; $('purchaseDateOnly').readOnly=false; $('purchaseDateOnly').style.background=''; $('purchaseDateOnly').style.color=''; }
+            if($('purchaseTime')){ $('purchaseTime').value=_timeStr; $('purchaseTime').max=_timeStr; $('purchaseTime').readOnly=false; $('purchaseTime').style.background=''; $('purchaseTime').style.color=''; }
+            syncPurchaseDateTime();
+            if($('supplierSelect')) $('supplierSelect').value='1';
+            items=[]; renderItems(); const m=$('searchMessage'); if(m) m.innerHTML='';
+            clearProductForm(); $('productSelect').value=''; $('priceInfoRow').style.display='none';
+            
+            // خاڵیکردنەوەی ئینپوتی گەڕانەکە و گەڕاندنەوەی لیستی کاڵاکان بۆ دۆخی ئاسایی
+            if($('localSearchInput')) {
+                $('localSearchInput').value = '';
+                filterLocalProducts();
+            }
+        }
+        $('purchaseModal')?.addEventListener('shown.bs.modal',()=>$('barcodeInput')?.focus());
+        $('purchaseModal')?.addEventListener('hidden.bs.modal',resetPurchaseModal);
+
+        // دوو جار کلیک
+        function bindDblClick() {
+            document.querySelectorAll('#purchaseTbody tr[data-id]').forEach(function(row) {
+                if (row._dbl) row.removeEventListener('dblclick', row._dbl);
+                row._dbl = async function(e) {
+                    if (e.target.closest('.delete-btn,.edit-btn')) return;
+                    var id = this.dataset.id; if (!id) return;
+                    try { var r = await fetch('?handler=GetPurchase&id=' + id); var d = await r.json(); if (d.success) showViewModal(d); } catch(ex) { console.error(ex); }
+                };
+                row.addEventListener('dblclick', row._dbl);
+            });
+        }
+
+        function showViewModal(d) {
+            var old = document.getElementById('dynViewModal'); if (old) old.remove();
+            var totalCost = 0, totalQty = 0, rowsHtml = '', idx = 1;
+            (d.items || []).forEach(function(it) {
+                var sub = it.quantity * it.unitPrice; totalCost += sub; totalQty += it.quantity;
+                rowsHtml += '<tr style="border-bottom:1px solid var(--border-subtle);">' +
+                    '<td style="padding:8px 10px;font-size:11px;color:var(--text-dim);font-weight:600;width:30px;">' + idx + '</td>' +
+                    '<td style="padding:8px 10px;"><div style="font-size:13px;font-weight:600;color:var(--text-primary);">' + (it.name||'—') + '</div></td>' +
+                    '<td style="padding:8px 10px;text-align:center;font-size:13px;font-weight:700;color:var(--text-primary);">' + it.quantity + '</td>' +
+                    '<td style="padding:8px 10px;font-size:12px;color:var(--text-secondary);font-weight:500;">' + fmt(it.unitPrice) + '</td>' +
+                    '<td style="padding:8px 10px;font-size:13px;font-weight:700;color:var(--text-primary);">' + fmt(sub) + '</td></tr>';
+                idx++;
+            });
+            var itemCount = (d.items || []).length;
+            var date = (d.purchaseDate || '').split('T');
+            var dateStr = (date[0]||'').replace(/-/g, '/');
+            var timeStr = (date[1]||'').substring(0,5);
+            var supplierHtml = '';
+            if (d.supplierId && d.supplierId !== 1) {
+                supplierHtml = '<div style="text-align:center;"><div style="font-size:11px;color:var(--text-dim);font-weight:600;margin-bottom:2px;">دابینکەر</div>' +
+                    '<div style="font-size:13px;font-weight:700;color:var(--info);display:flex;align-items:center;gap:4px;"><i class="bi bi-building"></i>' + (d.supplierName||'') + '</div></div>';
+            }
+
+            var html = '<div class="modal fade pu-modal" id="dynViewModal" tabindex="-1">' +
+                '<div class="modal-dialog modal-dialog-centered" style="max-width:580px;">' +
+                '<div class="modal-content">' +
+                '<div style="padding:18px 24px 14px;border-bottom:1px solid var(--border-subtle);">' +
+                '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
+                '<div><div style="font-size:18px;font-weight:800;color:var(--text-primary);">فرۆشگای MyStore</div>' +
+                '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">پسوڵەی کڕینی مەواد</div></div>' +
+                '<div style="text-align:left;"><div style="font-size:11px;color:var(--text-dim);font-weight:600;">ژمارەی پسوڵە</div>' +
+                '<div style="font-size:20px;font-weight:800;color:var(--text-primary);line-height:1.1;">#' + d.purchaseId + '</div></div></div>' +
+                '<div style="border-top:1px dashed var(--border-card);margin:14px 0 12px;"></div>' +
+                '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
+                '<div><div style="font-size:11px;color:var(--text-dim);font-weight:600;margin-bottom:2px;">بەروار و کات</div>' +
+                '<div style="font-size:13px;font-weight:700;">' + dateStr + '</div>' +
+                '<div style="font-size:12px;color:var(--text-muted);">' + timeStr + '</div></div>' +
+                supplierHtml +
+                '<div style="text-align:center;"><div style="font-size:11px;color:var(--text-dim);font-weight:600;margin-bottom:2px;">کۆی دانە</div>' +
+                '<div style="font-size:13px;font-weight:700;">' + totalQty + ' دانە</div>' +
+                '<div style="font-size:12px;color:var(--text-muted);">(' + itemCount + ' جۆر)</div></div>' +
+                '<div style="text-align:left;"><div style="font-size:11px;color:var(--text-dim);font-weight:600;margin-bottom:2px;">کۆی تێچوو</div>' +
+                '<div style="font-size:13px;font-weight:700;color:var(--success);">' + fmt(totalCost) + '</div>' +
+                '<div style="font-size:12px;color:var(--text-dim);">دینار</div></div></div></div>' +
+                '<div style="max-height:300px;overflow-y:auto;">' +
+                '<table style="width:100%;border-collapse:collapse;">' +
+                '<thead><tr style="border-bottom:1px solid var(--border-subtle);">' +
+                '<th style="padding:8px 10px;font-size:11px;color:var(--text-muted);font-weight:700;background:var(--pu-thead);">#</th>' +
+                '<th style="padding:8px 10px;font-size:11px;color:var(--text-muted);font-weight:700;background:var(--pu-thead);">ناوی کاڵا</th>' +
+                '<th style="padding:8px 10px;font-size:11px;color:var(--text-muted);font-weight:700;text-align:center;background:var(--pu-thead);">بڕ</th>' +
+                '<th style="padding:8px 10px;font-size:11px;color:var(--text-muted);font-weight:700;text-align:left;background:var(--pu-thead);">نرخی دانە</th>' +
+                '<th style="padding:8px 10px;font-size:11px;color:var(--text-muted);font-weight:700;text-align:left;background:var(--pu-thead);">کۆی تێچوو</th>' +
+                '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>' +
+                '<div style="border-top:2px solid var(--text-primary);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;">' +
+                '<span style="font-size:15px;font-weight:700;">کۆی گشتی پسوڵە</span>' +
+                '<span style="font-size:18px;font-weight:800;">' + fmt(totalCost) + ' <span style="font-size:11px;font-weight:400;color:var(--text-muted);">دینار</span></span></div>' +
+                '<div class="pm-footer" style="padding:10px 24px;"><div style="font-size:11px;color:var(--text-dim);font-style:italic;">سیستەمی MyStore</div>' +
+                '<div style="display:flex;gap:8px;">' +
+                '<button type="button" onclick="window.print()" class="pm-btn-cancel" style="height:30px;padding:0 12px;font-size:12px;"><i class="bi bi-printer me-1"></i> چاپکردن</button>' +
+                '<button type="button" data-bs-dismiss="modal" class="pm-btn-cancel" style="height:30px;padding:0 12px;font-size:12px;">داخستن</button>' +
+                '</div></div></div></div></div>';
+
+            document.body.insertAdjacentHTML('beforeend', html);
+            var modal = new bootstrap.Modal(document.getElementById('dynViewModal'));
+            modal.show();
+            document.getElementById('dynViewModal').addEventListener('hidden.bs.modal', function() { this.remove(); });
+        }
+        bindDblClick();
+
+        function bindEditBtns() {
+            document.querySelectorAll('.edit-btn').forEach(btn=>{
+                if (btn._bound) return; btn._bound = true;
+                btn.addEventListener('click', async function(){
+                    const id=this.dataset.id, r=await fetch('?handler=GetPurchase&id='+id), d=await r.json();
+                    if(d.success){
+                        $('editPurchaseId').value=id;
+                        $('purchaseModalTitle').textContent='دەستکاری پسوڵە #'+id;
+                        const hdr=$('purchaseModalHeader');
+                        if(hdr){ hdr.style.background='linear-gradient(135deg,rgba(252,211,77,.1),rgba(217,119,6,.08))'; hdr.style.borderBottomColor='rgba(252,211,77,.2)'; }
+                        const _ep=d.purchaseDate||'';
+                        const _ed=_ep.split('T')[0]||'', _et=_ep.split('T')[1]||'';
+                        if($('purchaseDateOnly')){ $('purchaseDateOnly').value=_ed; $('purchaseDateOnly').readOnly=true; $('purchaseDateOnly').style.background='var(--accent-bg)'; $('purchaseDateOnly').style.color='var(--accent-text)'; }
+                        if($('purchaseTime')){ $('purchaseTime').value=_et.substring(0,5); $('purchaseTime').readOnly=true; $('purchaseTime').style.background='var(--accent-bg)'; $('purchaseTime').style.color='var(--accent-text)'; }
+                        $('purchaseDate').value=_ep;
+                        if($('supplierSelect')) $('supplierSelect').value = d.supplierId || '1';
+                        items=d.items.map(it=>{ const pd=PD[it.productId]||{};
+                            return {productId:it.productId,name:it.name,price:it.unitPrice,qty:it.quantity,unit:1,
+                                carton:it.qtyPerCarton||1,dozen:it.qtyPerDozen||1,bundle:it.qtyPerBundle||1,stock:it.currentStock||0,sale:pd.sale||0};
+                        });
+                        renderItems(); new bootstrap.Modal($('purchaseModal')).show();
+                    }
+                });
+            });
+        }
+
+        function bindDeleteBtns() {
+            document.querySelectorAll('.delete-btn').forEach(btn=>{
+                if (btn._bound) return; btn._bound = true;
+                btn.addEventListener('click',function(){
+                    $('deleteId').value=this.dataset.id;
+                    $('deleteInvoiceId').textContent='#'+this.dataset.id;
+                    $('deleteInvoiceDate').textContent=this.dataset.date;
+                    $('deleteInvoiceCount').textContent=this.dataset.count;
+                    $('deleteInvoiceTotal').textContent=parseInt(this.dataset.total).toLocaleString();
+                    new bootstrap.Modal($('deleteModal')).show();
+                });
+            });
+        }
+        bindEditBtns(); bindDeleteBtns();
+
+        async function confirmDelete(){
+            const fd=new FormData();
+            fd.append('DeletePurchaseId',$('deleteId').value);
+            fd.append('__RequestVerificationToken',document.querySelector('input[name="__RequestVerificationToken"]').value);
+            const r=await fetch('?handler=DeletePurchase',{method:'POST',body:fd}), d=await r.json();
+            if(d.success) location.reload(); else alert(d.message);
+        }
+
+        // Fullscreen
+        function toggleFullscreen(){
+            const card=$('mainCard'), icon=$('expandIcon');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (card.requestFullscreen) card.requestFullscreen();
+                else if (card.webkitRequestFullscreen) card.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+        document.addEventListener('fullscreenchange', updateFsIcon);
+        document.addEventListener('webkitfullscreenchange', updateFsIcon);
+        function updateFsIcon() {
+            const card=$('mainCard'), icon=$('expandIcon');
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                card.classList.add('is-fullscreen'); icon.className = 'bi bi-fullscreen-exit';
+            } else {
+                card.classList.remove('is-fullscreen'); icon.className = 'bi bi-arrows-fullscreen';
+            }
+        }
+
+        // Filter + Pagination
+        var _purWrapper = $('content-purchase');
+        function buildFilterUrl(page) {
+            var params = new URLSearchParams();
+            var rng = $('fDateRange')?.value || 'Today';
+            if (rng) params.set('FilterDateRange', rng);
+            if (rng === 'Custom') {
+                var s = $('fStartDate')?.value, e = $('fEndDate')?.value;
+                if (s) params.set('StartDate', s); if (e) params.set('EndDate', e);
+            }
+            if (page && page > 1) params.set('CurrentPage', page);
+            var q = params.toString();
+            return window.location.pathname + (q ? '?' + q : '');
+        }
+
+        function updateStats(stats) {
+            if (!stats) return;
+            var el1 = $('statInvoices'), el2 = $('statPurchases'), el3 = $('statProducts');
+            if (el1) el1.textContent = stats.invoices;
+            if (el2) el2.textContent = Number(stats.purchases).toLocaleString('en-US', {maximumFractionDigits:0});
+            if (el3) el3.textContent = stats.products;
+        }
+
+        async function purFetch(url) {
+            var sp = $('filterSpinner'), rc = $('filterResultCount');
+            if (sp) sp.style.display = 'inline'; if (rc) rc.style.display = 'none';
+            try {
+                var html = await (await fetch(url)).text();
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var fresh = doc.getElementById('content-purchase');
+                if (fresh && _purWrapper) { _purWrapper.innerHTML = fresh.innerHTML; bindDblClick(); bindEditBtns(); bindDeleteBtns(); }
+                var scriptEl = doc.querySelector('#content-purchase script');
+                if (scriptEl) { try { eval(scriptEl.textContent); } catch(ex) {} }
+                if (typeof _pgData !== 'undefined') renderPagination(_pgData);
+                if (typeof _statsData !== 'undefined') updateStats(_statsData);
+                if (rc && typeof _pgData !== 'undefined') { rc.textContent = _pgData.filtered + ' پسوڵە'; rc.style.display = ''; }
+                window.history.pushState(null, '', url);
+            } catch(e) { console.error('purFetch:', e); }
+            finally { if (sp) sp.style.display = 'none'; }
+        }
+
+        function renderPagination(pg) {
+            var btns = $('pgBtns'), info = $('pgInfo');
+            if (!btns || !pg || pg.total <= 1) { if (btns) btns.innerHTML = ''; return; }
+            var cur = pg.current, tot = pg.total;
+            if (info) info.innerHTML = '<strong>' + (((cur-1)*pg.pageSize)+1) + '–' + Math.min(cur*pg.pageSize, pg.filtered) + '</strong> لە <strong>' + pg.filtered + '</strong> پسوڵە';
+            var nums = [];
+            if (tot <= 7) { for (var i=1;i<=tot;i++) nums.push(i); }
+            else if (cur <= 4) nums = [1,2,3,4,5,null,tot];
+            else if (cur >= tot-3) { nums=[1,null]; for(var i=tot-4;i<=tot;i++) nums.push(i); }
+            else nums = [1,null,cur-1,cur,cur+1,null,tot];
+            var h = '';
+            h += cur>1 ? '<button class="pg-btn" onclick="goToPage('+(cur-1)+')"><i class="bi bi-chevron-right"></i></button>' : '<button class="pg-btn" disabled><i class="bi bi-chevron-right"></i></button>';
+            for (var i=0;i<nums.length;i++) {
+                if (nums[i]===null) h += '<span class="pg-dots">…</span>';
+                else h += '<button class="pg-btn'+(nums[i]===cur?' active':'')+'" onclick="goToPage('+nums[i]+')">'+nums[i]+'</button>';
+            }
+            h += cur<tot ? '<button class="pg-btn" onclick="goToPage('+(cur+1)+')"><i class="bi bi-chevron-left"></i></button>' : '<button class="pg-btn" disabled><i class="bi bi-chevron-left"></i></button>';
+            btns.innerHTML = h;
+        }
+        function goToPage(p) { if(p) purFetch(buildFilterUrl(p)); }
+
+        $('fDateRange')?.addEventListener('change', function() {
+            var rng = this.value;
+            var box = $('fCustomDates');
+            if (box) box.style.display = (rng === 'Custom') ? 'flex' : 'none';
+            if (rng !== 'Custom') purFetch(buildFilterUrl(1));
+        });
+        $('fStartDate')?.addEventListener('change', function() { purFetch(buildFilterUrl(1)); });
+        $('fEndDate')?.addEventListener('change', function() { purFetch(buildFilterUrl(1)); });
+
+        // دوگمەکانی بەرواری پێشکەشکراو
+        document.querySelectorAll('#dateRangeBtns button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#dateRangeBtns button').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                var val = this.dataset.val;
+                var sel = $('fDateRange');
+                if (sel) sel.value = val;
+                var box = $('fCustomDates');
+                if (box) box.style.display = (val === 'Custom') ? 'flex' : 'none';
+                if (val !== 'Custom') purFetch(buildFilterUrl(1));
+            });
+        });
+
+        function recalcVisibleStats() {
+            var rows = document.querySelectorAll('#purchaseTbody tr');
+            var count = 0, total = 0;
+            rows.forEach(function(r) {
+                if (r.style.display !== 'none') {
+                    count++;
+                    var costCell = r.querySelector('td:nth-child(8)');
+                    if (costCell) { var val = parseInt((costCell.textContent || '0').replace(/,/g, '')) || 0; total += val; }
+                }
+            });
+            var el1 = $('statInvoices'), el2 = $('statPurchases');
+            if (el1) el1.textContent = count;
+            if (el2) el2.textContent = Number(total).toLocaleString('en-US', {maximumFractionDigits:0});
+            var rc = $('filterResultCount'); if (rc) rc.textContent = count + ' پسوڵە';
+        }
+
+        var _fT = null;
+        $('fInvoice')?.addEventListener('input', function() {
+            clearTimeout(_fT);
+            var inv = this.value.trim().toLowerCase();
+            _fT = setTimeout(function() {
+                document.querySelectorAll('#purchaseTbody tr').forEach(function(r) {
+                    r.style.display = (!inv || (r.dataset.invoice||'').includes(inv)) ? '' : 'none';
+                });
+                recalcVisibleStats();
+            }, 300);
+        });
+
+        window.addEventListener('popstate', function() { purFetch(window.location.href); });
+        if (typeof _pgData !== 'undefined') renderPagination(_pgData);
+        if (typeof _statsData !== 'undefined') updateStats(_statsData);
+    </script>
+}

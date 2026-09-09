@@ -1,0 +1,148 @@
+﻿@page
+@model MyStore.Pages.Admin.SettingsModel
+@{
+    ViewData["Title"] = "ڕێکخستنەکان";
+}
+
+<div class="container-fluid mt-3">
+    <div class="d-flex align-items-center mb-3 p-2 bg-white shadow-sm rounded">
+        <i class="fas fa-cog fa-lg text-primary me-2"></i>
+        <div>
+            <h5 class="mb-0 fw-bold">ڕێکخستنەکان</h5>
+            <small class="text-muted">ڕێکخستنی داشکاندن و زانیاری فرۆشگا</small>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- داشکاندن -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-warning bg-opacity-10 border-0">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-percent me-2 text-warning"></i>سنووری داشکاندن</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">
+                            <span class="badge bg-success me-1">کاشێر</span> زۆرترین داشکاندن
+                        </label>
+                        <div class="input-group">
+                            <input type="number" id="cashierMax" class="form-control text-center" value="@Model.CashierMaxDiscount" min="0" max="100">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">
+                            <span class="badge bg-warning text-dark me-1">مەنەجەر</span> زۆرترین داشکاندن
+                        </label>
+                        <div class="input-group">
+                            <input type="number" id="managerMax" class="form-control text-center" value="@Model.ManagerMaxDiscount" min="0" max="100">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="alert alert-info small py-2 mb-0">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>ئەدمین</strong> سنووری نییە.<br>
+                        <strong>تێبینی:</strong> داشکاندنی کاڵا ئۆتۆماتیکییە.
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0">
+                    <button class="btn btn-warning w-100" onclick="saveDiscount()">
+                        <i class="fas fa-save me-1"></i>پاشەکەوت
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- فرۆشگا -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary bg-opacity-10 border-0">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-store me-2 text-primary"></i>زانیاری فرۆشگا</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">ناوی فرۆشگا</label>
+                        <input type="text" id="storeName" class="form-control" value="@Model.StoreName">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">تەلەفۆن</label>
+                        <input type="text" id="storePhone" class="form-control" value="@Model.StorePhone">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">ناونیشان</label>
+                        <textarea id="storeAddress" class="form-control" rows="2">@Model.StoreAddress</textarea>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0">
+                    <button class="btn btn-primary w-100" onclick="saveStore()">
+                        <i class="fas fa-save me-1"></i>پاشەکەوت
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- خشتەی دەسەڵات -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-secondary bg-opacity-10 border-0">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-shield-alt me-2"></i>دەسەڵاتی ڕۆڵەکان</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 small">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>تایبەتمەندی</th>
+                                    <th class="text-center"><span class="badge bg-success">کاشێر</span></th>
+                                    <th class="text-center"><span class="badge bg-warning text-dark">مەنەجەر</span></th>
+                                    <th class="text-center"><span class="badge bg-danger">ئەدمین</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>فرۆشتن</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-center">✅</td></tr>
+                                <tr><td>داشکاندن</td><td class="text-center">⚠️</td><td class="text-center">⚠️</td><td class="text-center">✅</td></tr>
+                                <tr><td>هەڵوەشاندنەوەی پسوڵە</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-center">✅</td></tr>
+                                <tr><td>دەستکاری پسوڵە</td><td class="text-center">❌</td><td class="text-center">❌</td><td class="text-center">✅</td></tr>
+                                <tr><td>زیادکردنی کڕیار</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-center">✅</td></tr>
+                                <tr><td>دەستکاری کڕیار</td><td class="text-center">❌</td><td class="text-center">✅</td><td class="text-center">✅</td></tr>
+                                <tr><td>سڕینەوەی کڕیار</td><td class="text-center">❌</td><td class="text-center">❌</td><td class="text-center">✅</td></tr>
+                                <tr><td>بەڕێوەبردنی کاڵا</td><td class="text-center">❌</td><td class="text-center">✅</td><td class="text-center">✅</td></tr>
+                                <tr><td>کڕین و ستۆک</td><td class="text-center">❌</td><td class="text-center">✅</td><td class="text-center">✅</td></tr>
+                                <tr><td>قەرز و پارەدان</td><td class="text-center">✅</td><td class="text-center">✅</td><td class="text-center">✅</td></tr>
+                                <tr><td>بەڕێوەبردنی بەکارهێنەر</td><td class="text-center">❌</td><td class="text-center">❌</td><td class="text-center">✅</td></tr>
+                                <tr><td>ڕێکخستنەکان</td><td class="text-center">❌</td><td class="text-center">❌</td><td class="text-center">✅</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function saveDiscount() {
+            const formData = new FormData();
+            formData.append('cashierMax', $('#cashierMax').val());
+            formData.append('managerMax', $('#managerMax').val());
+            formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+
+            const res = await fetch('?handler=SaveDiscount', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.success) alert('پاشەکەوت کرا');
+        }
+
+        async function saveStore() {
+            const formData = new FormData();
+            formData.append('storeName', $('#storeName').val());
+            formData.append('storePhone', $('#storePhone').val());
+            formData.append('storeAddress', $('#storeAddress').val());
+            formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+
+            const res = await fetch('?handler=SaveStore', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.success) alert('پاشەکەوت کرا');
+        }
+    </script>
+}

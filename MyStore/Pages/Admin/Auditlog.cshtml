@@ -1,0 +1,176 @@
+﻿@page
+@model MyStore.Pages.Admin.AuditLogModel
+@{
+    ViewData["Title"] = "مێژووی کردارەکان";
+}
+
+<style>
+    :root { --dark-1:#0f172a; --purple:#8b5cf6; --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --info:#3b82f6; }
+    .page-wrapper { max-width:1400px; margin:0 auto; height:calc(100vh - 40px); display:flex; flex-direction:column; overflow:hidden; }
+    .page-header { display:flex; justify-content:space-between; align-items:center; background:#fff; padding:14px 18px; border-radius:12px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,.04); border:1px solid #f1f5f9; flex-shrink:0; }
+    .page-header .title-section { display:flex; align-items:center; gap:12px; }
+    .nav-icon-box { width:40px; height:40px; background:linear-gradient(135deg,#ede9fe,#ddd6fe); color:var(--purple); border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; border:1px solid #e9d5ff; }
+    .page-header h1 { font-size:1.1rem; font-weight:700; color:var(--dark-1); margin:0 0 2px; }
+    .page-header .subtitle { color:#64748b; margin:0; font-size:.8rem; }
+
+    .tbl-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.04); border:1px solid #f1f5f9; overflow:hidden; display:flex; flex-direction:column; flex:1; min-height:0; }
+    .tbl-head { padding:0 14px; border-bottom:2px solid #f1f5f9; background:#FAFBFC; min-height:48px; display:flex; align-items:center; flex-shrink:0; gap:8px; }
+    .tbl-head-left { display:flex; align-items:center; gap:8px; flex-shrink:0; padding-left:12px; border-left:1px solid #f1f5f9; }
+    .tbl-head-title { font-size:.84rem; font-weight:700; color:var(--dark-1); white-space:nowrap; }
+    .head-filters { display:flex; align-items:center; flex:1; padding:0 8px; gap:6px; flex-wrap:wrap; }
+    .f-input, .f-select { height:28px; padding:0 8px; border:1.5px solid #e2e8f0; border-radius:7px; font-size:.73rem; color:#1e293b; background:#f8fafc; outline:none; font-family:inherit; }
+    .f-input:focus, .f-select:focus { border-color:var(--purple); background:#fff; }
+    .f-select { padding-right:6px; }
+    .btn-clear { font-size:.7rem; color:#94a3b8; background:none; border:none; cursor:pointer; padding:2px 6px; border-radius:5px; text-decoration:none; }
+    .btn-clear:hover { color:var(--danger); }
+    .table-scroll { overflow:auto; flex:1; min-height:0; }
+    .data-table { width:100%; border-collapse:collapse; min-width:800px; }
+    .data-table th { padding:8px 10px; text-align:right; font-size:.6rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:.4px; background:#f8fafc; border-bottom:1.5px solid #e2e8f0; white-space:nowrap; position:sticky; top:0; z-index:1; }
+    .data-table td { padding:6px 10px; font-size:.76rem; color:#334155; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+    .data-table tbody tr:hover { background:#fafbff; }
+
+    .cat-badge { display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:12px; font-size:.65rem; font-weight:700; white-space:nowrap; }
+    .cat-Sale { background:#ede9fe; color:#6d28d9; }
+    .cat-Purchase { background:#dbeafe; color:#1d4ed8; }
+    .cat-Payment { background:#dcfce7; color:#166534; }
+    .cat-User { background:#fef3c7; color:#92400e; }
+    .cat-Settings { background:#f1f5f9; color:#475569; }
+    .cat-Backup { background:#cffafe; color:#155e75; }
+    .cat-Auth { background:#fce7f3; color:#9d174d; }
+    .cat-Product { background:#ffedd5; color:#9a3412; }
+
+    .act-badge { font-size:.65rem; font-weight:700; padding:1px 6px; border-radius:6px; }
+    .act-Create { color:#166534; background:#dcfce7; }
+    .act-Edit { color:#1d4ed8; background:#dbeafe; }
+    .act-Delete, .act-Void { color:#991b1b; background:#fee2e2; }
+    .act-Undo { color:#92400e; background:#fef3c7; }
+    .act-Login { color:#155e75; background:#cffafe; }
+    .act-Logout { color:#64748b; background:#f1f5f9; }
+    .act-Receive { color:#166534; background:#dcfce7; }
+    .act-Change, .act-Restore, .act-Lock, .act-Unlock, .act-Archive { color:#475569; background:#f1f5f9; }
+
+    .tbl-footer { padding:8px 14px; border-top:2px solid #e2e8f0; background:#f8fafc; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; font-size:.76rem; }
+    .pg-btns { display:flex; gap:3px; }
+    .pg-b { min-width:26px; height:26px; padding:0 6px; border-radius:6px; border:1px solid #e5e7eb; background:#fff; color:#374151; font-size:.7rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; }
+    .pg-b:hover { background:#ede9fe; color:#7c3aed; border-color:#ddd6fe; }
+    .pg-b.active { background:linear-gradient(135deg,#7c3aed,#8b5cf6); color:#fff; border-color:#7c3aed; pointer-events:none; }
+    .pg-b:disabled, .pg-b[disabled] { opacity:.4; pointer-events:none; }
+    .empty-state { text-align:center; padding:40px; color:#94a3b8; font-size:.82rem; }
+
+    @@media (max-width:768px) {
+        .page-header { flex-direction:column; gap:10px; }
+        .head-filters { flex-wrap:wrap; }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="page-header">
+        <div class="title-section">
+            <div class="nav-icon-box"><i class="fas fa-history"></i></div>
+            <div><h1>مێژووی کردارەکان</h1><p class="subtitle">تۆماری هەموو کردارەکان لەسەر سیستەم</p></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div style="text-align:left;">
+                <div style="font-size:.95rem;font-weight:800;color:#111827;">@User.Identity?.Name</div>
+                <div style="font-size:.72rem;color:#7c3aed;font-weight:700;">Admin</div>
+            </div>
+            <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#ede9fe,#f5f3ff);border:2.5px solid #ddd6fe;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-user" style="color:#7c3aed;font-size:1rem;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="tbl-card">
+        <div class="tbl-head">
+            <div class="tbl-head-left">
+                <i class="fas fa-list" style="color:var(--purple);font-size:.8rem;"></i>
+                <span class="tbl-head-title">@Model.TotalCount تۆمار</span>
+            </div>
+            <div class="head-filters">
+                <form method="get" style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;flex:1;">
+                    <select name="FilterCategory" class="f-select" onchange="this.form.submit()">
+                        <option value="">هەموو بەشەکان</option>
+                        <option value="Sale" @@(Model.FilterCategory=="Sale"?"selected":"")>فرۆشتن</option>
+                        <option value="Purchase" @@(Model.FilterCategory=="Purchase"?"selected":"")>کڕین</option>
+                        <option value="Payment" @@(Model.FilterCategory=="Payment"?"selected":"")>پارەدان</option>
+                        <option value="User" @@(Model.FilterCategory=="User"?"selected":"")>بەکارهێنەر</option>
+                        <option value="Product" @@(Model.FilterCategory=="Product"?"selected":"")>کاڵا</option>
+                        <option value="Settings" @@(Model.FilterCategory=="Settings"?"selected":"")>ڕێکخستن</option>
+                        <option value="Backup" @@(Model.FilterCategory=="Backup"?"selected":"")>باکئەپ</option>
+                        <option value="Auth" @@(Model.FilterCategory=="Auth"?"selected":"")>چوونەژوورەوە</option>
+                    </select>
+                    <input type="text" name="FilterUser" class="f-input" placeholder="بەکارهێنەر..." value="@Model.FilterUser" style="width:100px;">
+                    <input type="date" name="FilterDate" class="f-input" value="@Model.FilterDate" style="width:130px;">
+                    <input type="text" name="SearchTerm" class="f-input" placeholder="گەڕان..." value="@Model.SearchTerm" style="width:120px;">
+                    <button type="submit" style="display:none;"></button>
+                    @if (!string.IsNullOrEmpty(Model.FilterCategory) || !string.IsNullOrEmpty(Model.FilterUser) || !string.IsNullOrEmpty(Model.FilterDate) || !string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <a href="/Admin/AuditLog" class="btn-clear"><i class="fas fa-times"></i></a>
+                    }
+                </form>
+            </div>
+        </div>
+
+        @if (Model.Logs.Any())
+        {
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width:5%;text-align:center;">#</th>
+                            <th style="width:14%;">بەروار</th>
+                            <th style="width:10%;">بەکارهێنەر</th>
+                            <th style="width:9%;">بەش</th>
+                            <th style="width:8%;">کردار</th>
+                            <th>وردەکاری</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model.Logs)
+                        {
+                            <tr>
+                                <td style="text-align:center;color:#cbd5e1;font-size:.65rem;">@log.Id</td>
+                                <td style="font-size:.72rem;color:#64748b;white-space:nowrap;">@log.CreatedAt.ToString("yyyy/MM/dd HH:mm:ss")</td>
+                                <td style="font-weight:600;font-size:.74rem;">@log.UserName</td>
+                                <td><span class="cat-badge cat-@log.Category">@log.Category</span></td>
+                                <td><span class="act-badge act-@log.Action">@log.Action</span></td>
+                                <td style="font-size:.74rem;color:#475569;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@log.Description</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="tbl-footer">
+                <span style="color:#64748b;">پەڕەی <strong>@Model.CurrentPage</strong> لە <strong>@Model.TotalPages</strong></span>
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="pg-btns">
+                        @{
+                            string qBase = "";
+                            if (!string.IsNullOrEmpty(Model.FilterCategory)) qBase += "&FilterCategory=" + Model.FilterCategory;
+                            if (!string.IsNullOrEmpty(Model.FilterUser)) qBase += "&FilterUser=" + Model.FilterUser;
+                            if (!string.IsNullOrEmpty(Model.FilterDate)) qBase += "&FilterDate=" + Model.FilterDate;
+                            if (!string.IsNullOrEmpty(Model.SearchTerm)) qBase += "&SearchTerm=" + Model.SearchTerm;
+                        }
+                        @if (Model.CurrentPage > 1)
+                        {
+                            <a href="?CurrentPage=@(Model.CurrentPage-1)@qBase" class="pg-b"><i class="fas fa-chevron-right"></i></a>
+                        }
+                        @for (int p = Math.Max(1,Model.CurrentPage-2); p <= Math.Min(Model.TotalPages,Model.CurrentPage+2); p++)
+                        {
+                            <a href="?CurrentPage=@p@qBase" class="pg-b @(p==Model.CurrentPage?"active":"")">@p</a>
+                        }
+                        @if (Model.CurrentPage < Model.TotalPages)
+                        {
+                            <a href="?CurrentPage=@(Model.CurrentPage+1)@qBase" class="pg-b"><i class="fas fa-chevron-left"></i></a>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state"><i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:8px;"></i>هیچ تۆمارێک نییە</div>
+        }
+    </div>
+</div>

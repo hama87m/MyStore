@@ -1,0 +1,2659 @@
+@page
+@model MyStore.Pages.Sales.CreateModel
+@{
+    ViewData["Title"] = "POS System";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS - @Model.StoreName</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-dark: #1e293b;
+            --bg-darker: #0f172a;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --success: #10b981;
+            --success-light: #34d399;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --purple: #8b5cf6;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-main);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* HEADER */
+        /* ═══════════════════════════════════════════════════════════════ */
+        .pos-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .header-logo img {
+                height: 32px;
+                border-radius: 6px;
+            }
+
+            .header-logo .store-name {
+                color: #fff;
+                font-weight: 600;
+                font-size: 0.95rem;
+            }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            direction: ltr;
+        }
+
+        .user-box {
+            background: rgba(255,255,255,0.15);
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.8rem;
+        }
+
+            .user-box .role {
+                color: #fef08a;
+                font-weight: 500;
+                margin-right: 4px;
+            }
+
+        .clock {
+            color: #fff;
+            font-weight: 600;
+            font-family: monospace;
+            font-size: 0.85rem;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* MAIN CONTENT */
+        /* ═══════════════════════════════════════════════════════════════ */
+        .pos-main {
+            flex: 1;
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            max-height: calc(100vh - 56px);
+            overflow: hidden;
+        }
+
+        /* Left Panel - Cart */
+        .cart-panel {
+            flex: 2.5;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+
+        .barcode-section {
+            padding: 12px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .barcode-input-wrap {
+            flex: 1;
+            position: relative;
+        }
+
+        .barcode-input {
+            width: 100%;
+            height: 44px;
+            border: 2px solid #10b981;
+            border-radius: 10px;
+            padding: 0 44px 0 14px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            background: #f0fdf4;
+            transition: all 0.2s;
+        }
+
+            .barcode-input:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
+                border-color: #059669;
+            }
+
+        .barcode-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #10b981;
+            font-size: 1.1rem;
+        }
+
+        .btn-search-product {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+
+            .btn-search-product:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: #eff6ff;
+            }
+
+        .status-bar {
+            height: 28px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-msg {
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* MODERN CART TABLE */
+        /* ═══════════════════════════════════════════════════════════════ */
+        .cart-table-container {
+            flex: 1;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+            .cart-table thead {
+                background: #f8fafc;
+                position: sticky;
+                top: 0;
+                z-index: 5;
+            }
+
+            .cart-table th {
+                padding: 10px;
+                font-size: 0.7rem;
+                font-weight: 600;
+                color: var(--text-muted);
+                border-bottom: 2px solid var(--border);
+            }
+
+            .cart-table td {
+                padding: 8px 10px;
+                vertical-align: middle;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 0.85rem;
+                transition: background 0.2s;
+            }
+
+            .cart-table tbody tr:hover td {
+                background: #f8fafc;
+            }
+
+        .product-name-cell {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.8rem;
+        }
+
+        .price-type-select {
+            width: 100%;
+            max-width: 110px;
+            padding: 4px 6px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2364748b'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 6px center;
+            background-size: 8px;
+            padding-left: 18px;
+        }
+
+            .price-type-select:hover {
+                border-color: #cbd5e1;
+            }
+
+            .price-type-select:focus {
+                outline: none;
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+            }
+
+        .qty-controls {
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5f9;
+            border-radius: 6px;
+            padding: 2px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+            .qty-controls:focus-within {
+                border-color: var(--accent);
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+            }
+
+        .qty-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+            .qty-btn:hover {
+                background: #e2e8f0;
+                color: var(--text-dark);
+            }
+
+        .qty-input {
+            width: 36px;
+            height: 24px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            background: transparent;
+            color: var(--text-dark);
+            padding: 0;
+            -moz-appearance: textfield;
+        }
+
+            .qty-input:focus {
+                outline: none;
+            }
+
+            .qty-input::-webkit-outer-spin-button,
+            .qty-input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+        .remove-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+            .remove-btn:hover {
+                background: #fee2e2;
+                color: var(--danger);
+            }
+
+        .empty-cart {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            margin-top: 40px;
+        }
+
+            .empty-cart i {
+                font-size: 3.5rem;
+                margin-bottom: 15px;
+                opacity: 0.5;
+            }
+
+        .cart-footer {
+            padding: 10px 16px;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-actions-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout-cart {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+            .btn-logout-cart i {
+                font-size: 1rem;
+                color: var(--danger);
+            }
+
+            .btn-logout-cart:hover {
+                background: #fee2e2;
+                border-color: #fca5a5;
+                color: var(--danger);
+                text-decoration: none;
+            }
+
+        .btn-clear-cart {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #fee2e2;
+            background: #fef2f2;
+            color: var(--danger);
+            font-weight: 500;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+            .btn-clear-cart:hover {
+                background: var(--danger);
+                color: #fff;
+                border-color: var(--danger);
+            }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* RIGHT PANEL - Summary & New Invoice Styles */
+        /* ═══════════════════════════════════════════════════════════════ */
+        .summary-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-width: 320px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        /* Generic Flex Row for Inputs & Buttons */
+        .action-row-wrap {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+            .action-row-wrap > div:first-child {
+                flex: 1;
+            }
+
+        /* Add/New Button */
+        .add-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px dashed #cbd5e1;
+            background: #f8fafc;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+            .add-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: #eff6ff;
+            }
+
+        /* Invoice Navigation Box */
+        .invoice-display-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            background: #fff;
+            padding: 2px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            height: 32px;
+        }
+
+        .invoice-id-box {
+            flex: 1;
+            font-weight: 500;
+            color: #475569;
+            font-size: 0.85rem;
+            background: transparent;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding-right: 8px;
+            gap: 4px;
+            transition: background 0.2s;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+            .invoice-id-box:hover {
+                background: #f1f5f9;
+            }
+
+            /* Edit Mode Styles */
+            .invoice-id-box.is-edit {
+                background: #fef3c7;
+                color: #d97706;
+            }
+
+                .invoice-id-box.is-edit:hover {
+                    background: #fde68a;
+                }
+
+        .edit-badge {
+            font-size: 0.6rem;
+            font-weight: normal;
+            background: #f59e0b;
+            color: #fff;
+            padding: 2px 4px;
+            border-radius: 3px;
+            display: none;
+        }
+
+        .invoice-id-box.is-edit .edit-badge {
+            display: inline-block;
+        }
+
+        .nav-btn-mini {
+            width: 24px;
+            height: 100%;
+            border-radius: 4px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+
+            .nav-btn-mini:hover {
+                background: #e2e8f0;
+                color: #1e293b;
+            }
+
+            .nav-btn-mini:disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+                background: transparent;
+            }
+
+        .payment-toggle {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 6px;
+            padding: 3px;
+        }
+
+        .payment-btn {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+            .payment-btn.active {
+                background: #fff;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            }
+
+            .payment-btn.cash.active {
+                color: var(--success);
+            }
+
+            .payment-btn.credit.active {
+                color: var(--danger);
+            }
+
+            .payment-btn:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+
+        .totals-card {
+            background: #fff;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+            .total-row:last-child {
+                border-bottom: none;
+            }
+
+        .total-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .total-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--success);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .click-btn {
+            flex: 1;
+            padding: 8px 6px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+            .click-btn:hover {
+                border-color: var(--accent);
+                box-shadow: 0 4px 12px rgba(59,130,246,0.05);
+            }
+
+            .click-btn .label {
+                font-size: 0.65rem;
+                color: var(--text-muted);
+                display: block;
+                margin-bottom: 2px;
+                font-weight: 500;
+            }
+
+            .click-btn .value {
+                font-size: 0.95rem;
+                font-weight: 600;
+            }
+
+            .click-btn.discount .value {
+                color: var(--danger);
+            }
+
+            .click-btn.paid .value {
+                color: var(--success);
+            }
+
+            .click-btn.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                background: #f8fafc;
+            }
+
+        .discount-limit {
+            font-size: 0.6rem;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: #fef3c7;
+            color: #d97706;
+            margin-right: 2px;
+            font-weight: normal;
+        }
+
+        .debt-display {
+            padding: 6px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: none;
+            margin-top: 4px;
+        }
+
+            .debt-display.show {
+                display: block;
+            }
+
+            .debt-display.debt {
+                background: #fee2e2;
+                color: var(--danger);
+                border: 1px solid #fecaca;
+            }
+
+            .debt-display.success {
+                background: #dcfce7;
+                color: #16a34a;
+                border: 1px solid #bbf7d0;
+            }
+
+        .grand-total-card {
+            background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+            color: #fff;
+            text-align: center;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .grand-total-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .grand-total-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 2px 0;
+        }
+
+        .grand-total-currency {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        /* Auto Print Checkbox Styles */
+        .auto-print-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .auto-print-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+
+            .auto-print-label input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+                accent-color: var(--accent);
+            }
+
+        .btn-complete {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+            .btn-complete:hover {
+                box-shadow: 0 8px 20px rgba(59,130,246,0.3);
+                transform: translateY(-1px);
+            }
+
+            .btn-complete:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        /* Flex Layout for Secondary Buttons */
+        .secondary-btns {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn-sec {
+            flex: 1;
+            padding: 8px 4px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+            .btn-sec i {
+                font-size: 0.9rem;
+            }
+
+            .btn-sec.print {
+                background: #f1f5f9;
+                color: var(--text-dark);
+            }
+
+                .btn-sec.print:hover {
+                    background: #e2e8f0;
+                }
+
+            .btn-sec.history {
+                background: #ede9fe;
+                color: var(--purple);
+            }
+
+                .btn-sec.history:hover {
+                    background: #ddd6fe;
+                }
+
+            .btn-sec.void {
+                background: #fee2e2;
+                color: var(--danger);
+            }
+
+                .btn-sec.void:hover {
+                    background: #fecaca;
+                }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* MODALS */
+        /* ═══════════════════════════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+            .modal-overlay.show {
+                display: flex;
+            }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            width: 420px;
+            max-width: 95%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: modalFadeIn 0.3s forwards;
+        }
+
+        @@keyframes modalFadeIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-box.lg {
+            width: 700px;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+            .modal-header h5 {
+                margin: 0;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 1.05rem;
+            }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+            .modal-close:hover {
+                background: #fee2e2;
+                color: var(--danger);
+            }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .modal-btn.cancel {
+                background: #e2e8f0;
+                color: var(--text-dark);
+            }
+
+                .modal-btn.cancel:hover {
+                    background: #cbd5e1;
+                }
+
+            .modal-btn.confirm {
+                background: var(--accent);
+                color: #fff;
+            }
+
+                .modal-btn.confirm:hover {
+                    background: #2563eb;
+                }
+
+            .modal-btn.success {
+                background: var(--success);
+                color: #fff;
+            }
+
+                .modal-btn.success:hover {
+                    background: #059669;
+                }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .input-box {
+            flex: 1;
+            text-align: center;
+        }
+
+            .input-box label {
+                display: block;
+                font-size: 0.85rem;
+                font-weight: 500;
+                color: var(--text-muted);
+                margin-bottom: 6px;
+            }
+
+            .input-box input {
+                width: 100%;
+                padding: 10px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 1.15rem;
+                font-weight: 700;
+                text-align: center;
+                transition: border-color 0.2s;
+            }
+
+                .input-box input:focus {
+                    outline: none;
+                    border-color: var(--accent);
+                }
+
+        .quick-btns {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .quick-btn {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #fff;
+            color: var(--text-dark);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+            .quick-btn:hover {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+            }
+
+        .customer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+            .customer-form input {
+                padding: 12px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 0.95rem;
+                font-weight: 500;
+                transition: border-color 0.2s;
+            }
+
+                .customer-form input:focus {
+                    outline: none;
+                    border-color: var(--accent);
+                }
+
+        /* Sales & Product Modals */
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+            .filter-row select, .filter-row input {
+                flex: 1;
+                padding: 10px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-weight: 500;
+                font-size: 0.9rem;
+            }
+
+        .sales-list, .products-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .sale-item, .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+            .sale-item:hover, .product-item:hover {
+                background: #f8fafc;
+            }
+
+            .sale-item .sale-id {
+                font-weight: 700;
+                color: var(--text-dark);
+            }
+
+            .sale-item .sale-date {
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                margin-top: 2px;
+            }
+
+            .sale-item .sale-customer {
+                font-weight: 600;
+            }
+
+            .sale-item .sale-total {
+                font-weight: 700;
+                font-size: 0.95rem;
+                color: var(--success);
+            }
+
+            .sale-item .sale-debt {
+                color: var(--danger);
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-top: 2px;
+            }
+
+            .sale-item .badge {
+                padding: 4px 8px;
+                border-radius: 6px;
+                font-size: 0.7rem;
+                font-weight: 600;
+                display: inline-block;
+                margin-top: 4px;
+            }
+
+                .sale-item .badge.cash {
+                    background: #dcfce7;
+                    color: #16a34a;
+                }
+
+                .sale-item .badge.credit {
+                    background: #fee2e2;
+                    color: #dc2626;
+                }
+
+        .search-input-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: var(--accent);
+            }
+
+        .search-input-wrap i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .product-item .product-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .product-item .product-barcode {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .product-item .product-price {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .product-item .product-stock {
+            font-size: 0.8rem;
+            color: var(--success);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* SELECT 2 MODERN CUSTOMIZATION */
+        /* ═══════════════════════════════════════════════════════════════ */
+        .select2-container .select2-selection--single {
+            height: 32px !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 6px !important;
+            display: flex;
+            align-items: center;
+            background-color: #fff !important;
+            transition: all 0.2s ease;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: normal !important;
+            padding-right: 10px;
+            padding-left: 24px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #475569 !important;
+            width: 100%;
+            height: 100%;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 30px !important;
+        }
+
+        .select2-container--open .select2-selection--single {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+            overflow: hidden;
+            margin-top: 6px;
+            z-index: 1050;
+        }
+
+        .select2-search--dropdown {
+            padding: 12px !important;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .select2-search__field {
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            padding: 10px 14px !important;
+            font-size: 0.85rem !important;
+            font-weight: 500;
+            outline: none !important;
+        }
+
+            .select2-search__field:focus {
+                border-color: var(--accent) !important;
+            }
+
+        .select2-results__option {
+            padding: 12px 16px !important;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+            .select2-results__option[aria-selected=true] {
+                background-color: #f8fafc !important;
+                color: var(--text-dark) !important;
+                font-weight: 600;
+            }
+
+        .select2-results__option--highlighted[aria-selected] {
+            background-color: #eff6ff !important;
+            color: var(--accent) !important;
+        }
+
+        .cust-option-wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .cust-name {
+            font-weight: 600;
+        }
+
+        .cust-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+            .cust-badge.debt {
+                background-color: #fef2f2;
+                color: #dc2626;
+            }
+
+            .cust-badge.credit {
+                background-color: #f0fdf4;
+                color: #16a34a;
+            }
+
+        .cust-selection-wrap {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- HEADER -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <header class="pos-header">
+        <div class="header-logo">
+            @if (!string.IsNullOrEmpty(Model.StoreLogo))
+            {
+                <img src="@Model.StoreLogo" alt="Logo" />
+            }
+            else
+            {
+                <i class="bi bi-shop" style="font-size:1.4rem;color:#fff;"></i>
+            }
+            <span class="store-name">@Model.StoreName</span>
+        </div>
+        <div class="header-actions">
+            <div class="user-box">
+                <i class="bi bi-person-circle me-1"></i>
+                <span id="currentUserName">@User.Identity?.Name</span>
+                <span class="role" id="currentUserRole"></span>
+            </div>
+            <span class="clock" id="clock">00:00</span>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- MAIN CONTENT -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <main class="pos-main">
+        <!-- Cart Panel -->
+        <section class="cart-panel">
+            <div class="barcode-section">
+                <div class="barcode-input-wrap">
+                    <input type="text" id="barcodeInput" class="barcode-input" placeholder="باڕکۆد سکان بکە..." autofocus autocomplete="off" />
+                    <i class="bi bi-upc-scan barcode-icon"></i>
+                </div>
+                <button type="button" class="btn-search-product" onclick="openProductSearchModal()" title="گەڕان بە ناو">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            <div class="status-bar"><span id="statusMessage" class="status-msg"></span></div>
+
+            <div class="cart-table-container">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th style="width:5%; text-align: center;">#</th>
+                            <th style="width:30%; text-align: right;">کاڵا</th>
+                            <th style="width:18%; text-align: center;">نرخ</th>
+                            <th style="width:16%; text-align: center;">بڕ</th>
+                            <th style="width:13%; text-align: center;">کۆ</th>
+                            <th style="width:10%; text-align: center;">ستۆک</th>
+                            <th style="width:8%; text-align: center;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartTableBody"></tbody>
+                </table>
+                <div id="emptyCartMsg" class="empty-cart">
+                    <i class="bi bi-cart-x"></i>
+                    <span style="font-weight: 500;">سەبەتە بەتاڵە</span>
+                    <span style="font-size: 0.85rem; margin-top: 5px;">کاڵا سکان بکە یان بگەڕێ بۆ زیادکردن</span>
+                </div>
+            </div>
+
+            <div class="cart-footer">
+                <a href="/Index" class="btn-logout-cart">
+                    <i class="bi bi-box-arrow-right"></i> چوونەدەرەوە
+                </a>
+
+                <div class="footer-actions-left">
+                    <span class="text-muted" style="font-size: 0.85rem; font-weight: 600;" id="itemCount">0 کاڵا</span>
+                    <button type="button" class="btn-clear-cart" onclick="clearCartOnly()">
+                        <i class="bi bi-trash3 me-1"></i> بەتاڵکردنەوە
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Panel -->
+        <section class="summary-panel">
+            <div class="summary-card">
+                <div class="info-row">
+                    <div class="action-row-wrap">
+                        <div class="invoice-display-wrapper">
+                            <button type="button" class="nav-btn-mini" id="btnPrev" onclick="navigateInvoice('prev')" title="پسوڵەی پێشوو"><i class="bi bi-chevron-right"></i></button>
+
+                            <div class="invoice-id-box" id="invoiceIdContainer" onclick="findInvoice()" title="گەڕان بۆ پسوڵە بە ژمارە">
+                                <span id="invoiceIdDisplay">INV-@Model.NextInvoiceId</span>
+                                <span class="edit-badge">دەستکاری</span>
+                            </div>
+
+                            <button type="button" class="nav-btn-mini" id="btnNext" onclick="navigateInvoice('next')" disabled title="پسوڵەی دواتر"><i class="bi bi-chevron-left"></i></button>
+                        </div>
+                        <button type="button" class="add-btn" onclick="forceNewInvoice()" title="کردنەوەی پسوڵەی نوێ">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="info-row">
+                    <div class="action-row-wrap">
+                        <div>
+                            <select id="customerSelect" name="SingleSale.CustomerId"></select>
+                        </div>
+                        <button type="button" class="add-btn" onclick="openCustomerModal()" title="زیادکردنی کڕیاری نوێ">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-card" style="padding: 6px;">
+                <div class="payment-toggle">
+                    <button type="button" class="payment-btn cash active" id="btnCash" onclick="setPaymentType(0)">
+                        <i class="bi bi-cash me-1"></i>نەقد
+                    </button>
+                    <button type="button" class="payment-btn credit" id="btnCredit" onclick="setPaymentType(1)">
+                        <i class="bi bi-credit-card me-1"></i>قەرز
+                    </button>
+                </div>
+            </div>
+
+            <div class="summary-card totals-card">
+                <div class="total-row">
+                    <span class="total-label">کۆی کاڵاکان</span>
+                    <span class="total-value" id="subTotalDisplay">0</span>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button type="button" class="click-btn discount" onclick="openDiscountModal()">
+                    <span class="label">داشکاندن <span class="discount-limit" id="discountLimitBadge"></span></span>
+                    <span class="value" id="discountDisplay">0</span>
+                </button>
+                <button type="button" class="click-btn paid disabled" id="paidBtn" onclick="openPaidModal()">
+                    <span class="label">وەرگیراو</span>
+                    <span class="value" id="paidDisplay">0</span>
+                </button>
+            </div>
+
+            <div class="debt-display" id="debtDisplay"></div>
+
+            <div class="summary-card grand-total-card" style="margin-top: 4px;">
+                <div class="grand-total-label">کۆی دوای داشکاندن</div>
+                <div class="grand-total-value" id="grandTotalDisplay">0</div>
+                <div class="grand-total-currency">دیناری عێراقی</div>
+            </div>
+
+            <div class="summary-card" style="background: transparent; box-shadow: none; padding: 0;">
+                <form method="post" id="posForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ItemsJson" id="itemsJsonInput" />
+                    <input type="hidden" asp-for="SingleSale.TotalAmount" id="hiddenTotalAmount" />
+                    <input type="hidden" asp-for="SingleSale.GrandTotal" id="hiddenGrandTotal" />
+                    <input type="hidden" asp-for="SingleSale.SaleId" id="saleIdInput" value="0" />
+                    <input type="hidden" asp-for="SingleSale.SaleDate" id="saleDateInput" />
+                    <input type="hidden" asp-for="SingleSale.Discount" id="discountInput" value="0" />
+                    <input type="hidden" asp-for="SingleSale.PaidAmount" id="paidAmountInput" value="0" />
+                    <input type="hidden" asp-for="SingleSale.PaymentType" id="paymentTypeInput" value="0" />
+
+                    <!-- بەشی هەڵبژاردنی چاپکردنی خودکار -->
+                    <div class="auto-print-wrap">
+                        <label class="auto-print-label" for="autoPrintCheck" title="گەر چالاک بێت پاش تەواوکردنی پسوڵە ڕاستەوخۆ چاپ دەبێت">
+                            <input type="checkbox" id="autoPrintCheck" checked>
+                            چاپکردنی خودکار
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-complete" id="saveSaleButton">
+                        <i class="bi bi-check2-circle" style="font-size: 1.2rem;"></i>
+                        <span id="saveBtnText">تەواوکردنی پسوڵە</span>
+                        <span style="opacity:0.8;font-size:0.8rem; background: rgba(0,0,0,0.15); padding: 2px 6px; border-radius: 4px;">F10</span>
+                    </button>
+                </form>
+
+                <div class="secondary-btns">
+                    <button type="button" class="btn-sec print" onclick="printCurrentInvoice()">
+                        <i class="bi bi-printer"></i>چاپ
+                    </button>
+                    <button type="button" class="btn-sec history" onclick="openSalesListModal()">
+                        <i class="bi bi-clock-history"></i>مێژوو
+                    </button>
+                    <button type="button" class="btn-sec void" id="btnVoid" onclick="voidInvoice()" style="display:none;">
+                        <i class="bi bi-trash"></i>سڕینەوە
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- MODALS -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Discount Modal -->
+    <div class="modal-overlay" id="discountModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h5><i class="bi bi-percent text-danger"></i>داشکاندن</h5>
+                <button class="modal-close" onclick="closeModal('discountModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-row">
+                    <div class="input-box">
+                        <label>بڕ (دینار)</label>
+                        <input type="number" id="discountAmountInput" min="0" oninput="syncDiscount('amount')">
+                    </div>
+                    <div class="input-box">
+                        <label>ڕێژە (%)</label>
+                        <input type="number" id="discountPercentInput" min="0" max="100" oninput="syncDiscount('percent')">
+                    </div>
+                </div>
+                <div class="text-center mb-3">
+                    <small class="text-muted fw-semibold">سنووری داشکاندنت: <strong class="text-danger" id="maxDiscountText">-</strong></small>
+                </div>
+                <div class="quick-btns mb-2">
+                    <button type="button" class="quick-btn" onclick="setQuickDiscountAmount(250)">250</button>
+                    <button type="button" class="quick-btn" onclick="setQuickDiscountAmount(500)">500</button>
+                    <button type="button" class="quick-btn" onclick="setQuickDiscountAmount(1000)">1,000</button>
+                    <button type="button" class="quick-btn" onclick="setQuickDiscountAmount(5000)">5,000</button>
+                </div>
+                <div class="quick-btns">
+                    <button type="button" class="quick-btn" onclick="setQuickDiscount(0)">0%</button>
+                    <button type="button" class="quick-btn" onclick="setQuickDiscount(5)">5%</button>
+                    <button type="button" class="quick-btn" onclick="setQuickDiscount(10)">10%</button>
+                    <button type="button" class="quick-btn" onclick="setQuickDiscount(15)">15%</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('discountModal')">پاشگەزبوونەوە</button>
+                <button class="modal-btn confirm" onclick="applyDiscount()">جێبەجێکردن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paid Amount Modal -->
+    <div class="modal-overlay" id="paidModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h5><i class="bi bi-cash-stack text-success"></i>بڕی وەرگیراو</h5>
+                <button class="modal-close" onclick="closeModal('paidModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-row">
+                    <div class="input-box" style="flex:2">
+                        <label>بڕ (دینار)</label>
+                        <input type="number" id="paidModalInput" min="0" oninput="validatePaidInput()">
+                    </div>
+                </div>
+                <div class="text-center mb-3">
+                    <small class="text-muted fw-semibold">کۆی پسوڵە: <strong class="text-dark" id="modalGrandTotal">0</strong></small>
+                </div>
+                <div class="quick-btns" id="paidQuickBtns"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('paidModal')">پاشگەزبوونەوە</button>
+                <button class="modal-btn success" onclick="applyPaid()">جێبەجێکردن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Modal -->
+    <div class="modal-overlay" id="customerModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h5><i class="bi bi-person-plus text-primary"></i>زیادکردنی کڕیار</h5>
+                <button class="modal-close" onclick="closeModal('customerModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="customer-form">
+                    <input type="text" id="newCustomerName" placeholder="ناوی کڕیار بە تەواوی *" />
+                    <input type="text" id="newCustomerPhone" placeholder="ژمارەی مۆبایل" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('customerModal')">پاشگەزبوونەوە</button>
+                <button class="modal-btn confirm" onclick="addCustomer()">تۆمارکردن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales List Modal -->
+    <div class="modal-overlay" id="salesListModal">
+        <div class="modal-box lg">
+            <div class="modal-header">
+                <h5><i class="bi bi-list-ul text-purple"></i>مێژووی پسوڵەکان</h5>
+                <button class="modal-close" onclick="closeModal('salesListModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="filter-row">
+                    <select id="salesFilterDate" onchange="loadSalesList()">
+                        <option value="Today">ئەمڕۆ</option>
+                        <option value="Week">ئەم هەفتەیە</option>
+                        <option value="Month">ئەم مانگە</option>
+                        <option value="All">هەموو</option>
+                    </select>
+                </div>
+                <div class="sales-list" id="salesListContainer">
+                    <div class="text-center text-muted py-4 fw-semibold">
+                        <i class="bi bi-hourglass-split me-2"></i> چاوەڕوانبە...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Search Modal -->
+    <div class="modal-overlay" id="productSearchModal">
+        <div class="modal-box lg">
+            <div class="modal-header">
+                <h5><i class="bi bi-search text-primary"></i>گەڕان لەناو کاڵاکان</h5>
+                <button class="modal-close" onclick="closeModal('productSearchModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-input-wrap">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="productSearchInput" class="search-input" placeholder="ناو یان باڕکۆد بنووسە بۆ گەڕان..." oninput="searchProducts()">
+                </div>
+                <div class="products-list" id="productsListContainer">
+                    <div class="text-center text-muted py-4 fw-semibold">
+                        تکایە سەرەتا بنووسە بۆ دۆزینەوەی کاڵا...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SCRIPTS -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        let cart = [];
+        let currentInvoiceId = 0;
+        let realMaxId = @Model.NextInvoiceId - 1;
+        let isEditMode = false;
+        let currentDiscount = 0;
+        let currentPaid = 0;
+        let paymentType = 0;
+        let maxDiscountPercent = 100;
+        let userRole = '';
+        let defaultCustomerId = @Model.DefaultCustomerId;
+        const defaultCustomerName = '@Html.Raw(Model.DefaultCustomerName)';
+
+        const barcodeInput = document.getElementById('barcodeInput');
+        const statusMsg = document.getElementById('statusMessage');
+        const emptyMsg = document.getElementById('emptyCartMsg');
+        const invoiceIdContainer = document.getElementById('invoiceIdContainer');
+
+        function getValueByKeys(obj, possibleKeys) {
+            if (!obj) return undefined;
+            const objKeys = Object.keys(obj).map(k => k.toLowerCase());
+            for (let key of possibleKeys) {
+                let index = objKeys.indexOf(key.toLowerCase());
+                if (index !== -1) {
+                    return obj[Object.keys(obj)[index]];
+                }
+            }
+            return undefined;
+        }
+
+        document.addEventListener("DOMContentLoaded", async function() {
+            await loadMaxDiscount();
+
+            // ڕێکخستنی چێک بۆکسی چاپکردنی خودکار لە لۆکاڵ ستۆرەج
+            const autoPrintCheck = document.getElementById('autoPrintCheck');
+            if (localStorage.getItem('posAutoPrint') === 'false') {
+                autoPrintCheck.checked = false;
+            }
+            autoPrintCheck.addEventListener('change', function() {
+                localStorage.setItem('posAutoPrint', this.checked);
+            });
+
+            $('#customerSelect').select2({
+                dir: "rtl",
+                placeholder: "گەڕان بۆ کڕیار...",
+                width: '100%',
+                minimumInputLength: 0,
+                ajax: {
+                    url: '?handler=SearchCustomers',
+                    dataType: 'json',
+                    delay: 300,
+                    data: params => ({ term: params.term || '' }),
+                    processResults: function (data, params) {
+                        const term = params.term || '';
+                        let results = data.results || [];
+                        if (term === '') {
+                            results = results.filter(r => r.id != defaultCustomerId);
+                            results.unshift({ id: defaultCustomerId, text: defaultCustomerName, balance: 0 });
+                        }
+                        return { results: results };
+                    },
+                    cache: false
+                },
+                templateResult: formatCustomerOption,
+                templateSelection: formatCustomerSelection
+            });
+
+            var defaultOption = new Option(defaultCustomerName, defaultCustomerId, true, true);
+            $(defaultOption).data('balance', 0);
+            $('#customerSelect').append(defaultOption).trigger('change');
+
+            setInterval(() => {
+                document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit'});
+            }, 1000);
+
+            $('#customerSelect').on('change', checkCreditAvailable);
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const editSaleId = urlParams.get('saleId');
+
+            if (editSaleId && parseInt(editSaleId) > 0) {
+                await loadInvoiceById(parseInt(editSaleId));
+            } else {
+                forceNewInvoice();
+            }
+
+            barcodeInput.focus();
+        });
+
+        function formatCustomerOption(customer) {
+            if (customer.loading) return customer.text;
+            let balanceHtml = '';
+            if (customer.balance !== undefined && customer.balance !== null) {
+                let bal = parseFloat(customer.balance);
+                if (bal > 0) balanceHtml = `<span class="cust-badge debt">قەرز: ${bal.toLocaleString()}</span>`;
+                else if (bal < 0) balanceHtml = `<span class="cust-badge credit">پێشینە: ${Math.abs(bal).toLocaleString()}</span>`;
+            }
+            return $(`<div class="cust-option-wrap"><span class="cust-name">${customer.text}</span>${balanceHtml}</div>`);
+        }
+
+        function formatCustomerSelection(customer) {
+            if (!customer.id) return customer.text;
+            let balanceHtml = '';
+            let bal = customer.balance !== undefined ? parseFloat(customer.balance) : parseFloat($(customer.element).data('balance') || 0);
+            if (bal > 0) balanceHtml = `<span class="cust-badge debt" style="margin-right:auto; margin-left:8px;">قەرز: ${bal.toLocaleString()}</span>`;
+            else if (bal < 0) balanceHtml = `<span class="cust-badge credit" style="margin-right:auto; margin-left:8px;">پێشینە: ${Math.abs(bal).toLocaleString()}</span>`;
+
+            return $(`<div class="cust-selection-wrap"><span>${customer.text}</span>${balanceHtml}</div>`);
+        }
+
+        async function loadInvoiceById(saleId) {
+            try {
+                showStatus('بارکردنی پسوڵە...', 'text-info');
+                const response = await fetch(`?handler=InvoiceData&id=${saleId}`);
+                const data = await response.json();
+                if (data.success) {
+                    loadInvoiceData(data);
+                    showStatus(`پسوڵەی INV-${saleId} بارکرا`, 'text-success');
+                } else {
+                    showStatus(data.message || 'پسوڵە نەدۆزرایەوە', 'text-danger');
+                    forceNewInvoice();
+                }
+            } catch (err) {
+                console.error('Error loading invoice:', err);
+                showStatus('هەڵە لە بارکردنی پسوڵە', 'text-danger');
+                forceNewInvoice();
+            }
+        }
+
+        async function loadMaxDiscount() {
+            try {
+                const res = await fetch('?handler=MaxDiscount');
+                const data = await res.json();
+                maxDiscountPercent = data.maxPercent;
+                userRole = data.role;
+                document.getElementById('currentUserRole').textContent = ' (' + (userRole === 'Admin' ? 'ئەدمین' : userRole === 'Manager' ? 'مەنەجەر' : 'کاشێر') + ')';
+                const badge = document.getElementById('discountLimitBadge');
+                const text = document.getElementById('maxDiscountText');
+                if (maxDiscountPercent < 100) {
+                    badge.textContent = maxDiscountPercent + '%';
+                    text.textContent = maxDiscountPercent + '%';
+                } else {
+                    badge.textContent = '∞';
+                    text.textContent = 'بێ سنوور';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function checkCreditAvailable() {
+            const customerId = parseInt($('#customerSelect').val()) || 0;
+            const btnCredit = document.getElementById('btnCredit');
+            if (customerId === defaultCustomerId) {
+                btnCredit.disabled = true;
+                if (paymentType === 1) setPaymentType(0);
+            } else {
+                btnCredit.disabled = false;
+            }
+        }
+
+        let barcodeBuffer = '';
+        let barcodeTimeout = null;
+
+        barcodeInput.addEventListener('input', function() {
+            clearTimeout(barcodeTimeout);
+            barcodeBuffer = this.value.trim();
+            if (barcodeBuffer.length >= 4) {
+                barcodeTimeout = setTimeout(() => {
+                    if (barcodeBuffer.length >= 4) {
+                        addItemByBarcode(barcodeBuffer);
+                        this.value = '';
+                        barcodeBuffer = '';
+                    }
+                }, 100);
+            }
+        });
+
+        barcodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(barcodeTimeout);
+                const code = this.value.trim();
+                if (code) {
+                    addItemByBarcode(code);
+                    this.value = '';
+                    barcodeBuffer = '';
+                }
+            }
+        });
+
+        async function addItemByBarcode(barcode) {
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const response = await fetch('?handler=Barcode&barcode=' + encodeURIComponent(barcode), { method: 'POST', headers: { 'RequestVerificationToken': token } });
+                const data = await response.json();
+                if (data.success) {
+                    const prod = data.product || data.Product;
+                    const stock = parseInt(getValueByKeys(prod, ['currentStock', 'stock', 'qty']) || 0);
+                    if (stock <= 0) { showStatus("ستۆک نەماوە!", "text-danger"); return; }
+                    addToCart(prod);
+                    const name = getValueByKeys(prod, ['name']) || 'کاڵا';
+                    showStatus("زیادکرا: " + name, "text-success");
+                } else { showStatus(data.message, "text-danger"); }
+            } catch (err) { console.error(err); showStatus("هەڵە", "text-danger"); }
+        }
+
+        function openProductSearchModal() {
+            document.getElementById('productSearchInput').value = '';
+            document.getElementById('productsListContainer').innerHTML = '<div class="text-center text-muted py-4 fw-semibold">تکایە سەرەتا بنووسە بۆ دۆزینەوەی کاڵا...</div>';
+            document.getElementById('productSearchModal').classList.add('show');
+            setTimeout(() => document.getElementById('productSearchInput').focus(), 200);
+        }
+
+        let searchTimeout = null;
+        async function searchProducts() {
+            clearTimeout(searchTimeout);
+            const term = document.getElementById('productSearchInput').value.trim();
+            if (term.length < 1) {
+                document.getElementById('productsListContainer').innerHTML = '<div class="text-center text-muted py-4 fw-semibold">تکایە سەرەتا بنووسە بۆ دۆزینەوەی کاڵا...</div>';
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch('?handler=SearchProducts&term=' + encodeURIComponent(term));
+                    const data = await res.json();
+
+                    if (data.success && data.products.length > 0) {
+                        let html = '';
+                        data.products.forEach(p => {
+                            const uPrice = parseFloat(getValueByKeys(p, ['unitPrice', 'salePrice']) || 0);
+                            let wPriceRaw = getValueByKeys(p, ['wholesalePrice', 'wholeSalePrice']);
+                            let wPrice = parseFloat(wPriceRaw);
+                            if (isNaN(wPrice) || wPrice <= 0) wPrice = uPrice;
+
+                            const name = getValueByKeys(p, ['name']) || 'کاڵا';
+                            const barcode = getValueByKeys(p, ['barcode']) || '-';
+                            const stock = getValueByKeys(p, ['currentStock', 'stock']) || 0;
+
+                            html += `<div class="product-item" onclick='selectProduct(${JSON.stringify(p).replace(/'/g, "\\'")})'>
+                                <div>
+                                    <div class="product-name">${name}</div>
+                                    <div class="product-barcode">${barcode}</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="product-price">تاک: ${uPrice.toLocaleString()} | کۆ: ${wPrice.toLocaleString()}</div>
+                                    <div class="product-stock">ستۆک: ${stock}</div>
+                                </div>
+                            </div>`;
+                        });
+                        document.getElementById('productsListContainer').innerHTML = html;
+                    } else {
+                        document.getElementById('productsListContainer').innerHTML = '<div class="text-center text-muted py-4 fw-semibold">هیچ کاڵایەک نەدۆزرایەوە</div>';
+                    }
+                } catch (err) { console.error(err); }
+            }, 300);
+        }
+
+        function selectProduct(product) {
+            const stock = parseInt(getValueByKeys(product, ['currentStock', 'stock', 'qty']) || 0);
+            if (stock <= 0) {
+                showStatus("ستۆک نەماوە!", "text-danger");
+                return;
+            }
+            addToCart(product);
+            const name = getValueByKeys(product, ['name']) || 'کاڵا';
+            showStatus("زیادکرا: " + name, "text-success");
+            closeModal('productSearchModal');
+        }
+
+        function openSalesListModal() {
+            document.getElementById('salesListModal').classList.add('show');
+            loadSalesList();
+        }
+
+        async function loadSalesList() {
+            const dateRange = document.getElementById('salesFilterDate').value;
+            document.getElementById('salesListContainer').innerHTML = '<div class="text-center text-muted py-4 fw-semibold"><i class="bi bi-hourglass-split me-2"></i> چاوەڕوانبە...</div>';
+            try {
+                const res = await fetch(`?handler=SalesList&dateRange=${dateRange}`);
+                const data = await res.json();
+                if (data.success && data.sales.length > 0) {
+                    let html = '';
+                    data.sales.forEach(s => {
+                        const badgeClass = s.paymentType === 0 ? 'cash' : 'credit';
+                        const badgeText = s.paymentType === 0 ? 'نەقد' : 'قەرز';
+                        const debtHtml = s.debt > 0 ? `<div class="sale-debt">قەرز: ${s.debt.toLocaleString()}</div>` : '';
+                        html += `<div class="sale-item" onclick="loadSaleFromList(${s.saleId})">
+                            <div><div class="sale-id">INV-${s.saleId}</div><div class="sale-date">${s.saleDate}</div></div>
+                            <div class="text-center"><div class="sale-customer">${s.customerName}</div><span class="badge ${badgeClass}">${badgeText}</span></div>
+                            <div class="text-end"><div class="sale-total">${s.grandTotal.toLocaleString()}</div>${debtHtml}</div>
+                        </div>`;
+                    });
+                    document.getElementById('salesListContainer').innerHTML = html;
+                } else {
+                    document.getElementById('salesListContainer').innerHTML = '<div class="text-center text-muted py-4 fw-semibold">هیچ پسوڵەیەک نەدۆزرایەوە</div>';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('salesListContainer').innerHTML = '<div class="text-center text-danger py-4 fw-semibold">هەڵە لە بارکردن</div>';
+            }
+        }
+
+        async function loadSaleFromList(saleId) {
+            closeModal('salesListModal');
+            try {
+                const res = await fetch('?handler=InvoiceData&id=' + saleId);
+                const data = await res.json();
+                if (data.success) {
+                    loadInvoiceData(data);
+                } else {
+                    showStatus(data.message, "text-danger");
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function addToCart(product) {
+            const pId = getValueByKeys(product, ['productId', 'id']);
+            const name = getValueByKeys(product, ['name']) || 'کاڵا';
+
+            const uPrice = parseFloat(getValueByKeys(product, ['unitPrice', 'salePrice']) || 0);
+            let wPriceRaw = getValueByKeys(product, ['wholesalePrice', 'wholeSalePrice', 'wholesale_price']);
+            let wPrice = parseFloat(wPriceRaw);
+            if (isNaN(wPrice) || wPrice <= 0) wPrice = uPrice; // Fallback
+
+            const pPrice = parseFloat(getValueByKeys(product, ['unitPurchasePrice', 'purchasePrice']) || 0);
+            const stock = parseInt(getValueByKeys(product, ['currentStock', 'stock', 'qty']) || 0);
+
+            const existingIndex = cart.findIndex(x => x.productId === pId);
+
+            if (existingIndex > -1) {
+                if (cart[existingIndex].quantity < stock) {
+                    cart[existingIndex].quantity++;
+                } else {
+                    showStatus('سنووری ستۆک! تەنها ' + stock + ' ماوە', "text-danger");
+                }
+            } else {
+                cart.push({
+                    productId: pId,
+                    name: name,
+                    unitPrice: uPrice,
+                    wholesalePrice: wPrice,
+                    unitPurchasePrice: pPrice,
+                    currentStock: stock,
+                    quantity: 1,
+                    isWholesale: false
+                });
+            }
+            renderCart();
+        }
+
+        window.changePriceType = function(index, typeValue) {
+            cart[index].isWholesale = (typeValue === 'wholesale');
+            renderCart();
+        };
+
+        window.manualQtyChange = function(index, value) {
+            let newQty = parseInt(value);
+            const item = cart[index];
+
+            if (isNaN(newQty) || newQty <= 0) {
+                newQty = 1;
+            }
+
+            if (newQty > item.currentStock) {
+                showStatus('لە ستۆکدا تەنها ' + item.currentStock + ' دانە ماوە', "text-danger");
+                newQty = item.currentStock;
+            }
+
+            item.quantity = newQty;
+            renderCart();
+        };
+
+        function renderCart(saveToStorage = true) {
+            const tbody = document.getElementById('cartTableBody');
+            tbody.innerHTML = '';
+            let totalAmount = 0;
+            emptyMsg.style.display = cart.length > 0 ? 'none' : 'flex';
+
+            [...cart].reverse().forEach((item, index) => {
+                const actualIndex = cart.length - 1 - index;
+
+                const activePrice = item.isWholesale ? item.wholesalePrice : item.unitPrice;
+                const total = activePrice * item.quantity;
+
+                totalAmount += total;
+                const currentStock = item.currentStock || 0;
+                const remainingStock = currentStock - item.quantity;
+                const stockDisplay = currentStock > 0 ? remainingStock : '-';
+                const stockClass = remainingStock <= 5 ? 'text-danger' : remainingStock <= 10 ? 'text-warning' : 'text-success';
+
+                const bgSelectColor = item.isWholesale ? '#fef3c7' : 'transparent';
+                const dropdownHtml = `
+                    <select class="price-type-select" onchange="changePriceType(${actualIndex}, this.value)" style="background-color: ${bgSelectColor};">
+                        <option value="retail" ${!item.isWholesale ? 'selected' : ''}>تاک: ${item.unitPrice.toLocaleString()}</option>
+                        <option value="wholesale" ${item.isWholesale ? 'selected' : ''}>جوملە: ${item.wholesalePrice.toLocaleString()}</option>
+                    </select>
+                `;
+
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td class="text-muted fw-semibold" style="text-align: center;">${cart.length - index}</td>
+                    <td class="product-name-cell" style="text-align: right;">${item.name}</td>
+                    <td style="text-align: center;">
+                        ${dropdownHtml}
+                    </td>
+                    <td style="text-align: center;">
+                        <div class="qty-controls" style="margin: 0 auto; justify-content: center;">
+                            <button class="qty-btn" onclick="updateQty(${actualIndex},-1)"><i class="bi bi-dash"></i></button>
+                            <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.currentStock}"
+                                   onchange="manualQtyChange(${actualIndex}, this.value)"
+                                   onfocus="this.select()" title="بڕ بنووسە">
+                            <button class="qty-btn" onclick="updateQty(${actualIndex},1)"><i class="bi bi-plus"></i></button>
+                        </div>
+                    </td>
+                    <td class="text-success fw-semibold" style="text-align: center; font-size: 0.9rem;">${total.toLocaleString()}</td>
+                    <td class="${stockClass} fw-semibold" style="text-align: center; font-size:0.8rem;">${stockDisplay}</td>
+                    <td style="text-align: center;">
+                        <button class="remove-btn" onclick="removeItem(${actualIndex})" style="margin: 0 auto;">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('itemCount').textContent = cart.length + ' کاڵا';
+
+            if (currentDiscount > totalAmount) {
+                currentDiscount = totalAmount;
+                document.getElementById('discountInput').value = currentDiscount;
+            }
+
+            const grandTotal = totalAmount - currentDiscount;
+            document.getElementById('hiddenTotalAmount').value = totalAmount;
+            document.getElementById('hiddenGrandTotal').value = grandTotal;
+
+            document.getElementById('itemsJsonInput').value = JSON.stringify(cart.map(x => ({
+                ProductId: x.productId,
+                Quantity: x.quantity,
+                UnitPrice: x.isWholesale ? x.wholesalePrice : x.unitPrice
+            })));
+
+            if (paymentType === 0) {
+                currentPaid = grandTotal;
+                document.getElementById('paidAmountInput').value = currentPaid;
+            }
+
+            updateDisplays();
+            if (saveToStorage) saveCartToStorage();
+        }
+
+        function updateDisplays() {
+            const totalAmount = parseFloat(document.getElementById('hiddenTotalAmount').value) || 0;
+            const grandTotal = parseFloat(document.getElementById('hiddenGrandTotal').value) || 0;
+            document.getElementById('subTotalDisplay').textContent = totalAmount.toLocaleString();
+            document.getElementById('discountDisplay').textContent = currentDiscount.toLocaleString();
+            document.getElementById('grandTotalDisplay').textContent = grandTotal.toLocaleString();
+            document.getElementById('paidDisplay').textContent = currentPaid.toLocaleString();
+
+            const debtDisplay = document.getElementById('debtDisplay');
+            const debt = grandTotal - currentPaid;
+
+            if (paymentType === 1) {
+                if (debt > 0) {
+                    debtDisplay.textContent = 'قەرز: ' + debt.toLocaleString();
+                    debtDisplay.className = 'debt-display show debt';
+                } else if (debt < 0) {
+                    debtDisplay.textContent = 'پێشینە: ' + Math.abs(debt).toLocaleString();
+                    debtDisplay.className = 'debt-display show success';
+                } else {
+                    debtDisplay.className = 'debt-display';
+                }
+            } else {
+                debtDisplay.className = 'debt-display';
+            }
+        }
+
+        function updateQty(index, change) {
+            const item = cart[index];
+            const newQty = item.quantity + change;
+            if (newQty > 0) {
+                if (change > 0 && newQty > item.currentStock) { showStatus('لە ستۆکدا تەنها ' + item.currentStock + ' دانە ماوە', "text-danger"); return; }
+                item.quantity = newQty;
+                renderCart();
+            }
+        }
+
+        function removeItem(i) { cart.splice(i, 1); renderCart(); }
+
+        function clearCartOnly() {
+            if (cart.length > 0 && confirm("دڵنیایت لە بەتاڵکردنەوەی هەموو سەبەتەکە؟")) {
+                cart = [];
+                currentDiscount = 0;
+                document.getElementById('discountInput').value = 0;
+                renderCart();
+                barcodeInput.focus();
+            }
+        }
+
+        function setPaymentType(type) {
+             const customerId = parseInt($('#customerSelect').val()) || 0;
+             if (type === 1 && customerId === defaultCustomerId) {
+                 showStatus('تکایە سەرەتا کڕیارێک هەڵبژێرە بۆ پێدانی قەرز', 'text-danger');
+                 return;
+             }
+             if (paymentType === type) return;
+
+             paymentType = type;
+             document.getElementById('paymentTypeInput').value = type;
+             document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+             document.querySelector('.payment-btn.' + (type === 0 ? 'cash' : 'credit')).classList.add('active');
+
+             const paidBtn = document.getElementById('paidBtn');
+             if (type === 0) {
+                 paidBtn.classList.add('disabled');
+                 const grandTotal = parseFloat(document.getElementById('hiddenGrandTotal').value) || 0;
+                 currentPaid = grandTotal;
+             } else {
+                 paidBtn.classList.remove('disabled');
+                 currentPaid = 0;
+             }
+             updateDisplays();
+         }
+
+        function openDiscountModal() {
+            const subTotal = parseFloat(document.getElementById('hiddenTotalAmount').value) || 0;
+            if (subTotal <= 0) { showStatus('تکایە سەرەتا کاڵا بخەرە سەبەتەکەوە', 'text-warning'); return; }
+            document.getElementById('discountAmountInput').value = currentDiscount;
+            document.getElementById('discountPercentInput').value = subTotal > 0 ? ((currentDiscount / subTotal) * 100).toFixed(1) : 0;
+            document.getElementById('discountModal').classList.add('show');
+            document.getElementById('discountAmountInput').focus();
+            document.getElementById('discountAmountInput').select();
+        }
+
+        function syncDiscount(source) {
+            const subTotal = parseFloat(document.getElementById('hiddenTotalAmount').value) || 0;
+            const amountInput = document.getElementById('discountAmountInput');
+            const percentInput = document.getElementById('discountPercentInput');
+            if (source === 'amount') {
+                let amount = parseFloat(amountInput.value) || 0;
+                let percent = subTotal > 0 ? (amount / subTotal) * 100 : 0;
+                if (percent > maxDiscountPercent) {
+                    percent = maxDiscountPercent;
+                    amount = (percent / 100) * subTotal;
+                    amountInput.value = Math.floor(amount);
+                    showStatus('سنووری داشکاندنەکەت ' + maxDiscountPercent + '% یە', 'text-warning');
+                }
+                percentInput.value = percent.toFixed(1);
+            } else {
+                let percent = parseFloat(percentInput.value) || 0;
+                if (percent > maxDiscountPercent) {
+                    percent = maxDiscountPercent;
+                    percentInput.value = percent;
+                    showStatus('سنووری داشکاندنەکەت ' + maxDiscountPercent + '% یە', 'text-warning');
+                }
+                amountInput.value = Math.floor((percent / 100) * subTotal);
+            }
+        }
+
+        function setQuickDiscount(percent) {
+            if (percent > maxDiscountPercent) {
+                showStatus('سنووری داشکاندنت ' + maxDiscountPercent + '% یە', 'text-warning');
+                percent = maxDiscountPercent;
+            }
+            document.getElementById('discountPercentInput').value = percent;
+            syncDiscount('percent');
+        }
+
+        function setQuickDiscountAmount(amount) {
+            const subTotal = parseFloat(document.getElementById('hiddenTotalAmount').value) || 0;
+            if (subTotal <= 0) return;
+            const percent = (amount / subTotal) * 100;
+            if (percent > maxDiscountPercent) {
+                showStatus('سنووری داشکاندنت ' + maxDiscountPercent + '% یە', 'text-warning');
+                amount = Math.floor((maxDiscountPercent / 100) * subTotal);
+            }
+            document.getElementById('discountAmountInput').value = amount;
+            document.getElementById('discountPercentInput').value = ((amount / subTotal) * 100).toFixed(1);
+        }
+
+        function applyDiscount() {
+            currentDiscount = parseFloat(document.getElementById('discountAmountInput').value) || 0;
+            document.getElementById('discountInput').value = currentDiscount;
+            closeModal('discountModal');
+            renderCart(true);
+        }
+
+        function openPaidModal() {
+            if (paymentType === 0) return;
+            const grandTotal = parseFloat(document.getElementById('hiddenGrandTotal').value) || 0;
+            document.getElementById('modalGrandTotal').textContent = grandTotal.toLocaleString();
+            document.getElementById('paidModalInput').value = currentPaid;
+            generatePaidQuickBtns(grandTotal);
+            document.getElementById('paidModal').classList.add('show');
+            document.getElementById('paidModalInput').focus();
+            document.getElementById('paidModalInput').select();
+        }
+
+        function generatePaidQuickBtns(grandTotal) {
+            const container = document.getElementById('paidQuickBtns');
+            container.innerHTML = '';
+            const amounts = [0];
+            if (grandTotal >= 1000) amounts.push(1000);
+            if (grandTotal >= 5000) amounts.push(5000);
+            if (grandTotal >= 10000) amounts.push(10000);
+            if (grandTotal >= 25000) amounts.push(25000);
+            amounts.push('full');
+
+            amounts.forEach(amt => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'quick-btn';
+                btn.onclick = () => setQuickPaid(amt);
+                btn.textContent = amt === 'full' ? 'تەواوی بڕەکە' : (amt === 0 ? '0' : amt.toLocaleString());
+                container.appendChild(btn);
+            });
+        }
+
+        function validatePaidInput() {
+            const input = document.getElementById('paidModalInput');
+            let value = parseFloat(input.value) || 0;
+            if (value < 0) input.value = 0;
+        }
+
+        function setQuickPaid(amount) {
+            const grandTotal = parseFloat(document.getElementById('hiddenGrandTotal').value) || 0;
+            if (amount === 'full') amount = grandTotal;
+            document.getElementById('paidModalInput').value = amount;
+        }
+
+        function applyPaid() {
+            currentPaid = parseFloat(document.getElementById('paidModalInput').value) || 0;
+            document.getElementById('paidAmountInput').value = currentPaid;
+            closeModal('paidModal');
+            updateDisplays();
+        }
+
+        function openCustomerModal() {
+            document.getElementById('newCustomerName').value = '';
+            document.getElementById('newCustomerPhone').value = '';
+            document.getElementById('customerModal').classList.add('show');
+            document.getElementById('newCustomerName').focus();
+        }
+
+        async function addCustomer() {
+            const name = document.getElementById('newCustomerName').value.trim();
+            const phone = document.getElementById('newCustomerPhone').value.trim() || '-';
+            if (!name) { showStatus('تکایە ناوی کڕیار بنووسە', 'text-danger'); return; }
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const response = await fetch('?handler=AddCustomer&name=' + encodeURIComponent(name) + '&phone=' + encodeURIComponent(phone), {
+                    method: 'POST', headers: { 'RequestVerificationToken': token }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const newOption = new Option(data.customer.name, data.customer.customerId, true, true);
+                    $(newOption).data('balance', 0);
+                    $('#customerSelect').append(newOption).trigger('change');
+                    closeModal('customerModal');
+                    showStatus('کڕیارەکە بە سەرکەوتوویی زیادکرا', 'text-success');
+                    checkCreditAvailable();
+                } else {
+                    showStatus(data.message, 'text-danger');
+                }
+            } catch (err) { console.error(err); showStatus('هەڵەیەک ڕوویدا لە پەیوەندی', 'text-danger'); }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+            barcodeInput.focus();
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) closeModal(this.id);
+            });
+        });
+
+        async function navigateInvoice(direction) {
+            if (!isEditMode && direction === 'next') return;
+            try {
+                const searchId = isEditMode ? currentInvoiceId : realMaxId + 1;
+                const response = await fetch('?handler=NavigateInvoice&currentId=' + searchId + '&direction=' + direction);
+                const data = await response.json();
+                if (data.success) {
+                    if (data.isNew) forceNewInvoice();
+                    else loadInvoiceData(data);
+                } else {
+                    showStatus(data.message, "text-warning");
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function loadInvoiceData(data) {
+            clearStorage();
+            isEditMode = true;
+
+            cart = data.items.map(i => {
+                const pId = getValueByKeys(i, ['productId', 'id']);
+                const name = getValueByKeys(i, ['name']) || 'کاڵا';
+                const uPrice = parseFloat(getValueByKeys(i, ['unitPrice', 'salePrice']) || 0);
+
+                let wPriceRaw = getValueByKeys(i, ['wholesalePrice', 'wholeSalePrice']);
+                let wPrice = parseFloat(wPriceRaw);
+                if (isNaN(wPrice) || wPrice <= 0) wPrice = uPrice;
+
+                const appliedPrice = parseFloat(getValueByKeys(i, ['appliedPrice']) || 0);
+                const pPrice = parseFloat(getValueByKeys(i, ['unitPurchasePrice', 'purchasePrice']) || 0);
+                const stock = parseInt(getValueByKeys(i, ['currentStock', 'stock']) || 0);
+                const qty = parseInt(getValueByKeys(i, ['quantity', 'qty']) || 0);
+
+                let isW = false;
+                if (appliedPrice === wPrice && wPrice !== uPrice) {
+                    isW = true;
+                }
+
+                return {
+                    productId: pId,
+                    name: name,
+                    unitPrice: isW ? uPrice : appliedPrice,
+                    wholesalePrice: wPrice,
+                    unitPurchasePrice: pPrice,
+                    quantity: qty,
+                    currentStock: stock,
+                    isWholesale: isW
+                };
+            });
+
+            currentDiscount = data.discount || 0;
+            document.getElementById('discountInput').value = currentDiscount;
+            currentPaid = data.paidAmount || 0;
+            document.getElementById('paidAmountInput').value = currentPaid;
+
+            const customerSelect = $('#customerSelect');
+            let custOption = customerSelect.find("option[value='" + data.customerId + "']");
+
+            if (custOption.length === 0) {
+                const newOption = new Option(data.customerName, data.customerId, true, true);
+                $(newOption).data('balance', data.customerBalance || 0);
+                customerSelect.append(newOption);
+            } else {
+                custOption.data('balance', data.customerBalance || 0);
+                custOption.prop('selected', true);
+            }
+            customerSelect.trigger('change');
+
+            paymentType = data.paymentType;
+            document.getElementById('paymentTypeInput').value = data.paymentType;
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.payment-btn.' + (data.paymentType === 0 ? 'cash' : 'credit')).classList.add('active');
+
+            const paidBtn = document.getElementById('paidBtn');
+            paidBtn.classList.toggle('disabled', data.paymentType === 0);
+
+            document.getElementById('invoiceIdDisplay').textContent = 'INV-' + data.saleId;
+            invoiceIdContainer.classList.add('is-edit');
+
+            document.getElementById('saleIdInput').value = data.saleId;
+            document.getElementById('saleDateInput').value = data.saleDate;
+            document.getElementById('saveBtnText').textContent = 'پاشەکەوتنی دەستکاری';
+            document.getElementById('btnVoid').style.display = 'flex';
+            document.getElementById('btnNext').disabled = false;
+
+            currentInvoiceId = data.saleId;
+            renderCart(false);
+            updateDisplays();
+            showStatus("پسوڵەی ژمارە INV-" + data.saleId + " هێنرایەوە", "text-success");
+        }
+
+        function forceNewInvoice() {
+            clearStorage();
+            isEditMode = false;
+            cart = [];
+            currentDiscount = 0;
+            currentPaid = 0;
+            document.getElementById('discountInput').value = 0;
+            document.getElementById('paidAmountInput').value = 0;
+
+            currentInvoiceId = realMaxId + 1;
+            document.getElementById('invoiceIdDisplay').textContent = 'INV-' + currentInvoiceId;
+            invoiceIdContainer.classList.remove('is-edit');
+
+            document.getElementById('saleIdInput').value = 0;
+            document.getElementById('saleDateInput').value = new Date().toISOString().split('T')[0];
+            document.getElementById('saveBtnText').textContent = 'تەواوکردنی پسوڵە';
+            document.getElementById('btnVoid').style.display = 'none';
+            document.getElementById('btnNext').disabled = true;
+
+            $('#customerSelect').val(defaultCustomerId).trigger('change');
+            setPaymentType(0);
+            checkCreditAvailable();
+
+            renderCart();
+            barcodeInput.focus();
+        }
+
+        function findInvoice() {
+            const id = prompt("تکایە تەنها ژمارەی پسوڵەکە بنووسە (بێ نووسینی پیتی INV-):");
+            if (id) {
+                fetch('?handler=InvoiceData&id=' + id).then(r => r.json()).then(data => {
+                    if (data.success) loadInvoiceData(data);
+                    else showStatus(data.message, "text-danger");
+                });
+            }
+        }
+
+        async function voidInvoice() {
+            if (!isEditMode || currentInvoiceId <= 0) return;
+            if (!confirm("ئایا بەتەواوی دڵنیایت لە سڕینەوەی ئەم پسوڵەیە؟\nئەم کردارە پاشگەزبوونەوەی تێدا نییە!")) return;
+
+            const btn = document.getElementById('saveSaleButton');
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData(document.getElementById('posForm'));
+                formData.set('SingleSale.CustomerId', $('#customerSelect').val());
+                formData.set('ItemsJson', '[]');
+                formData.set('SingleSale.SaleId', currentInvoiceId);
+
+                const response = await fetch('', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.success) {
+                    showStatus("پسوڵەکە بەسەرکەوتوویی سڕایەوە", "text-success");
+                    realMaxId = data.nextNewId - 1;
+                    setTimeout(() => forceNewInvoice(), 500);
+                } else {
+                    showStatus(data.message, "text-danger");
+                }
+            } catch (err) { console.error(err); showStatus("هەڵە لە پەیوەندی", "text-danger"); }
+            finally { btn.disabled = false; }
+        }
+
+        async function submitSale() {
+            if (cart.length === 0) { showStatus("ناتوانیت پسوڵەی بەتاڵ تۆمار بکەیت!", "text-danger"); return; }
+
+            const btn = document.getElementById('saveSaleButton');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> تکایە چاوەڕوانبە...';
+
+            try {
+                const formData = new FormData(document.getElementById('posForm'));
+                formData.set('SingleSale.CustomerId', $('#customerSelect').val());
+                formData.set('ItemsJson', document.getElementById('itemsJsonInput').value);
+                formData.set('SingleSale.Discount', currentDiscount);
+                formData.set('SingleSale.PaymentType', paymentType);
+                formData.set('SingleSale.PaidAmount', paymentType === 0 ? document.getElementById('hiddenGrandTotal').value : currentPaid);
+
+                const response = await fetch('', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.success) {
+                    showStatus(data.message + " - ئایدی: INV-" + data.invoiceId, "text-success");
+
+                    // لێرەدا پشکنین دەکەین ئایا چێکبۆکسی چاپکردن هێمای ڕاستی پێوەیە یان نا
+                    if (document.getElementById('autoPrintCheck').checked) {
+                        // چاپکردنی پسوڵە پێش ئەوەی بەتاڵی بکەینەوە (لەگەڵ پێدانی ئایدی ڕاستەقینەی پسوڵەکە)
+                        printCurrentInvoice(data.invoiceId);
+                    }
+
+                    realMaxId = data.nextNewId - 1;
+                    setTimeout(() => forceNewInvoice(), 500);
+                } else {
+                    showStatus(data.message, "text-danger");
+                }
+            } catch (err) { console.error(err); showStatus("هەڵە لە تۆمارکردندا ڕوویدا", "text-danger"); }
+            finally { btn.disabled = false; btn.innerHTML = originalHtml; }
+        }
+
+        document.getElementById('posForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitSale();
+        });
+
+        // گۆڕانکاری کرا بۆ ئەوەی بتوانین ئایدییەکەی بدەینێ لەکاتی چاپکردنی خودکار
+        async function printCurrentInvoice(explicitInvoiceId = null) {
+            if (cart.length === 0) { showStatus("سەبەتە بەتاڵە!", "text-warning"); return; }
+
+            let storeInfo = { storeName: '@Model.StoreName', storePhone: '', storeAddress: '', storeLogo: '@Model.StoreLogo' };
+            try {
+                const res = await fetch('?handler=StoreInfo');
+                storeInfo = await res.json();
+            } catch (err) { console.error(err); }
+
+            const invoiceId = explicitInvoiceId || (isEditMode && currentInvoiceId > 0 ? currentInvoiceId : (realMaxId + 1));
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB');
+            const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+            const totalAmount = parseFloat(document.getElementById('hiddenTotalAmount').value) || 0;
+            const grandTotal = parseFloat(document.getElementById('hiddenGrandTotal').value) || 0;
+            const discount = currentDiscount;
+            const paid = currentPaid;
+            const debt = grandTotal - paid;
+            const customerName = $('#customerSelect option:selected').text() || 'ڕاستەوخۆ';
+
+            let itemsHtml = '';
+            cart.forEach(item => {
+                const activePrice = item.isWholesale ? item.wholesalePrice : item.unitPrice;
+                const subtotal = activePrice * item.quantity;
+                itemsHtml += `<tr>
+                    <td style="text-align:right;padding:6px 0;border-bottom:1px dotted #ccc;">${item.name}</td>
+                    <td style="text-align:center;padding:6px 2px;border-bottom:1px dotted #ccc;">${item.quantity}</td>
+                    <td style="text-align:center;padding:6px 2px;border-bottom:1px dotted #ccc;">${activePrice.toLocaleString()}</td>
+                    <td style="text-align:left;padding:6px 0;border-bottom:1px dotted #ccc;">${subtotal.toLocaleString()}</td>
+                </tr>`;
+            });
+
+            const discountHtml = discount > 0 ? `<div class="total-row"><span>داشکاندن:</span><span style="color:#c00;">-${discount.toLocaleString()} د.ع</span></div>` : '';
+            const debtHtml = debt > 0 ? `<div class="total-row debt"><span>قەرز:</span><span>${debt.toLocaleString()} د.ع</span></div>` : '';
+            const logoHtml = storeInfo.storeLogo ? `<img src="${storeInfo.storeLogo}" style="max-width:80px;max-height:60px;display:block;margin:0 auto 10px;" />` : '';
+
+            const printContent = `<div style="font-family:Tahoma,Arial,sans-serif;font-size:12px;width:80mm;padding:5mm;direction:rtl;">
+                <style>
+                .header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:10px;}
+                .store-name{font-size:18px;font-weight:bold;margin-bottom:5px;}
+                .store-info{font-size:11px;color:#333; line-height: 1.4;}
+                .invoice-info{display:flex;justify-content:space-between;font-size:11px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed #000;}
+                .items-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
+                .items-table th{font-size:11px;padding:8px 2px;border-bottom:2px solid #000;border-top:2px solid #000;}
+                .items-table td{font-size:12px;}
+                .totals{border-top:2px solid #000;padding-top:10px;}
+                .total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;}
+                .total-row.grand{font-size:16px;font-weight:bold;border-top:2px solid #000;padding-top:10px;margin-top:8px;}
+                .total-row.debt{color:#c00;font-weight:bold;}
+                .footer{text-align:center;margin-top:20px;padding-top:10px;border-top:1px dashed #000;font-size:11px;}
+                </style>
+                <div class="header">
+                ${logoHtml}
+                <div class="store-name">${storeInfo.storeName}</div>
+                <div class="store-info">${storeInfo.storeAddress}</div>
+                <div class="store-info">${storeInfo.storePhone}</div>
+                </div>
+                <div class="invoice-info">
+                <span>پسوڵەی: <strong>INV-${invoiceId}</strong></span>
+                <span>${dateStr} - ${timeStr}</span>
+                </div>
+                <div style="font-size:12px;margin-bottom:15px;">ناوی کڕیار: <strong>${customerName}</strong></div>
+                <table class="items-table">
+                <thead><tr>
+                <th style="text-align:right;">کاڵا</th>
+                <th style="text-align:center;">بڕ</th>
+                <th style="text-align:center;">نرخ</th>
+                <th style="text-align:left;">کۆ</th>
+                </tr></thead>
+                <tbody id="printBody">${itemsHtml}</tbody>
+                </table>
+                <div class="totals">
+                <div class="total-row"><span>کۆی کاڵاکان:</span><span>${totalAmount.toLocaleString()} د.ع</span></div>
+                ${discountHtml}
+                <div class="total-row grand"><span>کۆی گشتی:</span><span>${grandTotal.toLocaleString()} د.ع</span></div>
+                <div class="total-row"><span>بڕی وەرگیراو:</span><span>${paid.toLocaleString()} د.ع</span></div>
+                ${debtHtml}
+                </div>
+                <div class="footer">
+                <div>سوپاس بۆ سەردانتان</div>
+                <div style="margin-top:5px;font-size:10px;color:#666;">سیستەمی ${storeInfo.storeName}</div>
+                </div>
+                </div>`;
+
+            const printWindow = window.open('', '_blank', 'width=400,height=600');
+            if (!printWindow) { showStatus("پەنجەرەی پرێنت نەکرایەوە! دڵنیابە پۆپئاپەکانت بلۆک نەکردووە.", "text-danger"); return; }
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.onload = () => setTimeout(() => printWindow.print(), 200);
+        }
+
+        function showStatus(msg, cls) {
+            statusMsg.textContent = msg;
+            statusMsg.className = 'status-msg ' + cls;
+            setTimeout(() => statusMsg.textContent = "", 3000);
+        }
+
+        function saveCartToStorage() {
+            localStorage.setItem('posCartState', JSON.stringify({ cart, currentDiscount, currentPaid, paymentType }));
+        }
+
+        function clearStorage() { localStorage.removeItem('posCartState'); }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F10') { e.preventDefault(); submitSale(); }
+            if (e.key === 'Escape') { document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show')); barcodeInput.focus(); }
+        });
+
+        document.body.addEventListener('click', (e) => {
+            if (e.target.closest('.modal-overlay') || e.target.closest('.select2-container')) return;
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'LABEL') {
+                barcodeInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>

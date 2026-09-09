@@ -1,0 +1,1192 @@
+@page
+@model MyStore.Pages.Inventory.IndexModel
+@{
+    ViewData["Title"] = "کۆگا و ستۆک";
+}
+
+<style>
+    /* ══ هێنانی فۆنتەکە ══ */
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+    /* ══ سڕینەوەی پادینگە باوەکان بۆ ڕێکبوونی لەگەڵ لایئەوتە نوێیەکە ══ */
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    /* ══ گۆڕاوەکان کە لە لایئەوتەوە کۆنتڕۆڵ دەکرێن ══ */
+    :root {
+        --iv-page: #0b1120;
+        --iv-card: rgba(15,23,42,.7);
+        --iv-stat: rgba(15,23,42,.6);
+        --iv-thead: rgba(15,23,42,.5);
+        --iv-hover: rgba(99,102,241,.04);
+        --iv-input: rgba(30,41,59,.8);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --border-input: rgba(148,163,184,.12);
+        --border-focus: rgba(129,140,248,.5);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --accent-border: rgba(99,102,241,.2);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --warning-bg: rgba(252,211,77,.1);
+        --info: #93c5fd;
+        --info-bg: rgba(59,130,246,.1);
+        --cyan: #67e8f9;
+        --cyan-bg: rgba(6,182,212,.1);
+        --gradient-top: linear-gradient(135deg, rgba(30,27,75,.4), rgba(49,46,129,.3), rgba(30,27,75,.2));
+        --shadow-sm: none;
+        --result-bg: rgba(15,23,42,.6);
+        --result-border: rgba(148,163,184,.08);
+    }
+
+    /* ══ گۆڕاوەکان — ڕووناک ══ */
+    [data-theme="light"] {
+        --iv-page: #eef1f6;
+        --iv-card: #ffffff;
+        --iv-stat: #ffffff;
+        --iv-thead: #f8f9fb;
+        --iv-hover: rgba(99,102,241,.03);
+        --iv-input: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --border-input: rgba(0,0,0,.12);
+        --border-focus: rgba(99,102,241,.45);
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --accent-border: rgba(99,102,241,.12);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --warning-bg: rgba(217,119,6,.08);
+        --info: #2563eb;
+        --info-bg: rgba(59,130,246,.08);
+        --cyan: #0891b2;
+        --cyan-bg: rgba(6,182,212,.08);
+        --gradient-top: linear-gradient(135deg, rgba(238,242,255,.95), rgba(224,231,255,.7), rgba(238,242,255,.5));
+        --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+        --result-bg: #f8f9fb;
+        --result-border: #eaecf0;
+    }
+
+    /* ══ ڕێکخستنی بنەڕەتی ══ */
+    .iv-page {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        background: var(--iv-page);
+        color: var(--text-primary);
+        min-height: 100vh;
+        position: relative;
+        transition: background .35s, color .35s;
+    }
+
+        .iv-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+            transition: background .35s;
+        }
+
+    .iv-in {
+        position: relative;
+        z-index: 1;
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 100vh;
+    }
+
+    /* ══ هێدەر ══ */
+    .iv-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        flex-shrink: 0;
+    }
+
+        .iv-top h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 2px;
+            transition: color .35s;
+        }
+
+        .iv-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+            transition: color .35s;
+        }
+
+    .iv-top-ico {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        font-size: 14px;
+    }
+
+    /* ══ دوگمەی هێدەر بۆ ڕاستکردنەوە (وەک دەفتەری قەرز) ══ */
+    .btn-header-action {
+        height: 32px;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        background: var(--iv-input);
+        border: 1px solid var(--border-input);
+        color: var(--text-primary) !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        text-decoration: none;
+    }
+
+        .btn-header-action i {
+            font-size: 14px;
+            color: var(--cyan);
+        }
+
+        .btn-header-action:hover {
+            transform: translateY(-2px);
+            border-color: var(--cyan);
+        }
+
+    /* ══ ٤ کارتی ئامار (ڕێک وەک دەفتەری قەرز) ══ */
+    .iv-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .iv-st {
+        background: var(--iv-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 14px 16px;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .iv-st:hover {
+            border-color: var(--accent-border);
+            transform: translateY(-1px);
+        }
+
+    .iv-st-lbl {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 400;
+        margin-bottom: 6px;
+    }
+
+    .iv-st-val {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1;
+        transition: color .35s;
+    }
+
+    .iv-st-sub {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 4px;
+    }
+
+    .iv-st-ico {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    /* ڕەنگەکان بۆ ئامارەکان */
+    .c-indigo {
+        color: var(--accent-text);
+    }
+
+    .bg-indigo {
+        background: var(--accent-bg);
+        color: var(--accent);
+    }
+
+    .c-amber {
+        color: var(--warning);
+    }
+
+    .bg-amber {
+        background: var(--warning-bg);
+        color: var(--warning);
+    }
+
+    .c-rose {
+        color: var(--danger);
+    }
+
+    .bg-rose {
+        background: var(--danger-bg);
+        color: var(--danger);
+    }
+
+    .c-emerald {
+        color: var(--success);
+    }
+
+    .bg-emerald {
+        background: var(--success-bg);
+        color: var(--success);
+    }
+
+    .c-cyan {
+        color: var(--cyan);
+    }
+
+    .bg-cyan {
+        background: var(--cyan-bg);
+        color: var(--cyan);
+    }
+
+    /* ══ کارتی سەرەکی ══ */
+    .iv-card {
+        background: var(--iv-card);
+        border: 1px solid var(--border-card);
+        border-radius: 14px;
+        overflow: hidden;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* ══ تابەکان (سادە و پڕۆفێشناڵ بە هێڵی ژێرەوە) ══ */
+    .iv-tabs {
+        display: flex;
+        gap: 24px;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--border-subtle);
+        flex-shrink: 0;
+    }
+
+    .iv-tab {
+        background: transparent;
+        border: none;
+        padding: 14px 4px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-muted);
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .iv-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .iv-tab.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .iv-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: transparent;
+            border-radius: 2px 2px 0 0;
+            transition: background 0.2s;
+        }
+
+        .iv-tab.active::after {
+            background: var(--accent);
+        }
+
+    /* ══ تولبار ══ */
+    .iv-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-subtle);
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .iv-inp {
+        height: 32px;
+        padding: 0 10px;
+        background: var(--iv-input);
+        border: 1px solid var(--border-input);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 11px;
+        font-family: inherit;
+        outline: none;
+        transition: all .25s;
+    }
+
+        .iv-inp option {
+            background: var(--iv-card);
+            color: var(--text-primary);
+        }
+
+        .iv-inp:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-bg);
+        }
+
+        .iv-inp::placeholder {
+            color: var(--text-dim);
+            opacity: .7;
+        }
+
+        .iv-inp::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: .6;
+            filter: invert(var(--icon-invert, 0));
+        }
+
+    [data-theme="light"] .iv-inp::-webkit-calendar-picker-indicator {
+        --icon-invert: 0;
+    }
+
+    :root .iv-inp::-webkit-calendar-picker-indicator {
+        --icon-invert: 1;
+    }
+
+    /* ══ دوگمەکان ══ */
+    .iv-btn {
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: inherit;
+        transition: all .2s;
+        border: none;
+        text-decoration: none;
+    }
+
+    .iv-btn-ghost {
+        background: var(--iv-input);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-card);
+    }
+
+        .iv-btn-ghost:hover {
+            background: var(--iv-hover);
+            color: var(--text-primary);
+        }
+
+    .iv-btn-primary {
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        color: #fff;
+    }
+
+        .iv-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99,102,241,.25);
+            color: #fff;
+        }
+
+    /* ══ خشتە و سکڕۆڵ ══ */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--text-muted) var(--iv-card);
+    }
+
+    .iv-tbl-scroll {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: auto;
+        min-height: 0;
+    }
+
+        .iv-tbl-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .iv-tbl-scroll::-webkit-scrollbar-track {
+            background: var(--iv-card);
+        }
+
+        .iv-tbl-scroll::-webkit-scrollbar-thumb {
+            background: var(--text-dim);
+            border-radius: 6px;
+        }
+
+    .iv-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .iv-tbl th {
+            padding: 10px 14px;
+            text-align: right;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--iv-thead);
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            transition: all .35s;
+        }
+
+        .iv-tbl td {
+            padding: 8px 14px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+            transition: all .35s;
+            white-space: nowrap;
+        }
+
+        .iv-tbl tr {
+            transition: background .15s;
+        }
+
+            .iv-tbl tr:hover {
+                background: var(--iv-hover);
+            }
+
+            .iv-tbl tr:last-child td {
+                border-bottom: none;
+            }
+
+    /* ══ badge ══ */
+    .iv-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all .35s;
+    }
+
+        .iv-badge.good {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .iv-badge.low {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        .iv-badge.out {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .iv-badge.plus {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .iv-badge.minus {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+    .iv-barcode {
+        font-size: 11px;
+        color: var(--text-dim);
+        font-family: monospace;
+        letter-spacing: .5px;
+    }
+
+    /* ══ فووتەر ══ */
+    .iv-foot {
+        padding: 12px 14px;
+        border-top: 1px solid var(--border-subtle);
+        background: var(--iv-card);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
+
+        .iv-foot b {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+    /* ══ Empty ══ */
+    .iv-empty {
+        text-align: center;
+        padding: 30px 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .iv-empty i {
+            font-size: 24px;
+            color: var(--text-dim);
+            opacity: .5;
+            margin-bottom: 8px;
+        }
+
+        .iv-empty p {
+            color: var(--text-dim);
+            font-size: 11px;
+            margin: 0;
+        }
+
+    /* ══ مۆدال ══ */
+    .iv-modal .modal-content {
+        background: var(--iv-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        overflow: hidden;
+        color: var(--text-primary);
+        box-shadow: 0 15px 35px rgba(0,0,0,.3);
+    }
+
+    .iv-modal .modal-body {
+        background: var(--iv-card);
+        padding: 16px;
+    }
+
+    .iv-modal .modal-footer {
+        background: var(--iv-stat);
+        border-top: 1px solid var(--border-subtle);
+        padding: 10px 14px;
+    }
+
+    .iv-modal-hdr {
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, rgba(252,211,77,.12), rgba(217,119,6,.08));
+        border-bottom: 1px solid rgba(252,211,77,.15);
+    }
+
+        .iv-modal-hdr h5 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .iv-modal-hdr h5 i {
+                color: var(--warning);
+            }
+
+    .iv-field {
+        margin-bottom: 12px;
+    }
+
+    .iv-field-lbl {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .iv-field-lbl i {
+            color: var(--accent);
+            font-size: 12px;
+        }
+
+    .iv-field-inp {
+        width: 100%;
+        height: 36px;
+        padding: 0 10px;
+        background: var(--iv-input);
+        border: 1px solid var(--border-card);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 12px;
+        font-family: inherit;
+        outline: none;
+        transition: all .25s;
+    }
+
+        .iv-field-inp:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-bg);
+        }
+
+        .iv-field-inp option {
+            background: var(--iv-card);
+            color: var(--text-primary);
+        }
+
+    .iv-toggle-btns {
+        display: flex;
+        gap: 6px;
+    }
+
+    .iv-toggle-btn {
+        flex: 1;
+        height: 32px;
+        padding: 0 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid var(--border-card);
+        background: var(--iv-input);
+        color: var(--text-dim);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        cursor: pointer;
+        transition: all .15s;
+        font-family: inherit;
+    }
+
+        .iv-toggle-btn:hover {
+            border-color: var(--accent-border);
+            background: var(--iv-hover);
+        }
+
+        .iv-toggle-btn.active-add {
+            background: var(--success-bg);
+            color: var(--success);
+            border-color: rgba(52,211,153,.3);
+        }
+
+        .iv-toggle-btn.active-sub {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: rgba(251,113,133,.3);
+        }
+
+    .iv-result {
+        background: var(--result-bg);
+        border: 1px solid var(--result-border);
+        border-radius: 6px;
+        padding: 10px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+    }
+
+    .iv-submit {
+        width: 100%;
+        height: 36px;
+        border: none;
+        border-radius: 6px;
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all .2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+        .iv-submit:hover:not(:disabled) {
+            box-shadow: 0 4px 12px rgba(99,102,241,.3);
+            transform: translateY(-1px);
+        }
+
+        .iv-submit:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            background: var(--iv-input);
+            color: var(--text-dim);
+            border: 1px solid var(--border-card);
+        }
+
+    /* ══ Fullscreen ══ */
+    .iv-card.is-fullscreen {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 2147483647 !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 16px !important;
+        background-color: var(--iv-page) !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+    }
+
+    /* ══ Responsive ══ */
+    @@media(max - width:1200px) {
+        .iv-stats
+
+    {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    }
+
+    @@media(max - width:768px) {
+        .iv-stats
+
+    {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .iv-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    }
+
+    @@media(max - width:576px) {
+        .iv-stats
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .iv-in {
+        padding: 12px;
+    }
+
+    .iv-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    }</style>
+
+<div class="iv-page">
+    <div class="iv-in">
+
+        <!-- ══ هێدەر ══ -->
+        <div class="iv-top">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="iv-top-ico"><i class="bi bi-boxes"></i></div>
+                <div>
+                    <h1>کۆگا و ستۆک</h1>
+                    <p>دۆخی ستۆک، ڕاستکردنەوە، و مێژووی گۆڕانکارییەکان</p>
+                </div>
+            </div>
+
+            <!-- دوگمەی نوێی ڕاستکردنەوە (وەک دەفتەری قەرز) -->
+            <button type="button" class="btn-header-action" data-bs-toggle="modal" data-bs-target="#adjustmentModal">
+                <i class="bi bi-sliders2"></i>
+                ڕاستکردنەوەی کۆگا
+            </button>
+        </div>
+
+        <!-- ══ ٤ کارت (ڕێک وەک دەفتەری قەرز) ══ -->
+        <div class="iv-stats">
+            <div class="iv-st">
+                <div>
+                    <div class="iv-st-lbl">جۆری کاڵا</div>
+                    <div class="iv-st-val c-indigo">@Model.TotalProducts</div>
+                    <div class="iv-st-sub">دانە لە کۆگا</div>
+                </div>
+                <div class="iv-st-ico bg-indigo"><i class="bi bi-grid-3x3-gap"></i></div>
+            </div>
+            <div class="iv-st">
+                <div>
+                    <div class="iv-st-lbl">کەم ماوە</div>
+                    <div class="iv-st-val c-amber">@Model.LowStockCount</div>
+                    <div class="iv-st-sub">کاڵا</div>
+                </div>
+                <div class="iv-st-ico bg-amber"><i class="bi bi-exclamation-triangle"></i></div>
+            </div>
+            <div class="iv-st">
+                <div>
+                    <div class="iv-st-lbl">نەماوە</div>
+                    <div class="iv-st-val c-rose">@Model.OutOfStockCount</div>
+                    <div class="iv-st-sub">کاڵا</div>
+                </div>
+                <div class="iv-st-ico bg-rose"><i class="bi bi-x-circle"></i></div>
+            </div>
+            <div class="iv-st">
+                <div>
+                    <div class="iv-st-lbl">بەهای کۆگا</div>
+                    <div class="iv-st-val c-emerald">@string.Format("{0:N0}", Model.TotalStockValue)</div>
+                    <div class="iv-st-sub">دینار</div>
+                </div>
+                <div class="iv-st-ico bg-emerald"><i class="bi bi-cash-stack"></i></div>
+            </div>
+        </div>
+
+        <!-- ══ کارتی سەرەکی ══ -->
+        <div class="iv-card" id="mainCard">
+
+            <!-- تابەکان (دیزاینی نوێ و شیک) -->
+            <div class="iv-tabs">
+                <button class="iv-tab active" onclick="switchTab('stock',this)">
+                    <i class="bi bi-boxes"></i> دۆخی ستۆک
+                </button>
+                <button class="iv-tab" onclick="switchTab('history',this)">
+                    <i class="bi bi-clock-history"></i> مێژووی گۆڕانکاری
+                </button>
+            </div>
+
+            <!-- ══ تولباری ستۆک ══ -->
+            <div id="toolbarStock" class="iv-toolbar">
+                <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap;">
+                    <i class="bi bi-search" style="color:var(--text-dim);font-size:12px;"></i>
+                    <input type="text" id="fStockSearch" class="iv-inp" placeholder="ناو یان باڕکۆد..." style="width:160px;" oninput="filterStockTab()">
+                    <select id="fStockType" class="iv-inp" onchange="filterStockTab()" style="width:110px;">
+                        <option value="">هەموو</option>
+                        <option value="OutOfStock">نەماوە</option>
+                        <option value="LowStock">کەم ماوە</option>
+                        <option value="InStock">هەیە</option>
+                    </select>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span id="stockTabCount" style="font-size:11px;color:var(--text-dim);font-weight:600;">@Model.InventoryList.Count کاڵا</span>
+                    <button class="iv-btn iv-btn-ghost" onclick="toggleFullscreen()" title="گەورەکردن" style="padding:0 8px;">
+                        <i class="bi bi-arrows-fullscreen" id="expandIcon1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ══ تولباری مێژوو ══ -->
+            <div id="toolbarHistory" class="iv-toolbar" style="display:none;">
+                <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap;">
+                    <i class="bi bi-search" style="color:var(--text-dim);font-size:12px;"></i>
+                    <input type="text" id="fHistorySearch" class="iv-inp" placeholder="ناوی کاڵا..." style="width:160px;" oninput="filterHistoryTab()">
+                    <select id="fHistoryType" class="iv-inp" onchange="filterHistoryTab()" style="width:110px;">
+                        <option value="">هەموو</option>
+                        <option value="کڕین">کڕین</option>
+                        <option value="فرۆشتن">فرۆشتن</option>
+                        <option value="ڕاستکردنەوە">ڕاستکردنەوە</option>
+                    </select>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span id="historyTabCount" style="font-size:11px;color:var(--text-dim);font-weight:600;">@Model.AdjustmentHistory.Count گۆڕانکاری</span>
+                    <button class="iv-btn iv-btn-ghost" onclick="toggleFullscreen()" title="گەورەکردن" style="padding:0 8px;">
+                        <i class="bi bi-arrows-fullscreen" id="expandIcon2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ══ ناوەرۆکی ستۆک ══ -->
+            <div id="content-stock" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+                <div class="iv-tbl-scroll">
+                    <table class="iv-tbl">
+                        <thead>
+                            <tr>
+                                <th>کاڵا</th>
+                                <th>باڕکۆد</th>
+                                <th style="text-align:center">ستۆک</th>
+                                <th style="text-align:center">تێچوو MAC</th>
+                                <th style="text-align:center">نرخی فرۆشتن</th>
+                                <th style="text-align:center">قازانج</th>
+                                <th style="text-align:center">بەهای کۆگا</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockTabTbody">
+                            @foreach (var si in Model.InventoryList)
+                            {
+                                var sClass = si.CurrentStock <= 0 ? "out" : si.CurrentStock < 5 ? "low" : "good";
+                                var sProfit = si.SalePrice - si.AveragePurchasePrice;
+                                var sType = si.CurrentStock <= 0 ? "OutOfStock" : si.CurrentStock < 5 ? "LowStock" : "InStock";
+                                <tr class="stock-row"
+                                    data-name="@si.ProductName.ToLower()"
+                                    data-barcode="@si.Barcode.ToLower()"
+                                    data-stocktype="@sType">
+                                    <td style="font-weight:600;color:var(--text-primary);">@si.ProductName</td>
+                                    <td><span class="iv-barcode">@si.Barcode</span></td>
+                                    <td style="text-align:center"><span class="iv-badge @sClass">@si.CurrentStock</span></td>
+                                    <td style="text-align:center">@string.Format("{0:N0}", si.AveragePurchasePrice)</td>
+                                    <td style="text-align:center;color:var(--accent-text);font-weight:600;">@string.Format("{0:N0}", si.SalePrice)</td>
+                                    <td style="text-align:center;font-weight:700;color:@(sProfit > 0 ? "var(--success)" : sProfit < 0 ? "var(--danger)" : "var(--text-dim)");">@string.Format("{0:N0}", sProfit)</td>
+                                    <td style="text-align:center;font-weight:600;">@string.Format("{0:N0}", si.CurrentStock * si.AveragePurchasePrice)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="iv-foot">
+                    <span><b>@Model.InventoryList.Count</b> کاڵا</span>
+                    <span>کۆی بەها: <b style="color:var(--success);">@string.Format("{0:N0}", Model.TotalStockValue)</b> دینار</span>
+                </div>
+            </div>
+
+            <!-- ══ ناوەرۆکی مێژوو ══ -->
+            <div id="content-history" style="display:none;flex-direction:column;flex:1;min-height:0;">
+                @if (Model.AdjustmentHistory.Any())
+                {
+                    <div class="iv-tbl-scroll">
+                        <table class="iv-tbl">
+                            <thead>
+                                <tr>
+                                    <th>کاڵا</th>
+                                    <th style="text-align:center">گۆڕانکاری</th>
+                                    <th style="text-align:center">پێش → دوا</th>
+                                    <th>هۆکار</th>
+                                    <th>بەروار</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTabTbody">
+                                @foreach (var adj in Model.AdjustmentHistory)
+                                {
+                                    <tr>
+                                        <td style="font-weight:600;color:var(--text-primary);">@adj.Product?.Name</td>
+                                        <td style="text-align:center">
+                                            <span class="iv-badge @(adj.AdjustmentQuantity > 0 ? "plus" : "minus")">
+                                                @(adj.AdjustmentQuantity > 0 ? "+" : "")@adj.AdjustmentQuantity
+                                            </span>
+                                        </td>
+                                        <td style="text-align:center">
+                                            <span style="color:var(--text-dim);">@adj.StockBefore</span> → <span style="font-weight:700;">@adj.StockAfter</span>
+                                        </td>
+                                        <td style="color:var(--text-dim);font-size:12px;">@adj.Reason</td>
+                                        <td style="color:var(--text-dim);font-size:12px;">@adj.AdjustmentDate.ToString("yyyy/MM/dd HH:mm")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="iv-foot">
+                        <span><b>@Model.AdjustmentHistory.Count</b> گۆڕانکاری</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="iv-empty">
+                        <i class="bi bi-clock-history"></i>
+                        <p>هیچ مێژووێک نییە</p>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ══ مۆدالی ڕاستکردنەوە ══ -->
+<div class="modal fade iv-modal" id="adjustmentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content">
+            <div class="iv-modal-hdr">
+                <h5><i class="bi bi-sliders"></i> ڕاستکردنەوەی ستۆک</h5>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" style="filter:var(--close-filter,invert(1));font-size:12px;opacity:.8;"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-page-handler="AdjustStock">
+                    <div class="iv-field">
+                        <div class="iv-field-lbl"><i class="bi bi-box"></i> کاڵا</div>
+                        <select asp-for="AdjustmentInput.ProductId" class="iv-field-inp" id="adjustProductSelect" required style="cursor:pointer;">
+                            <option value="">— کاڵا هەڵبژێرە —</option>
+                            @foreach (var p in Model.InventoryList)
+                            {
+                                <option value="@p.ProductId" data-stock="@p.CurrentStock">@p.ProductName (ستۆک: @p.CurrentStock)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="iv-field">
+                        <div class="iv-field-lbl"><i class="bi bi-arrow-left-right"></i> جۆری کردار</div>
+                        <div class="iv-toggle-btns">
+                            <button type="button" class="iv-toggle-btn" id="btnAdd" onclick="setActionType('add')"><i class="bi bi-plus-circle-fill"></i> زیادکردن</button>
+                            <button type="button" class="iv-toggle-btn active-sub" id="btnSub" onclick="setActionType('sub')"><i class="bi bi-dash-circle-fill"></i> کەمکردن</button>
+                        </div>
+                    </div>
+                    <div class="iv-field">
+                        <div class="iv-field-lbl"><i class="bi bi-123"></i> ژمارە</div>
+                        <input type="number" id="adjustQty" class="iv-field-inp" min="1" placeholder="0">
+                        <input type="hidden" asp-for="AdjustmentInput.AdjustmentQuantity" id="finalQty">
+                    </div>
+                    <div class="iv-field">
+                        <div class="iv-field-lbl"><i class="bi bi-chat-text"></i> هۆکار</div>
+                        <input asp-for="AdjustmentInput.Reason" class="iv-field-inp" placeholder="بۆچی ڕاستکردنەوە دەکەیت؟">
+                    </div>
+                    <div class="iv-result" id="resultPreview">کاڵا و بڕ دیاری بکە</div>
+                    <button type="submit" class="iv-submit" id="adjustSubmitBtn" disabled>
+                        <i class="bi bi-check-lg"></i> جێبەجێکردن
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ══ تابەکان ══
+        function switchTab(name, btn) {
+            document.querySelectorAll('.iv-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('content-stock').style.display = name === 'stock' ? 'flex' : 'none';
+            document.getElementById('content-history').style.display = name === 'history' ? 'flex' : 'none';
+            document.getElementById('toolbarStock').style.display = name === 'stock' ? 'flex' : 'none';
+            document.getElementById('toolbarHistory').style.display = name === 'history' ? 'flex' : 'none';
+        }
+
+        // ══ فلتەری ستۆک ══
+        function filterStockTab() {
+            var search = (document.getElementById('fStockSearch').value || '').toLowerCase();
+            var type = document.getElementById('fStockType').value || '';
+            var count = 0;
+            document.querySelectorAll('#stockTabTbody .stock-row').forEach(function (tr) {
+                var nm = !search || (tr.dataset.name || '').includes(search) || (tr.dataset.barcode || '').includes(search);
+                var tp = !type || tr.dataset.stocktype === type;
+                tr.style.display = (nm && tp) ? '' : 'none';
+                if (nm && tp) count++;
+            });
+            var el = document.getElementById('stockTabCount');
+            if (el) el.textContent = count + ' کاڵا';
+        }
+
+        // ══ فلتەری مێژوو ══
+        function filterHistoryTab() {
+            var search = (document.getElementById('fHistorySearch').value || '').toLowerCase();
+            var type = document.getElementById('fHistoryType').value || '';
+            var count = 0;
+            document.querySelectorAll('#historyTabTbody tr').forEach(function (tr) {
+                var text = tr.textContent.toLowerCase();
+                var show = (!search || text.includes(search)) && (!type || text.includes(type));
+                tr.style.display = show ? '' : 'none';
+                if (show) count++;
+            });
+            var el = document.getElementById('historyTabCount');
+            if (el) el.textContent = count + ' گۆڕانکاری';
+        }
+
+        // ══ ڕاستکردنەوەی ستۆک ══
+        var actionType = 'sub';
+        function setActionType(t) {
+            actionType = t;
+            document.getElementById('btnAdd').className = 'iv-toggle-btn' + (t === 'add' ? ' active-add' : '');
+            document.getElementById('btnSub').className = 'iv-toggle-btn' + (t === 'sub' ? ' active-sub' : '');
+            updatePreview();
+        }
+
+        function updatePreview() {
+            var sel = document.getElementById('adjustProductSelect');
+            var qty = parseInt(document.getElementById('adjustQty').value) || 0;
+            var opt = sel.options[sel.selectedIndex];
+            var stock = parseInt(opt?.dataset?.stock || 0);
+            var result = actionType === 'add' ? stock + qty : stock - qty;
+            var txt = document.getElementById('resultPreview');
+            var btn = document.getElementById('adjustSubmitBtn');
+            var final = document.getElementById('finalQty');
+
+            if (!sel.value || qty <= 0) {
+                txt.innerHTML = '<span style="color:var(--text-dim);">کاڵا و بڕ دیاری بکە</span>';
+                btn.disabled = true;
+                return;
+            }
+            if (actionType === 'sub' && result < 0) {
+                txt.innerHTML = '<span style="color:var(--danger);font-weight:700;">ستۆک بەسی نییە!</span>';
+                btn.disabled = true;
+                return;
+            }
+            var arrow = actionType === 'add' ? '→ +' : '→ −';
+            var clr = actionType === 'add' ? 'var(--success)' : 'var(--danger)';
+            txt.innerHTML = '<span style="font-weight:700;">' + stock + '</span> ' + arrow + ' <span style="font-weight:700;color:' + clr + ';">' + result + '</span>';
+            final.value = actionType === 'add' ? qty : -qty;
+            btn.disabled = false;
+        }
+
+        document.getElementById('adjustProductSelect')?.addEventListener('change', updatePreview);
+        document.getElementById('adjustQty')?.addEventListener('input', updatePreview);
+
+        // ══ Fullscreen ══
+        function toggleFullscreen() {
+            var card = document.getElementById('mainCard');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (card.requestFullscreen) card.requestFullscreen();
+                else if (card.webkitRequestFullscreen) card.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+        function updateFsIcon() {
+            var card = document.getElementById('mainCard');
+            var i1 = document.getElementById('expandIcon1');
+            var i2 = document.getElementById('expandIcon2');
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                card.classList.add('is-fullscreen');
+                if(i1) i1.className = 'bi bi-fullscreen-exit';
+                if(i2) i2.className = 'bi bi-fullscreen-exit';
+            } else {
+                card.classList.remove('is-fullscreen');
+                if(i1) i1.className = 'bi bi-arrows-fullscreen';
+                if(i2) i2.className = 'bi bi-arrows-fullscreen';
+            }
+        }
+        document.addEventListener('fullscreenchange', updateFsIcon);
+        document.addEventListener('webkitfullscreenchange', updateFsIcon);
+    </script>
+}

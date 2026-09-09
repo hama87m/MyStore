@@ -1,0 +1,1566 @@
+﻿@page
+@model MyStore.Pages.Sales.IndexModel
+@{
+    ViewData["Title"] = "لیستی فرۆشتنەکان";
+    bool isManager = Model.IsManager;
+}
+
+<style>
+    /* بەکارهێنانی دوو @@ بۆ ئەوەی ڕەیزۆر تێکنەچێت */
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    /* سڕینەوەی پادینگە باوەکان بۆ ڕێکبوونی لەگەڵ لایئەوتە نوێیەکە */
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    /* ══ گۆڕاوەکان کە لە لایئەوتەوە کۆنتڕۆڵ دەکرێن ══ */
+    :root {
+        --sl-page: #0b1120;
+        --sl-card: rgba(15,23,42,.7);
+        --sl-stat: rgba(15,23,42,.6);
+        --sl-thead: rgba(15,23,42,.5);
+        --sl-hover: rgba(99,102,241,.04);
+        --sl-input: rgba(30,41,59,.8);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --border-focus: rgba(129,140,248,.5);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --warning-bg: rgba(252, 211, 77, 0.1);
+        --info: #93c5fd;
+        --info-bg: rgba(59, 130, 246, 0.1);
+        --cyan: #67e8f9;
+        --cyan-bg: rgba(6, 182, 212, 0.1);
+        --gradient-top: linear-gradient(135deg, rgba(30,27,75,.4), rgba(49,46,129,.3), rgba(30,27,75,.2));
+        --shadow-sm: none;
+    }
+
+    [data-theme="light"] {
+        --sl-page: #eef1f6;
+        --sl-card: #ffffff;
+        --sl-stat: #ffffff;
+        --sl-thead: #f8f9fb;
+        --sl-hover: rgba(99,102,241,.03);
+        --sl-input: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --border-focus: rgba(99,102,241,.45);
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --warning-bg: rgba(217, 119, 6, 0.08);
+        --info: #2563eb;
+        --info-bg: rgba(59, 130, 246, 0.08);
+        --cyan: #0891b2;
+        --cyan-bg: rgba(6, 182, 212, 0.08);
+        --gradient-top: linear-gradient(135deg, rgba(238,242,255,.95), rgba(224,231,255,.7), rgba(238,242,255,.5));
+        --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+    }
+
+    /* ══ ڕێکخستنی بنەڕەتی ══ */
+    .sl-page-wrapper {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        background: var(--sl-page);
+        color: var(--text-primary);
+        min-height: 100vh;
+        position: relative;
+        transition: background .35s, color .35s;
+    }
+
+        .sl-page-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+            transition: background .35s;
+        }
+
+    .sl-in {
+        position: relative;
+        z-index: 1;
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 100vh;
+    }
+
+    /* ══ هێدەر ══ */
+    .sl-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        flex-shrink: 0;
+    }
+
+        .sl-top h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 2px;
+            transition: color .35s;
+        }
+
+        .sl-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+            transition: color .35s;
+        }
+
+    .sl-top-ico {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        font-size: 14px;
+    }
+
+    /* ═══ دیزاینی نوێی دووگمە مۆدێرنەکان ═══ */
+    .btn-act-main {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 30px;
+        padding: 0 20px;
+        border-radius: 8px;
+        border: none;
+        color: #ffffff !important;
+        font-size: 12px;
+        font-weight: 400;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        font-family: inherit;
+    }
+
+        .btn-act-main i {
+            font-size: 15px;
+        }
+
+        /* ئێفێکتی تێپەڕبوونی ڕووناکی (Shine) */
+        .btn-act-main::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s ease;
+        }
+
+        .btn-act-main:hover {
+            transform: translateY(-2px);
+        }
+
+            .btn-act-main:hover::after {
+                left: 150%;
+            }
+
+    /* ڕەنگی مۆری درەوشاوە بۆ دووگمەی سەرەکی */
+    .btn-act-primary {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+        .btn-act-primary:hover {
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+
+    /* ══ ئامارەکان ══ */
+    .sl-stats {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .sl-st {
+        background: var(--sl-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 14px 16px;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .sl-st:hover {
+            border-color: rgba(99,102,241,.3);
+            transform: translateY(-1px);
+        }
+
+    .sl-st-lbl {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 400;
+        margin-bottom: 6px;
+    }
+
+    .sl-st-val {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1;
+        transition: color .35s;
+    }
+
+    .sl-st-sub {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 4px;
+    }
+
+    /* گۆڕانکاری لە قەبارە و شێوەی ئایکۆنەکانی ناو کارت بۆ گونجان لەگەڵ دیزاینەکە */
+    .sl-st-ico {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    /* ══ کڵاسەکانی ڕەنگ بۆ کارتەکان ══ */
+    .c-indigo {
+        color: var(--accent-text);
+    }
+
+    .bg-indigo {
+        background: var(--accent-bg);
+        color: var(--accent);
+    }
+
+    .c-emerald {
+        color: var(--success);
+    }
+
+    .bg-emerald {
+        background: var(--success-bg);
+        color: var(--success);
+    }
+
+    .c-rose {
+        color: var(--danger);
+    }
+
+    .bg-rose {
+        background: var(--danger-bg);
+        color: var(--danger);
+    }
+
+    .c-amber {
+        color: var(--warning);
+    }
+
+    .bg-amber {
+        background: var(--warning-bg);
+        color: var(--warning);
+    }
+
+    .c-info {
+        color: var(--info);
+    }
+
+    .bg-info {
+        background: var(--info-bg);
+        color: var(--info);
+    }
+
+    .c-cyan {
+        color: var(--cyan);
+    }
+
+    .bg-cyan {
+        background: var(--cyan-bg);
+        color: var(--cyan);
+    }
+
+    /* ══ کارتی خشتە و فۆڕم ══ */
+    .sl-card {
+        background: var(--sl-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* ══ گرووپی دوگمەی بەرواری پێشکەشکراو ══ */
+    .rc-btn-group {
+        display: inline-flex;
+        background: var(--sl-input);
+        border: 1px solid var(--border-card);
+        border-radius: 8px;
+        padding: 3px;
+        gap: 2px;
+    }
+
+        .rc-btn-group button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+            .rc-btn-group button:hover {
+                color: var(--text-primary);
+            }
+
+            .rc-btn-group button.active {
+                background: linear-gradient(135deg, var(--accent), #4f46e5);
+                color: #fff;
+                box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+            }
+
+    .sl-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-subtle);
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    /* ══ گۆڕانکاری بۆ بچووککردنەوەی قەبارەی فلتەرەکان وەک جەردکردن ══ */
+    .sl-inp {
+        height: 28px;
+        padding: 0 10px;
+        background: var(--sl-input);
+        border: 1px solid var(--border-card);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 11px;
+        font-family: inherit;
+        outline: none;
+        transition: all .25s;
+    }
+
+        .sl-inp option {
+            background-color: var(--sl-card);
+            color: var(--text-primary);
+        }
+
+        .sl-inp:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-bg);
+        }
+
+        .sl-inp::placeholder {
+            color: var(--text-dim);
+            opacity: 0.7;
+        }
+
+        .sl-inp::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.6;
+            filter: invert(var(--icon-invert, 0));
+        }
+
+    [data-theme="light"] .sl-inp::-webkit-calendar-picker-indicator {
+        --icon-invert: 0;
+    }
+
+    :root .sl-inp::-webkit-calendar-picker-indicator {
+        --icon-invert: 1;
+    }
+
+    .sl-btn {
+        height: 28px;
+        padding: 0 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: inherit;
+        transition: all .2s;
+        border: none;
+        text-decoration: none;
+    }
+
+    .sl-btn-ghost {
+        background: var(--sl-input);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-card);
+    }
+
+        .sl-btn-ghost:hover {
+            background: var(--sl-hover);
+            color: var(--text-primary);
+        }
+
+    /* ══ خشتە ══ */
+    .sl-tbl-scroll {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: auto;
+        min-height: 0;
+    }
+
+    /* ══ سکڕۆڵی گشتی هاوشێوەی دەفتەری قەرزەکان ══ */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--sl-card);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--text-muted);
+        border-radius: 6px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--text-muted) var(--sl-card);
+    }
+
+    .sl-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .sl-tbl th {
+            padding: 8px 12px;
+            text-align: right;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--sl-thead);
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            transition: all .35s;
+        }
+
+        .sl-tbl td {
+            padding: 6px 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+            transition: all .35s;
+            white-space: nowrap;
+        }
+
+        .sl-tbl tr {
+            transition: background .15s;
+        }
+
+            .sl-tbl tr:hover {
+                background: var(--sl-hover);
+            }
+
+            .sl-tbl tr:last-child td {
+                border-bottom: none;
+            }
+
+            .sl-tbl tr.row-debt {
+                background: linear-gradient(135deg, rgba(239,68,68,.04), rgba(239,68,68,.02));
+            }
+
+                .sl-tbl tr.row-debt:hover {
+                    background: rgba(239,68,68,.06);
+                }
+
+    .sl-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+        .sl-badge.cash {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .sl-badge.credit {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+    .act-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid transparent;
+        text-decoration: none;
+        transition: all .2s;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .act-btn.edit {
+            color: var(--info);
+            background: var(--info-bg);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+            .act-btn.edit:hover {
+                background: var(--info);
+                color: #fff;
+            }
+
+        .act-btn.print {
+            color: var(--cyan);
+            background: var(--cyan-bg);
+            border-color: rgba(6, 182, 212, 0.2);
+        }
+
+            .act-btn.print:hover {
+                background: var(--cyan);
+                color: #fff;
+            }
+
+        .act-btn.view {
+            color: var(--accent);
+            background: var(--accent-bg);
+            border-color: rgba(99,102,241,.2);
+        }
+
+            .act-btn.view:hover {
+                background: var(--accent);
+                color: #fff;
+            }
+
+    /* ══ Pagination ══ */
+    .pagination-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px;
+        background: var(--sl-card);
+        border-top: 1px solid var(--border-subtle);
+        gap: 10px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .pg-info {
+        font-size: 12px;
+        color: var(--text-dim);
+    }
+
+        .pg-info strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+    .pg-controls {
+        display: flex;
+        gap: 4px;
+    }
+
+    .pg-btn {
+        height: 28px;
+        min-width: 28px;
+        padding: 0 10px;
+        border-radius: 6px;
+        background: var(--sl-input);
+        border: 1px solid var(--border-card);
+        color: var(--text-primary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all .2s;
+        text-decoration: none;
+        gap: 4px;
+    }
+
+        .pg-btn:hover:not(:disabled) {
+            background: var(--sl-hover);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .pg-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            cursor: default;
+        }
+
+        .pg-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+    .pg-dots {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        color: var(--text-dim);
+        font-weight: bold;
+    }
+
+    /* ══ Select2 ══ */
+    .select2-container--default .select2-selection--single {
+        background-color: var(--sl-input) !important;
+        border: 1px solid var(--border-card) !important;
+        border-radius: 7px !important;
+        height: 28px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--text-primary) !important;
+            font-size: 11px !important;
+            font-weight: 500 !important;
+            line-height: normal !important;
+            padding-right: 12px !important;
+            padding-left: 24px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 26px !important;
+            top: 0 !important;
+            left: 5px !important;
+            right: auto !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: var(--text-dim) !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__clear {
+            float: left !important;
+            margin-left: 15px !important;
+            margin-right: 0 !important;
+            color: var(--danger) !important;
+        }
+
+    .select2-dropdown {
+        background-color: var(--sl-card) !important;
+        border: 1px solid var(--border-focus) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        color: var(--text-primary) !important;
+        font-size: 11px !important;
+        overflow: hidden;
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        background-color: var(--sl-input) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-card) !important;
+        outline: none !important;
+        border-radius: 4px !important;
+    }
+
+    .select2-results__option {
+        color: var(--text-secondary) !important;
+        padding: 6px 12px !important;
+    }
+
+    .select2-results__option--highlighted[aria-selected] {
+        background-color: var(--accent) !important;
+        color: #fff !important;
+    }
+
+    .select2-results__option[aria-selected=true] {
+        background-color: var(--sl-hover) !important;
+        color: var(--accent-text) !important;
+    }
+
+    /* ══ FULLSCREEN API STYLES ══ */
+    .sl-card.is-fullscreen, .sl-card:-webkit-full-screen, .sl-card:fullscreen {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        z-index: 2147483647 !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 16px !important;
+        background-color: var(--sl-page) !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+    }
+
+    /* ══════ RESPONSIVE (MOBILE OPTIMIZATIONS) ══════ */
+    @@media(max-width:1200px) {
+        .sl-stats {
+            grid-template-columns: repeat(3,1fr);
+        }
+    }
+
+    @@media(max-width:768px) {
+        /* گۆڕانکاریەکانی دەرەوەی خشتەکان */
+        .sl-in {
+            padding: 12px 16px;
+            height: auto;
+            min-height: 100vh;
+        }
+
+        .sl-top {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+            .sl-top > div:last-child {
+                width: 100%;
+            }
+
+        .btn-act-main {
+            width: 100%;
+            justify-content: center;
+            height: 38px;
+            font-size: 14px;
+        }
+        /* فلتەرەکان و ئامرازەکان */
+        .sl-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+            .sl-toolbar select, .sl-toolbar .sl-inp {
+                width: 100% !important;
+                min-width: 100% !important;
+                height: 36px;
+                font-size: 13px;
+            }
+
+        .sl-btn {
+            height: 36px;
+            font-size: 13px;
+            justify-content: center;
+        }
+
+        .rc-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+            .rc-btn-group button {
+                flex: 1;
+                padding: 8px 4px;
+                min-width: 25%;
+                font-size: 12px;
+            }
+
+        #customDateGroup {
+            flex-direction: column;
+            width: 100%;
+            gap: 4px !important;
+        }
+
+            #customDateGroup span {
+                transform: rotate(90deg);
+                margin: 4px auto;
+            }
+
+        .select2-container {
+            width: 100% !important;
+            min-width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single {
+            height: 36px !important;
+        }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 34px !important;
+                font-size: 13px !important;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 34px !important;
+            }
+        /* گۆڕینی خشتە بۆ شێوەی کارتی سەر مۆبایل */
+        .sl-tbl thead {
+            display: none;
+        }
+
+        .sl-tbl tbody, .sl-tbl tr, .sl-tbl td {
+            display: block;
+            width: 100%;
+        }
+
+        .sl-tbl tr {
+            margin-bottom: 16px;
+            background: var(--sl-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sl-tbl td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-bottom: 1px dashed var(--border-subtle);
+            text-align: left !important;
+            white-space: normal;
+        }
+
+            .sl-tbl td:last-child {
+                border-bottom: none;
+                justify-content: center;
+                background: var(--sl-hover);
+                border-radius: 0 0 12px 12px;
+            }
+            /* دانانی ناونیشان بۆ هەر داتایەک */
+            .sl-tbl td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: var(--text-muted);
+                font-size: 11px;
+                margin-left: 10px;
+            }
+
+            .sl-tbl td:last-child::before {
+                display: none;
+            }
+        /* گەورەکردنی دوگمەکانی خشتە */
+        .act-btn {
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+        }
+        /* Pagination */
+        .pagination-bar {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pg-controls {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .pg-btn {
+            height: 34px;
+            min-width: 34px;
+            font-size: 13px;
+        }
+    }
+
+    @@media(max-width:576px) {
+        .sl-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+            /* گەر ئامارەکان ٥ دانە بن، ئەوا دانەی کۆتایی با پانتاییەکە هەمووی بگرێت */
+            .sl-stats .sl-st:nth-child(5) {
+                grid-column: span 2;
+            }
+    }
+</style>
+
+<div class="sl-page-wrapper">
+    <div class="sl-in">
+
+        <!-- ══ هێدەر ══ -->
+        <div class="sl-top">
+            <div style="display:flex;align-items:center;gap:10px">
+                <div class="sl-top-ico"><i class="bi bi-cart3"></i></div>
+                <div>
+                    <h1>لیستی فرۆشتنەکان</h1>
+                    <p>
+                        @if (isManager)
+                        {
+                            <text>گشت پسوڵەکانی فرۆشتن</text>
+                        }
+                        else
+                        {
+                            <text>پسوڵەکانی فرۆشتنی خۆت</text>
+                        }
+                    </p>
+                </div>
+            </div>
+            <div>
+                <a asp-page="./Create" class="btn-act-main btn-act-primary"><i class="bi bi-plus-lg"></i> پسوڵەی نوێ</a>
+            </div>
+        </div>
+
+        <!-- ══ ئامارەکان ══ -->
+        <div class="sl-stats">
+            <div class="sl-st">
+                <div><div class="sl-st-lbl">پسوڵە</div><div class="sl-st-val c-indigo" id="statInvoiceCount">@Model.InvoiceCount</div><div class="sl-st-sub">دانە</div></div>
+                <div class="sl-st-ico bg-indigo"><i class="bi bi-receipt"></i></div>
+            </div>
+            <div class="sl-st">
+                <div><div class="sl-st-lbl">کۆی فرۆشتن</div><div class="sl-st-val c-emerald" id="statTotalSales">@string.Format("{0:N0}", Model.TotalSales)</div><div class="sl-st-sub">دینار</div></div>
+                <div class="sl-st-ico bg-emerald"><i class="bi bi-cart-check"></i></div>
+            </div>
+            <div class="sl-st">
+                <div><div class="sl-st-lbl">کۆی وەرگیراو</div><div class="sl-st-val c-cyan" id="statTotalReceived">@string.Format("{0:N0}", Model.TotalReceived)</div><div class="sl-st-sub">نەقد</div></div>
+                <div class="sl-st-ico bg-cyan"><i class="bi bi-cash-stack"></i></div>
+            </div>
+            <div class="sl-st">
+                <div><div class="sl-st-lbl">کۆی قەرز</div><div class="sl-st-val c-rose" id="statTotalDebt">@string.Format("{0:N0}", Model.TotalDebt)</div><div class="sl-st-sub">ماوە</div></div>
+                <div class="sl-st-ico bg-rose"><i class="bi bi-journal-x"></i></div>
+            </div>
+            @if (isManager)
+            {
+                <div class="sl-st">
+                    <div><div class="sl-st-lbl">کۆی قازانج</div><div class="sl-st-val c-amber" id="statTotalProfit">@string.Format("{0:N0}", Model.TotalProfit)</div><div class="sl-st-sub">خاوێن</div></div>
+                    <div class="sl-st-ico bg-amber"><i class="bi bi-graph-up-arrow"></i></div>
+                </div>
+            }
+        </div>
+
+        <!-- ══ فلتەر و خشتە ══ -->
+        <div class="sl-card" id="mainCard">
+
+            <!-- باڕی فلتەرەکان -->
+            <div class="sl-toolbar">
+                <select id="fDateRange" style="display:none;">
+                    <option value="Today" selected="@(Model.FilterDateRange == "Today")">ئەمڕۆ</option>
+                    <option value="Yesterday" selected="@(Model.FilterDateRange == "Yesterday")">دوێنێ</option>
+                    <option value="Week" selected="@(Model.FilterDateRange == "Week")">ئەم هەفتەیە</option>
+                    <option value="Month" selected="@(Model.FilterDateRange == "Month")">ئەم مانگە</option>
+                    <option value="All" selected="@(Model.FilterDateRange == "All")">هەموو</option>
+                    <option value="Custom" selected="@(Model.FilterDateRange == "Custom")">بەروار</option>
+                </select>
+
+                <div class="rc-btn-group" id="dateRangeBtns">
+                    <button type="button" data-val="Today" class="@(Model.FilterDateRange == "Today" || string.IsNullOrEmpty(Model.FilterDateRange) ? "active" : "")">ئەمڕۆ</button>
+                    <button type="button" data-val="Week" class="@(Model.FilterDateRange == "Week" ? "active" : "")">ئەم هەفتەیە</button>
+                    <button type="button" data-val="Month" class="@(Model.FilterDateRange == "Month" ? "active" : "")">ئەم مانگە</button>
+                    <button type="button" data-val="Custom" class="@(Model.FilterDateRange == "Custom" ? "active" : "")"><i class="bi bi-calendar3"></i> بەروار</button>
+                </div>
+
+                <div id="customDateGroup" style="display:@(Model.FilterDateRange == "Custom" ? "flex" : "none"); align-items:center; gap:6px;">
+                    <input type="date" id="fCustomStart" class="sl-inp" style="width:115px;"
+                           value="@(Model.CustomStart != null && DateTime.TryParse(Model.CustomStart, out var ds) ? ds.ToString("yyyy-MM-dd") : "")">
+                    <span style="color:var(--text-dim); font-size:11px;">←</span>
+                    <input type="date" id="fCustomEnd" class="sl-inp" style="width:115px;"
+                           value="@(Model.CustomEnd != null && DateTime.TryParse(Model.CustomEnd, out var de) ? de.ToString("yyyy-MM-dd") : "")">
+                </div>
+
+                @if (isManager)
+                {
+                    <select id="fSalesperson" class="sl-inp" style="min-width: 120px;">
+                        <option value="">گشت فرۆشیارەکان</option>
+                        @foreach (var sp in Model.SalespersonList)
+                        {
+                            @if (Model.FilterUserId == sp.UserId)
+                            {
+                                <option value="@sp.UserId" selected>@sp.UserName</option>
+                            }
+                            else
+                            {
+                                <option value="@sp.UserId">@sp.UserName</option>
+                            }
+                        }
+                    </select>
+                }
+
+                <select id="fCustomer" class="sl-inp" style="min-width: 140px;">
+                    <option value="">گشت کڕیارەکان</option>
+                    @foreach (var c in Model.CustomerList)
+                    {
+                        @if (Model.FilterCustomerId?.ToString() == c.Value)
+                        {
+                            <option value="@c.Value" selected>@c.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@c.Value">@c.Text</option>
+                        }
+                    }
+                </select>
+
+                <select id="fPayment" class="sl-inp" style="min-width: 110px;">
+                    @if (string.IsNullOrEmpty(Model.FilterPaymentType))
+                    {
+                        <option value="" selected>گشت پسوڵەکان</option>
+                    }
+                    else
+                    {
+                        <option value="">گشت پسوڵەکان</option>
+                    }
+                    @if (Model.FilterPaymentType == "Cash")
+                    {
+                        <option value="Cash" selected>نەقد</option>
+                    }
+                    else
+                    {
+                        <option value="Cash">نەقد</option>
+                    }
+                    @if (Model.FilterPaymentType == "Credit")
+                    {
+                        <option value="Credit" selected>قەرز</option>
+                    }
+                    else
+                    {
+                        <option value="Credit">قەرز</option>
+                    }
+                    @if (Model.FilterPaymentType == "Unpaid")
+                    {
+                        <option value="Unpaid" selected>نەدراو (قەرز)</option>
+                    }
+                    else
+                    {
+                        <option value="Unpaid">نەدراو (قەرز)</option>
+                    }
+                </select>
+
+                <div style="position:relative; flex: 1; min-width: 150px;">
+                    <i class="bi bi-search" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-dim); font-size:12px;"></i>
+                    <input type="text" id="fInvoice" class="sl-inp" placeholder="گەڕان بەدوای پسوڵە..." value="@Model.SearchInvoice" style="width:100%; padding-right:30px;">
+                </div>
+
+                <i class="bi bi-arrow-repeat fa-spin" id="filterSpinner" style="display:none; color:var(--text-dim); margin:0 8px; font-size:14px;"></i>
+
+                <button class="sl-btn sl-btn-ghost" onclick="toggleFullscreen()" title="گەورەکردنی خشتە" style="padding:0 10px; flex-shrink:0;">
+                    <i class="bi bi-arrows-fullscreen" id="expandIcon"></i>
+                </button>
+            </div>
+
+            <!-- شوێنی خشتە و پەڕەکان -->
+            <div id="tableContainer" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+                @if (Model.SalesList.Any())
+                {
+                    <div class="sl-tbl-scroll">
+                        <table class="sl-tbl">
+                            <thead>
+                                <tr>
+                                    <th>پسوڵە</th>
+                                    <th>بەروار</th>
+                                    <th>کڕیار</th>
+                                    @if (isManager)
+                                    {
+                                        <th>فرۆشیار</th>
+                                    }
+                                    <th class="text-center">کاڵا</th>
+                                    <th class="text-center">کۆی گشتی</th>
+                                    <th class="text-center">واصڵکراو</th>
+                                    <th class="text-center">ماوە</th>
+                                    @if (isManager)
+                                    {
+                                        <th class="text-center">قازانج</th>
+                                    }
+                                    <th class="text-center">دۆخ</th>
+                                    <th class="text-center">کردار</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesTableBody">
+                                @foreach (var item in Model.SalesList)
+                                {
+                                    <tr class="@(item.RemainingDebt > 0 ? "row-debt" : "")">
+                                        <td data-label="پسوڵە" style="font-weight:700; color:var(--accent-text);">#@item.SaleId</td>
+                                        <td data-label="بەروار">
+                                            <div>
+                                                <div style="font-weight:600; color:var(--text-primary); font-size:12px;">@item.SaleDate.ToString("yyyy/MM/dd")</div>
+                                                <div style="font-size:10px; color:var(--text-dim);">@item.SaleDate.ToString("hh:mm tt")</div>
+                                            </div>
+                                        </td>
+                                        <td data-label="کڕیار" style="font-weight:600; color:var(--text-primary);">@item.CustomerName</td>
+                                        @if (isManager)
+                                        {
+                                            <td data-label="فرۆشیار"><span style="font-weight:600; color:var(--text-primary);">@(item.CashierName ?? "—")</span></td>
+                                        }
+                                        <td data-label="کاڵا" class="text-center"><span style="background:var(--sl-input); padding:2px 6px; border-radius:4px; font-size:11px;">@item.ItemCount</span></td>
+                                        <td data-label="کۆی گشتی" class="text-center" style="font-weight:700;">@string.Format("{0:N0}", item.GrandTotal)</td>
+                                        <td data-label="واصڵکراو" class="text-center" style="color:var(--success); font-weight:600;">@string.Format("{0:N0}", item.PaidAmount)</td>
+                                        <td data-label="ماوە" class="text-center" style="color:@(item.RemainingDebt > 0 ? "var(--danger)" : "var(--text-muted)"); font-weight:700;">
+                                            @(item.RemainingDebt > 0 ? string.Format("{0:N0}", item.RemainingDebt) : "—")
+                                        </td>
+                                        @if (isManager)
+                                        {
+                                            <td data-label="قازانج" class="text-center" style="font-weight:600; color:var(--warning);">@string.Format("{0:N0}", item.TotalProfit)</td>
+                                        }
+                                        <td data-label="دۆخ" class="text-center">
+                                            @if (item.PaymentType == MyStore.Models.PaymentType.Cash)
+                                            {
+                                                <span class="sl-badge cash"><i class="bi bi-check-circle"></i> نەقد</span>
+                                            }
+                                            else if (item.RemainingDebt == 0)
+                                            {
+                                                <span class="sl-badge cash" style="background:var(--info-bg); color:var(--info);"><i class="bi bi-check-all"></i> واصڵکراو</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="sl-badge credit"><i class="bi bi-clock-history"></i> قەرز</span>
+                                            }
+                                        </td>
+                                        <td data-label="کردار" class="text-center">
+                                            <div style="display:flex; gap:4px; justify-content:center;">
+                                                <a asp-page="./Details" asp-route-id="@item.SaleId" class="act-btn view" title="وردەکاری"><i class="bi bi-eye"></i></a>
+                                                <a asp-page="./Create" asp-route-saleId="@item.SaleId" class="act-btn edit" title="دەستکاری"><i class="bi bi-pencil"></i></a>
+                                                <button type="button" class="act-btn print" onclick="printInvoice(@item.SaleId)" title="چاپکردن"><i class="bi bi-printer"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination-bar" id="paginationBar">
+                        <div class="pg-info">
+                            کۆی گشتی: <strong>@Model.TotalFilteredCount</strong> پسوڵە
+                            <span style="margin:0 8px; color:var(--border-subtle);">|</span>
+                            پەڕەی <strong>@Model.CurrentPage</strong> لە <strong>@Model.TotalPages</strong>
+                        </div>
+                        <div class="pg-controls" id="paginationControls"></div>
+                    </div>
+                }
+                else
+                {
+                    <div style="text-align:center; padding:50px 20px;">
+                        <i class="bi bi-inboxes" style="font-size:3rem; color:var(--border-strong); display:block; margin-bottom:10px;"></i>
+                        <h5 style="color:var(--text-primary); margin-bottom:5px;">هیچ پسوڵەیەک نەدۆزرایەوە</h5>
+                        <p style="color:var(--text-dim); font-size:13px;">فلتەرەکانت بگۆڕە یان پسوڵەی نوێ دروست بکە</p>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- فۆرمی نهێنی بۆ Pagination -->
+<form id="pageForm" method="get" style="display:none;">
+    <input type="hidden" name="FilterDateRange" id="hfDateRange">
+    <input type="hidden" name="CustomStart" id="hfCustomStart">
+    <input type="hidden" name="CustomEnd" id="hfCustomEnd">
+    <input type="hidden" name="FilterCustomerId" id="hfCustomerId">
+    <input type="hidden" name="FilterPaymentType" id="hfPaymentType">
+    <input type="hidden" name="SearchInvoice" id="hfInvoice">
+    <input type="hidden" name="FilterUserId" id="hfUserId">
+    <input type="hidden" name="CurrentPage" id="hfCurrentPage">
+</form>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        const IS_MANAGER   = @(isManager ? "true" : "false");
+        let   CURRENT_PAGE = @Model.CurrentPage;
+        let   TOTAL_PAGES  = @Model.TotalPages;
+
+        function getFilters() {
+            return {
+                FilterDateRange:  document.getElementById('fDateRange').value,
+                CustomStart:      document.getElementById('fCustomStart')?.value || '',
+                CustomEnd:        document.getElementById('fCustomEnd')?.value   || '',
+                FilterCustomerId: document.getElementById('fCustomer').value,
+                FilterPaymentType:document.getElementById('fPayment').value,
+                SearchInvoice:    document.getElementById('fInvoice').value.trim(),
+                FilterUserId:      IS_MANAGER ? (document.getElementById('fSalesperson')?.value || '') : ''
+            };
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > TOTAL_PAGES) return;
+            CURRENT_PAGE = page;
+            applyFilters(true);
+        }
+
+        function buildPagination(current, total) {
+            CURRENT_PAGE = current;
+            TOTAL_PAGES  = total;
+            const bar = document.getElementById('paginationBar');
+            if (!bar) return;
+
+            if (total <= 1) { bar.style.display = 'none'; return; }
+            bar.style.display = 'flex';
+
+            let btns = '';
+            btns += `<button class="pg-btn" onclick="goToPage(${current-1})" ${current<=1?'disabled':''}>`
+                   + `<i class="bi bi-chevron-right"></i> پێشوو</button>`;
+
+            const pages = smartPages(current, total);
+            pages.forEach(p => {
+                if (p === '...') {
+                    btns += `<span class="pg-dots">…</span>`;
+                } else {
+                    btns += `<button class="pg-btn ${p===current?'active':''}" onclick="goToPage(${p})">${p}</button>`;
+                }
+            });
+
+            btns += `<button class="pg-btn" onclick="goToPage(${current+1})" ${current>=total?'disabled':''}>`
+                   + `داهاتوو <i class="bi bi-chevron-left"></i></button>`;
+
+            document.getElementById('paginationControls').innerHTML = btns;
+        }
+
+        function smartPages(cur, total) {
+            if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+            const pages = [];
+            if (cur <= 4) {
+                pages.push(1,2,3,4,5,'...',total);
+            } else if (cur >= total - 3) {
+                pages.push(1,'...',total-4,total-3,total-2,total-1,total);
+            } else {
+                pages.push(1,'...',cur-1,cur,cur+1,'...',total);
+            }
+            return pages;
+        }
+
+        document.getElementById('fDateRange')?.addEventListener('change', function () {
+            const isCustom = this.value === 'Custom';
+            document.getElementById('customDateGroup').style.display = isCustom ? 'flex' : 'none';
+            if (!isCustom) { CURRENT_PAGE = 1; applyFilters(); }
+        });
+
+        // دوگمەکانی بەرواری پێشکەشکراو
+        document.querySelectorAll('#dateRangeBtns button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#dateRangeBtns button').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                var val = this.dataset.val;
+                var sel = document.getElementById('fDateRange');
+                if (sel) sel.value = val;
+                var box = document.getElementById('customDateGroup');
+                if (box) box.style.display = (val === 'Custom') ? 'flex' : 'none';
+                if (val !== 'Custom') { CURRENT_PAGE = 1; applyFilters(); }
+            });
+        });
+
+        ['fCustomStart','fCustomEnd'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('change', function() {
+                if (this.value) { CURRENT_PAGE=1; applyFilters(); }
+            });
+        });
+
+        let filterTimer = null;
+
+        function applyFilters(keepPage = false) {
+            if (!keepPage) CURRENT_PAGE = 1;
+            document.getElementById('filterSpinner').style.display = 'inline-block';
+
+            const f = getFilters();
+            const p = new URLSearchParams({
+                handler:           'FilterSales',
+                FilterDateRange:   f.FilterDateRange,
+                CustomStart:       f.CustomStart,
+                CustomEnd:         f.CustomEnd,
+                FilterCustomerId:  f.FilterCustomerId,
+                FilterPaymentType: f.FilterPaymentType,
+                SearchInvoice:     f.SearchInvoice,
+                FilterUserId:      f.FilterUserId,
+                CurrentPage:       CURRENT_PAGE
+            });
+
+            fetch('?' + p.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('filterSpinner').style.display = 'none';
+                    renderAll(data);
+                    history.replaceState(null, '', '?' + p.toString().replace('handler=FilterSales&',''));
+                })
+                .catch(() => { document.getElementById('filterSpinner').style.display = 'none'; });
+        }
+
+        function fmt(n) { return Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
+
+        function renderAll(data) {
+            document.getElementById('statInvoiceCount').textContent  = data.count;
+            document.getElementById('statTotalSales').textContent    = fmt(data.totalSales);
+            document.getElementById('statTotalReceived').textContent = fmt(data.totalReceived);
+            document.getElementById('statTotalDebt').textContent     = fmt(data.totalDebt);
+            if(IS_MANAGER) document.getElementById('statTotalProfit').textContent = fmt(data.totalProfit);
+
+            const container = document.getElementById('tableContainer');
+
+            if (data.count === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:50px 20px;">
+                        <i class="bi bi-inboxes" style="font-size:3rem; color:var(--border-strong); display:block; margin-bottom:10px;"></i>
+                        <h5 style="color:var(--text-primary); margin-bottom:5px;">هیچ پسوڵەیەک نەدۆزرایەوە</h5>
+                        <p style="color:var(--text-dim); font-size:13px;">فلتەرەکانت بگۆڕە یان پسوڵەی نوێ دروست بکە</p>
+                    </div>`;
+                return;
+            }
+
+            const spHeader = IS_MANAGER ? '<th>فرۆشیار</th>' : '';
+            const profitHeader = IS_MANAGER ? '<th class="text-center">قازانج</th>' : '';
+
+            let rows = '';
+            data.sales.forEach((s) => {
+                const debtColor = s.remainingDebt > 0 ? 'var(--danger)' : 'var(--text-muted)';
+                const debtVal   = s.remainingDebt > 0 ? fmt(s.remainingDebt) : '—';
+                const rowCls    = s.remainingDebt > 0 ? 'row-debt' : '';
+
+                let badge = '';
+                const isCash = s.isCash !== undefined ? s.isCash : (s.paymentType === 0 || s.paymentType === 'Cash');
+                if (isCash) {
+                    badge = '<span class="sl-badge cash"><i class="bi bi-check-circle"></i> نەقد</span>';
+                } else if (s.remainingDebt === 0) {
+                    badge = '<span class="sl-badge cash" style="background:var(--info-bg); color:var(--info);"><i class="bi bi-check-all"></i> واصڵکراو</span>';
+                } else {
+                    badge = '<span class="sl-badge credit"><i class="bi bi-clock-history"></i> قەرز</span>';
+                }
+
+                const spCol = IS_MANAGER ? `<td data-label="فرۆشیار"><span style="font-weight:600; color:var(--text-primary);">${s.salespersonName ?? '—'}</span></td>` : '';
+                const profitCol = IS_MANAGER ? `<td data-label="قازانج" class="text-center" style="font-weight:600; color:var(--warning);">${fmt(s.totalProfit)}</td>` : '';
+
+                rows += `<tr class="${rowCls}">
+                    <td data-label="پسوڵە" style="font-weight:700; color:var(--accent-text);">#${s.saleId}</td>
+                    <td data-label="بەروار">
+                        <div>
+                            <div style="font-weight:600; color:var(--text-primary); font-size:12px;">${s.dateShort ?? s.saleDate}</div>
+                            <div style="font-size:10px; color:var(--text-dim);">${s.timeShort ?? ''}</div>
+                        </div>
+                    </td>
+                    <td data-label="کڕیار" style="font-weight:600; color:var(--text-primary);">${s.customerName}</td>
+                    ${spCol}
+                    <td data-label="کاڵا" class="text-center"><span style="background:var(--sl-input); padding:2px 6px; border-radius:4px; font-size:11px;">${s.itemCount}</span></td>
+                    <td data-label="کۆی گشتی" class="text-center" style="font-weight:700;">${fmt(s.grandTotal)}</td>
+                    <td data-label="واصڵکراو" class="text-center" style="color:var(--success); font-weight:600;">${fmt(s.paidAmount)}</td>
+                    <td data-label="ماوە" class="text-center" style="color:${debtColor}; font-weight:700;">${debtVal}</td>
+                    ${profitCol}
+                    <td data-label="دۆخ" class="text-center">${badge}</td>
+                    <td data-label="کردار" class="text-center">
+                        <div style="display:flex; gap:4px; justify-content:center;">
+                            <a href="/Sales/Details?id=${s.saleId}" class="act-btn view" title="وردەکاری"><i class="bi bi-eye"></i></a>
+                            <a href="/Sales/Create?saleId=${s.saleId}" class="act-btn edit" title="دەستکاری"><i class="bi bi-pencil"></i></a>
+                            <button type="button" class="act-btn print" onclick="printInvoice(${s.saleId})" title="چاپکردن"><i class="bi bi-printer"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            container.innerHTML = `
+                <div class="sl-tbl-scroll">
+                    <table class="sl-tbl">
+                        <thead><tr>
+                            <th>پسوڵە</th>
+                            <th>بەروار</th>
+                            <th>کڕیار</th>
+                            ${spHeader}
+                            <th class="text-center">کاڵا</th>
+                            <th class="text-center">کۆی گشتی</th>
+                            <th class="text-center">واصڵکراو</th>
+                            <th class="text-center">ماوە</th>
+                            ${profitHeader}
+                            <th class="text-center">دۆخ</th>
+                            <th class="text-center">کردار</th>
+                        </tr></thead>
+                        <tbody id="salesTableBody">${rows}</tbody>
+                    </table>
+                </div>
+                <div class="pagination-bar" id="paginationBar">
+                    <div class="pg-info">
+                        کۆی گشتی: <strong>${data.totalCount || data.count}</strong> پسوڵە
+                        <span style="margin:0 8px; color:var(--border-subtle);">|</span>
+                        پەڕەی <strong>${data.currentPage}</strong> لە <strong>${data.totalPages}</strong>
+                    </div>
+                    <div class="pg-controls" id="paginationControls"></div>
+                </div>`;
+
+            buildPagination(data.currentPage, data.totalPages);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            ['fPayment','fCustomer'].forEach(id =>
+                document.getElementById(id)?.addEventListener('change', () => { CURRENT_PAGE=1; applyFilters(); }));
+
+            document.getElementById('fSalesperson')?.addEventListener('change', () => { CURRENT_PAGE=1; applyFilters(); });
+
+            document.getElementById('fInvoice')?.addEventListener('input', () => {
+                clearTimeout(filterTimer);
+                filterTimer = setTimeout(() => { CURRENT_PAGE=1; applyFilters(); }, 600);
+            });
+
+            if (window.jQuery && document.getElementById('fCustomer')) {
+                $('#fCustomer').select2({
+                    dir: 'rtl',
+                    width: '100%', /* بۆ گونجان لەگەڵ مۆبایل کرایە سەدا سەد */
+                    allowClear: true,
+                    placeholder: 'گشت کڕیارەکان',
+                    dropdownParent: $('#mainCard')
+                }).on('change', () => { CURRENT_PAGE=1; applyFilters(); });
+            }
+
+            buildPagination(@Model.CurrentPage, @Model.TotalPages);
+        });
+
+        // ══ چارەسەری بەشی Fullscreen ══
+        function toggleFullscreen() {
+            const card = document.getElementById('mainCard');
+            const icon = document.getElementById('expandIcon');
+
+            // گەر لەناو فوول سکرین نەبووین
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (card.requestFullscreen) {
+                    card.requestFullscreen().catch(() => fallbackFullscreen());
+                } else if (card.webkitRequestFullscreen) { /* Safari */
+                    card.webkitRequestFullscreen();
+                } else {
+                    fallbackFullscreen();
+                }
+            } else { // گەر لەناو فوول سکرین بووین و ویستمان دەربچین
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else {
+                    fallbackFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFsIcon);
+        document.addEventListener('webkitfullscreenchange', updateFsIcon);
+
+        function updateFsIcon() {
+            const card = document.getElementById('mainCard');
+            const icon = document.getElementById('expandIcon');
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                card.classList.add('is-fullscreen');
+                icon.className = 'bi bi-fullscreen-exit';
+            } else {
+                card.classList.remove('is-fullscreen');
+                icon.className = 'bi bi-arrows-fullscreen';
+            }
+        }
+
+        function fallbackFullscreen() {
+            const card = document.getElementById('mainCard');
+            const icon = document.getElementById('expandIcon');
+            const isFs = card.classList.toggle('is-fullscreen');
+            icon.className = isFs ? 'bi bi-fullscreen-exit' : 'bi bi-arrows-fullscreen';
+            document.body.style.overflow = isFs ? 'hidden' : '';
+        }
+
+        async function printInvoice(saleId) {
+            try {
+                const res  = await fetch(`?handler=InvoiceData&id=${saleId}`);
+                const data = await res.json();
+                if (!data.success) { alert(data.message || 'هەڵە ڕوویدا'); return; }
+
+                const inv = data.invoice, store = data.store;
+                let itemsHtml = '';
+                inv.items.forEach(item => {
+                    itemsHtml += `<tr>
+                        <td style="text-align:right;padding:4px 0;border-bottom:1px dotted #ccc">${item.name}</td>
+                        <td style="text-align:center;padding:4px 2px;border-bottom:1px dotted #ccc">${item.quantity}</td>
+                        <td style="text-align:center;padding:4px 2px;border-bottom:1px dotted #ccc">${item.unitPrice.toLocaleString()}</td>
+                        <td style="text-align:left;padding:4px 0;border-bottom:1px dotted #ccc">${item.subtotal.toLocaleString()}</td>
+                    </tr>`;
+                });
+                const dHtml = inv.discount > 0 ? `<div class="tr"><span>داشکاندن:</span><span style="color:#c00">-${inv.discount.toLocaleString()} د.ع</span></div>` : '';
+                const qHtml = inv.debt      > 0 ? `<div class="tr debt"><span>قەرز:</span><span>${inv.debt.toLocaleString()} د.ع</span></div>` : '';
+                const lHtml = store.logo       ? `<img src="${store.logo}" style="max-width:80px;max-height:60px;display:block;margin:0 auto 8px"/>` : '';
+
+                const pw = window.open('', '_blank', 'width=400,height=600');
+                if (!pw) { alert('پەنجەرەی چاپکردن نەکرایەوە!'); return; }
+                pw.document.write(`<div style="font-family:Tahoma,Arial,sans-serif;font-size:12px;width:80mm;padding:5mm;direction:rtl">
+                    <style>
+                    .hdr{text-align:center;border-bottom:2px dashed #000;padding-bottom:8px;margin-bottom:8px}
+                    .sn{font-size:16px;font-weight:bold;margin-bottom:3px}.si{font-size:10px;color:#333}
+                    .ii{display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed #000}
+                    .it{width:100%;border-collapse:collapse;margin-bottom:8px}
+                    .it th{font-size:10px;padding:5px 2px;border-bottom:2px solid #000;border-top:2px solid #000}
+                    .it td{font-size:11px}.tot{border-top:2px dashed #000;padding-top:8px}
+                    .tr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
+                    .tr.grand{font-size:15px;font-weight:bold;border-top:2px solid #000;padding-top:8px;margin-top:6px}
+                    .tr.debt{color:#c00;font-weight:bold}
+                    .ftr{text-align:center;margin-top:12px;padding-top:8px;border-top:2px dashed #000;font-size:11px}
+                    </style>
+                    <div class="hdr">${lHtml}<div class="sn">${store.name}</div><div class="si">${store.address}</div><div class="si">${store.phone}</div></div>
+                    <div class="ii"><span>پسوڵە: <strong>#${inv.invoiceId}</strong></span><span>${inv.date} ${inv.time}</span></div>
+                    <div style="font-size:11px;margin-bottom:8px">کڕیار: <strong>${inv.customerName}</strong></div>
+                    <table class="it"><thead><tr>
+                        <th style="text-align:right">کاڵا</th><th style="text-align:center">بڕ</th>
+                        <th style="text-align:center">نرخ</th><th style="text-align:left">کۆ</th>
+                    </tr></thead><tbody>${itemsHtml}</tbody></table>
+                    <div class="tot">
+                        <div class="tr"><span>کۆی کاڵاکان:</span><span>${inv.totalAmount.toLocaleString()} د.ع</span></div>
+                        ${dHtml}
+                        <div class="tr grand"><span>کۆی گشتی:</span><span>${inv.grandTotal.toLocaleString()} د.ع</span></div>
+                        <div class="tr"><span>وەرگیراو:</span><span>${inv.paidAmount.toLocaleString()} د.ع</span></div>
+                        ${qHtml}
+                    </div>
+                    <div class="ftr"><div>سوپاس بۆ کڕینت</div><div style="margin-top:4px;font-size:10px;color:#666">${store.name}</div></div>
+                </div>`);
+                pw.document.close();
+                pw.onload = () => setTimeout(() => pw.print(), 200);
+            } catch (err) {
+                console.error(err);
+                alert('هەڵە لە چاپکردن: ' + err.message);
+            }
+        }
+    </script>
+}

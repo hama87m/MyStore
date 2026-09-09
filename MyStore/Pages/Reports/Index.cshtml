@@ -1,0 +1,412 @@
+@page
+@model MyStore.Pages.Reports.IndexModel
+@{
+    ViewData["Title"] = "ڕیپۆرت و ئامارەکان";
+}
+
+<style>
+    /* ══ هێنانی فۆنتەکە ══ */
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    /* ══ تاریک ══ */
+    :root {
+        --rc-page: #0b1120;
+        --rc-card: rgba(15,23,42,.7);
+        --rc-stat: rgba(15,23,42,.6);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --border-focus: rgba(129,140,248,.5);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --warning-bg: rgba(252,211,77,.1);
+        --info: #93c5fd;
+        --info-bg: rgba(59,130,246,.1);
+        --purple: #c084fc;
+        --purple-bg: rgba(168,85,247,.12);
+        --gradient-top: linear-gradient(135deg,rgba(30,27,75,.4),rgba(49,46,129,.3),rgba(30,27,75,.2));
+    }
+
+    /* ══ ڕووناک ══ */
+    [data-theme="light"] {
+        --rc-page: #eef1f6;
+        --rc-card: #ffffff;
+        --rc-stat: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --border-focus: rgba(99,102,241,.45);
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --warning-bg: rgba(217,119,6,.08);
+        --info: #2563eb;
+        --info-bg: rgba(59,130,246,.08);
+        --purple: #7e22ce;
+        --purple-bg: rgba(126,34,206,.08);
+        --gradient-top: linear-gradient(135deg,rgba(238,242,255,.95),rgba(224,231,255,.7),rgba(238,242,255,.5));
+    }
+
+    .rc-page {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif !important;
+        background: var(--rc-page);
+        color: var(--text-primary);
+        height: 100vh;
+        overflow: hidden;
+        width: 100%;
+        position: relative;
+        transition: background .35s, color .35s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .rc-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 350px;
+            background: var(--gradient-top);
+            pointer-events: none;
+            transition: background .35s;
+        }
+
+    /* ══ هێدەر ══ */
+    .rc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px 32px;
+        position: relative;
+        z-index: 2;
+    }
+
+        .rc-top h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 4px;
+        }
+
+        .rc-top p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+    .rc-top-ico {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#6366f1,#818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        font-size: 20px;
+        box-shadow: 0 4px 12px rgba(99,102,241,.3);
+    }
+
+    .us-theme-toggle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: var(--rc-card);
+        color: var(--text-dim);
+        border: 1px solid var(--border-card);
+        cursor: pointer;
+        transition: all .25s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+        .us-theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+    /* ══ ناوەڕاستی پەڕەکە (مێنیوەکان) ══ */
+    .rc-center {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .nav-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        max-width: 1100px;
+        width: 100%;
+    }
+
+    .nav-card {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 20px;
+        padding: 30px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        text-decoration: none;
+        transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* هێڵی ڕەنگاوڕەنگ لە سەرەوەی کارتەکان */
+        .nav-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-color, var(--border-card));
+            opacity: 0.5;
+            transition: opacity .3s;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--border-focus);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            background: var(--rc-stat);
+        }
+
+            .nav-card:hover::after {
+                opacity: 1;
+            }
+
+    .nc-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 16px;
+        transition: transform .3s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .nav-card:hover .nc-icon {
+        transform: scale(1.1) rotate(-5deg);
+    }
+
+    .nc-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .nc-desc {
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.6;
+        max-width: 250px;
+    }
+
+    /* ڕەنگی تایبەتی کارتەکان */
+    .card-sales {
+        --card-color: var(--info);
+    }
+
+    .card-purchases {
+        --card-color: var(--purple);
+    }
+
+    .card-customers {
+        --card-color: var(--warning);
+    }
+
+    .card-stock {
+        --card-color: var(--accent);
+    }
+
+    .card-profit {
+        --card-color: var(--success);
+    }
+
+    .card-cash {
+        --card-color: var(--danger);
+    }
+
+    @@media (max-width: 992px) {
+        .nav-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .nav-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .rc-page {
+            overflow-y: auto;
+        }
+        /* تەنها بۆ مۆبایل با سکڕۆڵی هەبێت کە شاشەکە بچووکە */
+        .rc-center {
+            padding: 10px 20px 40px;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="rc-page" id="usPage">
+
+    <!-- ══ هێدەر ══ -->
+    <div class="rc-top">
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div class="rc-top-ico"><i class="bi bi-grid-fill"></i></div>
+            <div>
+                <h1>دەروازەی ڕیپۆرتەکان</h1>
+                <p>تکایە بەشێک هەڵبژێرە بۆ بینینی ئامار و زانیارییەکان</p>
+            </div>
+        </div>
+        <button type="button" class="us-theme-toggle" onclick="toggleUsTheme()">
+            <i class="bi bi-sun" id="usThemeIcon"></i>
+            <span id="usThemeLabel">ڕووناک</span>
+        </button>
+    </div>
+
+    <!-- ══ ناوەڕاست (کارتی ڕیپۆرتەکان) ══ -->
+    <div class="rc-center">
+        <div class="nav-grid">
+
+            <!-- دەبینرێت لەلایەن هەمووانەوە (ئەدمین، مەنەجەر، کاشێر) -->
+            <a href="/Reports/Sales" class="nav-card card-sales">
+                <div class="nc-icon bg-info-c"><i class="bi bi-receipt"></i></div>
+                <div class="nc-title">فرۆشتنەکان</div>
+                <div class="nc-desc">لیستی هەموو پسوڵەکانی فرۆشتن، گەڕان بەپێی کڕیار، جۆری پارەدان و بەروار.</div>
+            </a>
+
+            <!-- تەنها ئەدمین و مەنەجەر دەیبینن -->
+            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+            {
+                <a href="/Reports/Purchases" class="nav-card card-purchases">
+                    <div class="nc-icon bg-purple"><i class="bi bi-truck"></i></div>
+                    <div class="nc-title">کڕینەکان</div>
+                    <div class="nc-desc">سەیرکردنی پسوڵەکانی کڕینی کاڵا لە دابینکەرەکان و زانینی بڕی خەرجییەکان.</div>
+                </a>
+            }
+
+            <!-- دەبینرێت لەلایەن هەمووانەوە -->
+            <a href="/Reports/Customers" class="nav-card card-customers">
+                <div class="nc-icon bg-warning-c"><i class="bi bi-people"></i></div>
+                <div class="nc-title">کڕیارەکان</div>
+                <div class="nc-desc">باڵانسی قەرزەکانی کڕیاران و بینینی کەشف حیسابی وردی هەر یەکێکیان.</div>
+            </a>
+
+            <!-- تەنها ئەدمین و مەنەجەر دەیبینن -->
+            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+            {
+                <a href="/Reports/Stock" class="nav-card card-stock">
+                    <div class="nc-icon bg-indigo"><i class="bi bi-boxes"></i></div>
+                    <div class="nc-title">ستۆک و کۆگا</div>
+                    <div class="nc-desc">ئاگاداربوون لە بڕی کاڵاکانی کۆگا، کاڵا تەواوبووەکان و بەهای گشتی ستۆک.</div>
+                </a>
+            }
+
+            <!-- تەنها ئەدمین دەیبینێت -->
+            @if (User.IsInRole("Admin"))
+            {
+                <a href="/Reports/Profit" class="nav-card card-profit">
+                    <div class="nc-icon bg-emerald"><i class="bi bi-graph-up-arrow"></i></div>
+                    <div class="nc-title">شیکاری قازانج</div>
+                    <div class="nc-desc">زانینی قازانجی پوخت، قازانجی کاڵاکان بە تەنها و بەراوردکردنیان بە چارت.</div>
+                </a>
+            }
+
+            <!-- دەبینرێت لەلایەن هەمووانەوە -->
+            <a href="/Reports/Cash" class="nav-card card-cash">
+                <div class="nc-icon bg-danger-c"><i class="bi bi-cash-coin"></i></div>
+                <div class="nc-title">جووڵەی قاسە</div>
+                <div class="nc-desc">چاودێریکردنی پارەی هاتوو و دەرچوو، و زانینی باڵانسی ئێستای سندوق (قاسە).</div>
+            </a>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        // ══ ئۆتۆماتیکی لابردنی پادینگی باوانەکان بۆ ئەوەی بەتەواوی فوول سکرین بێت ══
+        document.addEventListener('DOMContentLoaded', function() {
+            var el = document.getElementById('usPage');
+            if(el) {
+                var parent = el.parentElement;
+                while (parent && parent.tagName !== 'BODY') {
+                    var compStyle = window.getComputedStyle(parent);
+                    if (compStyle.display === 'flex' && compStyle.flexDirection === 'row') break;
+                    parent.style.setProperty('padding', '0', 'important');
+                    if (parent.classList.contains('container') || parent.classList.contains('container-fluid') || parent.classList.contains('p-3')) {
+                        parent.style.setProperty('max-width', '100%', 'important');
+                    }
+                    parent = parent.parentElement;
+                }
+            }
+            document.body.style.setProperty('background-color', usIsDark ? '#0b1120' : '#eef1f6', 'important');
+
+            // ڕێگری تەواوەتی لە سکڕۆڵ (تەنها لە شاشە گەورەکاندا)
+            if(window.innerWidth > 600) {
+                document.body.style.setProperty('overflow', 'hidden', 'important');
+                document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+            }
+        });
+
+        // ══ تێم (تاریک/ڕووناک) ══
+        var usIsDark = true;
+        function toggleUsTheme() {
+            usIsDark = !usIsDark;
+            var page = document.getElementById('usPage');
+            if (usIsDark) { page.removeAttribute('data-theme'); }
+            else { page.setAttribute('data-theme', 'light'); }
+
+            document.getElementById('usThemeLabel').textContent = usIsDark ? 'ڕووناک' : 'تاریک';
+            document.getElementById('usThemeIcon').className = usIsDark ? 'bi bi-sun' : 'bi bi-moon';
+            document.body.style.setProperty('background-color', usIsDark ? '#0b1120' : '#eef1f6', 'important');
+        }
+    </script>
+}

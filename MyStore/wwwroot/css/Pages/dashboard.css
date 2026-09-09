@@ -1,0 +1,418 @@
+﻿.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* کارتەکانی ئامار - هەر یەکە ڕەنگێک */
+.stat-card {
+    border-radius: 14px;
+    padding: 20px;
+    color: #fff;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.08);
+        border-radius: 50%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    /* ڕەنگە جیاوازەکان */
+    .stat-card.purple {
+        background: #fff;
+        color: var(--dark-1);
+    }
+
+    .stat-card.emerald {
+        background: #fff;
+        color: var(--dark-1);
+    }
+
+    .stat-card.rose {
+        background: #fff;
+        color: var(--dark-1);
+    }
+
+    .stat-card.amber {
+        background: #fff;
+        color: var(--dark-1);
+    }
+
+    .stat-card .icon-box {
+        width: 55px;
+        height: 55px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        background: rgba(255,255,255,0.2);
+    }
+
+        .stat-card .icon-box.purple {
+            background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%);
+            color: var(--purple);
+        }
+
+        .stat-card .icon-box.emerald {
+            background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%);
+            color: var(--cyan);
+        }
+
+        .stat-card .icon-box.amber {
+            background: linear-gradient(135deg, #fef3c7 0%, #fefce8 100%);
+            color: var(--warning);
+        }
+
+        .stat-card .icon-box.rose {
+            background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
+            color: var(--danger);
+        }
+
+    .stat-card .value {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 8px 0 2px;
+        color: var(--dark1);
+        position: relative;
+    }
+
+    .stat-card .label {
+        font-size: 0.85rem;
+        opacity: 0.85;
+        position: relative;
+    }
+
+    .stat-card .sub-label {
+        font-size: 0.68rem;
+        opacity: 0.65;
+        position: relative;
+    }
+
+/* کارتەکانی بچووک - سپی */
+.mini-stat {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #f1f5f9;
+}
+
+    .mini-stat .icon-box {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+    }
+
+        .mini-stat .icon-box.blue {
+            background: #eff6ff;
+            color: var(--info);
+        }
+
+        .mini-stat .icon-box.slate {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .mini-stat .icon-box.red {
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+    .mini-stat .value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--dark-1);
+    }
+
+    .mini-stat .label {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+/* کارتی سەرەکی - سپی */
+.main-card {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid #f1f5f9;
+}
+
+    .main-card .card-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid #f1f5f9;
+        background: #fafbfc;
+    }
+
+        .main-card .card-header h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark-1);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .main-card .card-header h3 i {
+                color: var(--primary);
+                font-size: 0.85rem;
+            }
+
+    .main-card .card-body {
+        padding: 0;
+    }
+
+    .main-card .card-footer {
+        padding: 12px 18px;
+        border-top: 1px solid #f1f5f9;
+        text-align: center;
+        background: #fafbfc;
+    }
+
+/* خشتە */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .data-table th {
+        padding: 10px 14px;
+        text-align: right;
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: #f8fafc;
+    }
+
+    .data-table td {
+        padding: 12px 14px;
+        font-size: 0.85rem;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .data-table tr:hover {
+        background: #f8fafc;
+    }
+
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+
+/* دوگمەکان */
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+    .action-btn.primary {
+        background: var(--purple);
+        color: #fff;
+    }
+
+        .action-btn.primary:hover {
+            background: #7c3aed;
+            box-shadow: 0 4px 12px rgba(139,92,246,0.3);
+        }
+
+    .action-btn.success {
+        background: var(--success);
+        color: #fff;
+    }
+
+        .action-btn.success:hover {
+            box-shadow: 0 4px 12px rgba(16,185,129,0.25);
+        }
+
+    .action-btn.outline {
+        background: #fff;
+        color: var(--purple);
+        border: 1.5px solid #ddd6fe;
+    }
+
+        .action-btn.outline:hover {
+            background: #f5f3ff;
+            border-color: #c4b5fd;
+        }
+
+    .action-btn.outline-danger {
+        background: #fff;
+        color: var(--danger);
+        border: 1.5px solid #fecaca;
+    }
+
+        .action-btn.outline-danger:hover {
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+/* Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+    .status-badge.success {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-badge.danger {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-badge.info {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+/* پوختە */
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+    .summary-row:last-child {
+        border-bottom: none;
+    }
+
+    .summary-row .label {
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+
+    .summary-row .value {
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+        .summary-row .value.purple {
+            color: var(--purple);
+        }
+
+        .summary-row .value.success {
+            color: var(--success);
+        }
+
+        .summary-row .value.danger {
+            color: var(--danger);
+        }
+
+        .summary-row .value.warning {
+            color: var(--warning);
+            font-size: 1.1rem;
+        }
+
+/* Progress */
+.progress-custom {
+    height: 6px;
+    border-radius: 6px;
+    background: #e2e8f0;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+    .progress-custom .fill {
+        height: 100%;
+        border-radius: 6px;
+        background: linear-gradient(90deg, var(--success), #34d399);
+    }
+
+/* Header - سپی */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    background: #fff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid #f1f5f9;
+}
+
+    .page-header .greeting h2 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--dark-1);
+        margin: 0 0 3px;
+    }
+
+    .page-header .greeting p {
+        color: #64748b;
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+.date-badge {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    padding: 8px 14px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .date-badge i {
+        color: rgba(255,255,255,0.8);
+    }
+
+.text-purple {
+    color: var(--purple) !important;
+}
+
+.text-success {
+    color: var(--success) !important;
+}
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+.text-muted {
+    color: #94a3b8 !important;
+}

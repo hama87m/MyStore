@@ -1,0 +1,1641 @@
+@page
+@model MyStore.Pages.Products.IndexModel
+@{
+    ViewData["Title"] = "بەڕێوەبردنی کاڵاکان";
+}
+
+<style>
+    :root {
+        --dark-1: #0f172a;
+        --primary: #6366f1;
+        --purple: #8b5cf6;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --cyan: #06b6d4;
+    }
+
+    /* ══ LAYOUT ══ */
+    .page-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        height: calc(100vh - 40px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* ══ PAGE HEADER ══ */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+        padding: 14px 18px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        border: 1px solid #f1f5f9;
+        flex-shrink: 0;
+    }
+
+        .page-header .title-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+    .nav-icon-box {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg,#ede9fe,#ddd6fe);
+        color: var(--purple);
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        box-shadow: 0 2px 6px rgba(139,92,246,.12);
+        flex-shrink: 0;
+        border: 1px solid #e9d5ff;
+    }
+
+    .page-header h1 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark-1);
+        margin: 0 0 2px;
+    }
+
+    .page-header .subtitle {
+        color: #64748b;
+        margin: 0;
+        font-size: .8rem;
+    }
+
+    .btn-header {
+        background: linear-gradient(135deg,#ede9fe,#f5f3ff);
+        color: var(--purple);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: .78rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all .18s;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+        .btn-header:hover {
+            opacity: .9;
+            color: var(--purple);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(124,58,237,.3);
+        }
+
+    /* ══ خشتەی ئامار ══ */
+    .stats-tbl {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .stats-tbl td {
+            padding: 9px 16px;
+            font-size: .8rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .stats-tbl tr:last-child td {
+            border-bottom: none;
+        }
+
+        .stats-tbl tr:hover {
+            background: #fafbff;
+        }
+
+    .st-label {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #64748b;
+        font-size: .8rem;
+    }
+
+    .st-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .7rem;
+        flex-shrink: 0;
+    }
+
+        .st-icon.purple {
+            background: linear-gradient(135deg,#ede9fe,#f5f3ff);
+            color: var(--purple);
+        }
+
+        .st-icon.emerald {
+            background: linear-gradient(135deg,#d1fae5,#ecfdf5);
+            color: var(--success);
+        }
+
+        .st-icon.amber {
+            background: linear-gradient(135deg,#fef3c7,#fefce8);
+            color: var(--warning);
+        }
+
+    .st-val {
+        font-weight: 700;
+        font-size: .92rem;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    /* ══ MAIN CARD ══ */
+    .card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    /* ══ CARD HEAD ══ */
+    .card-head {
+        padding: 0 14px;
+        border-bottom: 2px solid #f1f5f9;
+        background: #fff;
+        flex-shrink: 0;
+        min-height: 52px;
+        display: flex;
+        align-items: center;
+    }
+
+    .card-head-inner {
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .head-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        padding-left: 14px;
+        border-left: 1px solid #f1f5f9;
+        min-height: 52px;
+    }
+
+    .head-title {
+        font-size: .88rem;
+        font-weight: 600;
+        color: var(--dark-1);
+        white-space: nowrap;
+    }
+
+    .head-filters {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        padding: 0 10px;
+        border-right: 1px solid #f1f5f9;
+        gap: 0;
+        overflow-x: auto;
+    }
+
+    .hf-group {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        padding: 0 10px;
+        border-left: 1px dashed #e9d5ff;
+    }
+
+        .hf-group:last-of-type {
+            border-left: none;
+        }
+
+    .hf-label {
+        font-size: .57rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        margin-bottom: 1px;
+        white-space: nowrap;
+        line-height: 1.2;
+    }
+
+    .hf-search-group {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        padding: 0 10px;
+        flex: 1;
+    }
+
+    .hf-search-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .hf-search-icon {
+        position: absolute;
+        right: 4px;
+        color: #94a3b8;
+        font-size: .62rem;
+        pointer-events: none;
+    }
+
+    .hf-spinner {
+        position: absolute;
+        left: 4px;
+        color: var(--purple);
+        font-size: .62rem;
+        display: none;
+    }
+
+    .hf-input {
+        height: 26px;
+        padding: 0 22px 0 18px;
+        border: none;
+        background: transparent;
+        font-size: .73rem;
+        color: #1e293b;
+        width: 100%;
+        min-width: 160px;
+        outline: none;
+        font-weight: 500;
+    }
+
+        .hf-input::placeholder {
+            color: #cbd5e1;
+        }
+
+    .hf-active-line {
+        height: 2px;
+        border-radius: 1px;
+        background: transparent;
+        transition: background .2s;
+        margin-top: 1px;
+    }
+
+    .hf-search-group:focus-within .hf-active-line {
+        background: var(--purple);
+    }
+
+    .hf-search-group:focus-within .hf-label {
+        color: var(--purple);
+    }
+
+    .hf-group:focus-within .hf-active-line {
+        background: var(--purple);
+    }
+
+    .hf-group:focus-within .hf-label {
+        color: var(--purple);
+    }
+
+    .hf-switch-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        height: 26px;
+    }
+
+        .hf-switch-wrap .form-check-input {
+            width: 34px;
+            height: 18px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+    .hf-switch-label {
+        font-size: .72rem;
+        font-weight: 500;
+        color: #64748b;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .head-right {
+        flex-shrink: 0;
+        padding-right: 12px;
+        min-height: 52px;
+        display: flex;
+        align-items: center;
+    }
+
+    .expand-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .72rem;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        cursor: pointer;
+        transition: all .18s;
+    }
+
+        .expand-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+    /* ══ FULLSCREEN ══ */
+    .card.is-fullscreen {
+        position: fixed;
+        inset: 0;
+        top: 56px;
+        z-index: 1050;
+        border-radius: 0;
+        height: calc(100vh - 56px);
+    }
+
+    /* ══ TABLE ══ */
+    .table-scroll {
+        flex: 1;
+        overflow-y: auto;
+        direction: rtl;
+        min-height: 0;
+    }
+
+        .table-scroll > table {
+            direction: rtl;
+        }
+
+        .table-scroll::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        .table-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+            .table-scroll::-webkit-scrollbar-thumb:hover {
+                background: #64748b;
+            }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .data-table th {
+            padding: 8px 12px;
+            text-align: right;
+            font-size: .64rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .data-table td {
+            padding: 7px 12px;
+            font-size: .74rem;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ── ڕیزی ئەرشیف — تەنها کەمتر ڕووناک ── */
+        .data-table tbody tr.row-archived td {
+            opacity: .55;
+        }
+
+    /* ── ناوی کاڵا + avatar ── */
+    .prod-cell {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .prod-av {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: .85rem;
+        letter-spacing: -.5px;
+    }
+
+        .prod-av.av-active {
+            background: #ede9fe;
+            color: var(--purple);
+        }
+
+        .prod-av.av-archived {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+    .prod-name {
+        font-weight: 600;
+        font-size: .78rem;
+        color: #1e293b;
+        line-height: 1.3;
+    }
+
+        .prod-name.archived {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+
+    .barcode {
+        font-family: monospace;
+        font-size: .64rem;
+        color: #94a3b8;
+        display: block;
+        margin-top: 1px;
+    }
+
+    /* ── یەکەکان ── */
+    .unit-list {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .unit-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: .69rem;
+        color: #475569;
+        white-space: nowrap;
+    }
+
+        .unit-item .ui {
+            width: 19px;
+            height: 19px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .6rem;
+            flex-shrink: 0;
+        }
+
+    .ui.carton {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .ui.dozen {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    .ui.bundle {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .unit-num {
+        font-weight: 700;
+        font-size: .7rem;
+        color: #334155;
+    }
+
+    /* ── نرخ ── */
+    .td-price {
+        font-weight: 700;
+        font-size: .8rem;
+        color: #1e293b;
+    }
+
+        .td-price.wsale {
+            font-weight: 500;
+            font-size: .76rem;
+            color: #64748b;
+        }
+
+    /* ── ستۆک badge ── */
+    .stock-badge {
+        display: inline-block;
+        padding: 2px 9px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: .71rem;
+    }
+
+        .stock-badge.good {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .stock-badge.low {
+            background: #fef9c3;
+            color: #a16207;
+            border: 1px solid #fde68a;
+        }
+
+        .stock-badge.out {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+    /* ── دۆخ ── */
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+        .status-dot.active {
+            background: var(--success);
+            box-shadow: 0 0 0 3px rgba(16,185,129,.15);
+        }
+
+        .status-dot.archived {
+            background: #cbd5e1;
+        }
+
+    /* ── دووگمەکانی کردار ── */
+    .action-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .74rem;
+        transition: all .15s;
+        cursor: pointer;
+    }
+
+        .action-btn.edit {
+            background: #f5f3ff;
+            color: var(--purple);
+            border-color: #ede9fe;
+        }
+
+            .action-btn.edit:hover {
+                background: var(--purple);
+                color: #fff;
+            }
+
+        .action-btn.archive {
+            background: #fefce8;
+            color: var(--warning);
+            border-color: #fef3c7;
+        }
+
+            .action-btn.archive:hover {
+                background: var(--warning);
+                color: #fff;
+            }
+
+        .action-btn.restore {
+            background: #ecfdf5;
+            color: var(--success);
+            border-color: #d1fae5;
+        }
+
+            .action-btn.restore:hover {
+                background: var(--success);
+                color: #fff;
+            }
+
+        .action-btn.delete {
+            background: #fef2f2;
+            color: var(--danger);
+            border-color: #fee2e2;
+        }
+
+            .action-btn.delete:hover {
+                background: var(--danger);
+                color: #fff;
+            }
+
+    /* ── بەتاڵ ── */
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #e2e8f0;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .empty-state h5 {
+            color: #64748b;
+            margin: 0 0 6px;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+            font-size: .82rem;
+        }
+
+    /* ══ MODAL ══ */
+    .modal-header.purple {
+        background: linear-gradient(135deg,#7c3aed,#a855f7);
+        padding: 14px 18px;
+    }
+
+        .modal-header.purple .modal-title {
+            color: #fff;
+            font-size: .95rem;
+            font-weight: 600;
+        }
+
+        .modal-header.purple .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: .8;
+        }
+
+    .modal-body {
+        padding: 18px 20px;
+    }
+
+    .modal-footer {
+        background: #f8fafc;
+        padding: 10px 18px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .form-label {
+        font-size: .8rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 5px;
+    }
+
+        .form-label .required {
+            color: var(--danger);
+        }
+
+    .form-control {
+        border: 1px solid #e2e8f0;
+        border-radius: 9px;
+        padding: 8px 12px;
+        font-size: .85rem;
+        transition: all .2s;
+    }
+
+        .form-control:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(139,92,246,.1);
+        }
+
+    .input-group-text {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        font-size: .82rem;
+    }
+
+    .unit-inputs {
+        display: flex;
+        gap: 8px;
+    }
+
+    .unit-input-box {
+        flex: 1;
+    }
+
+        .unit-input-box label {
+            font-size: .7rem;
+            color: #64748b;
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .unit-input-box .input-group-text.carton {
+            background: #dbeafe;
+            color: var(--info);
+            border-color: #bfdbfe;
+        }
+
+        .unit-input-box .input-group-text.dozen {
+            background: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        .unit-input-box .input-group-text.bundle {
+            background: #f1f5f9;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+
+    .btn-save {
+        background: linear-gradient(135deg,#7c3aed,#a855f7);
+        color: #fff;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 9px;
+        font-weight: 600;
+        font-size: .82rem;
+    }
+
+        .btn-save:hover {
+            opacity: .9;
+            color: #fff;
+        }
+
+    .btn-cancel {
+        background: #e2e8f0;
+        color: #475569;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 9px;
+        font-weight: 600;
+        font-size: .82rem;
+    }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
+            color: #334155;
+        }
+
+    .btn-generate {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        border-radius: 0 9px 9px 0;
+        padding: 0 10px;
+        font-size: .82rem;
+    }
+
+        .btn-generate:hover {
+            background: #e2e8f0;
+        }
+
+    /* ══ RESPONSIVE ══ */
+
+    /* ── 1366px: کەمێک بچووکتر ── */
+    @@media (max-width:1366px) {
+        .page-wrapper {
+            height: calc(100vh - 40px);
+        }
+
+        .data-table th {
+            font-size: .61rem;
+            padding: 7px 10px;
+        }
+
+        .data-table td {
+            font-size: .72rem;
+            padding: 5px 10px;
+        }
+
+        .st-val {
+            font-size: .88rem;
+        }
+
+        .stats-tbl td {
+            padding: 8px 14px;
+        }
+    }
+
+    /* ── 1100px: خشتەی ئامار بچووکتر ── */
+    @@media (max-width:1366px) {
+        .page-wrapper {
+            height: calc(100vh - 40px);
+        }
+
+        .data-table th {
+            font-size: .61rem;
+            padding: 7px 10px;
+        }
+
+        .data-table td {
+            font-size: .72rem;
+            padding: 5px 10px;
+        }
+
+        .stats-tbl td {
+            padding: 8px 14px;
+        }
+
+        .st-val {
+            font-size: .88rem;
+        }
+    }
+
+    /* ══ 1200px: خشتەی ئامار دەچێتە خوارەوە، خشتە سەرەکی پانتایی تەواو ══ */
+    @@media (max-width:1200px) {
+        .page-wrapper {
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        .main-row {
+            flex-direction: column !important;
+        }
+            /* خشتە سەرەکی پانتایی تەواو */
+            .main-row > div[style*="flex:1"] {
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+            /* سایدبار پانتایی تەواو + stats-tbl ٣ستون ڕیزی ئاوەڕاست */
+            .main-row > div[style*="width:280px"] {
+                width: 100% !important;
+            }
+
+        .stats-tbl tbody {
+            display: flex;
+            width: 100%;
+        }
+
+        .stats-tbl tr {
+            display: flex;
+            flex: 1;
+            border-bottom: none;
+            border-left: 1px solid #f1f5f9;
+        }
+
+            .stats-tbl tr:first-child {
+                border-left: none;
+            }
+
+        .stats-tbl td {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            padding: 10px 16px;
+        }
+
+        .stats-cards-mobile {
+            display: none !important;
+        }
+
+        .table-scroll {
+            max-height: 400px;
+        }
+
+        .card {
+            flex: none;
+        }
+    }
+
+    @@media (max-width:1100px) {
+        .data-table th {
+            font-size: .57rem;
+            padding: 5px 7px;
+        }
+
+        .data-table td {
+            font-size: .66rem;
+            padding: 4px 7px;
+        }
+
+        .prod-av {
+            width: 28px;
+            height: 28px;
+            font-size: .76rem;
+        }
+    }
+
+    /* ── 900px: هێدەری کارت ── */
+    @@media (max-width:900px) {
+        .card-head {
+            min-height: auto;
+            padding: 8px 12px;
+        }
+
+        .card-head-inner {
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .head-left {
+            border-left: none;
+            padding-left: 0;
+            min-height: auto;
+        }
+
+        .head-filters {
+            border-right: none;
+            flex-wrap: wrap;
+            padding: 4px 0;
+        }
+
+        .head-right {
+            min-height: auto;
+        }
+
+        .hf-group {
+            border-left: none;
+            padding: 2px 6px;
+        }
+
+        .data-table th {
+            font-size: .53rem;
+            padding: 5px 6px;
+        }
+
+        .data-table td {
+            font-size: .62rem;
+            padding: 4px 6px;
+        }
+    }
+
+    @@media (max-width:768px) {
+        .page-header {
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+
+            .page-header .title-section {
+                justify-content: center;
+            }
+        /* stats-tbl بە دووستون */
+        .stats-tbl tbody {
+            flex-wrap: wrap;
+        }
+
+        .stats-tbl tr {
+            min-width: 50%;
+            border-bottom: 1px solid #f1f5f9;
+            border-left: none;
+        }
+
+        .stats-tbl td {
+            padding: 9px 12px;
+        }
+    }
+
+    @@media (max-width:576px) {
+        .page-header {
+            padding: 10px 14px;
+        }
+
+        .data-table th {
+            font-size: .55rem;
+            padding: 5px 6px;
+        }
+
+        .data-table td {
+            font-size: .64rem;
+            padding: 4px 6px;
+        }
+        /* stats-tbl یەک ستون */
+        .stats-tbl tr {
+            min-width: 100%;
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+
+    <!-- ── هەدەری پەیج ── -->
+    <div class="page-header">
+        <div class="title-section">
+            <div class="nav-icon-box"><i class="fas fa-boxes"></i></div>
+            <div>
+                <h1>بەڕێوەبردنی کاڵاکان</h1>
+                <p class="subtitle">تۆمارکردن و بەڕێوەبردنی کاڵاکانی فرۆشگا</p>
+            </div>
+        </div>
+        <button type="button" class="btn-header" onclick="openAddModal()">
+            <i class="fas fa-plus"></i> کاڵای نوێ
+        </button>
+    </div>
+
+    <!-- ── ناوەرۆکی سەرەکی ── -->
+    <div class="main-row" style="display:flex;gap:1rem;align-items:stretch;">
+
+        <!-- ── خشتەی سەرەکی ── -->
+        <div style="flex:1;min-width:0;">
+            <div class="card" id="mainCard">
+
+                <div class="card-head">
+                    <div class="card-head-inner">
+
+                        <div class="head-left">
+                            <i class="fas fa-list" style="color:var(--primary);font-size:.8rem;"></i>
+                            <span class="head-title">لیستی کاڵاکان</span>
+                        </div>
+
+                        <div class="head-filters">
+
+                            <!-- گەڕانی AJAX -->
+                            <div class="hf-search-group">
+                                <span class="hf-label"><i class="fas fa-search"></i> گەڕان</span>
+                                <div class="hf-search-wrap">
+                                    <input id="fSearch" type="text" class="hf-input"
+                                           placeholder="ناو یان باڕکۆد..." value="@Model.SearchTerm">
+                                    <i class="fas fa-circle-notch fa-spin hf-spinner" id="searchSpinner"></i>
+                                    <i class="fas fa-search hf-search-icon" id="searchIcon"></i>
+                                </div>
+                                <div class="hf-active-line"></div>
+                            </div>
+
+                            <!-- سویچی ئەرشیف -->
+                            <div class="hf-group">
+                                <span class="hf-label"><i class="fas fa-archive"></i> دۆخ</span>
+                                <div class="hf-switch-wrap">
+                                    <input type="checkbox" class="form-check-input" id="fShowInactive"
+                                           @(Model.ShowInactive ? "checked" : "")>
+                                    <label class="hf-switch-label" for="fShowInactive">ئەرشیفەکان</label>
+                                </div>
+                                <div class="hf-active-line"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="head-right">
+                            <button class="expand-btn" onclick="toggleFullscreen()" title="گەورەکردن">
+                                <i class="fas fa-expand" id="expandIcon"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- خشتە -->
+                <div id="tableContainer" style="display:contents;">
+                    @if (Model.ProductList.Any())
+                    {
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:4%">#</th>
+                                        <th style="width:30%">کاڵا</th>
+                                        <th style="width:15%" class="text-center">یەکەکان</th>
+                                        <th style="width:12%" class="text-center">نرخ تاک</th>
+                                        <th style="width:12%" class="text-center">نرخ جوملە</th>
+                                        <th style="width:9%" class="text-center">ستۆک</th>
+                                        <th style="width:5%" class="text-center">دۆخ</th>
+                                        <th style="width:13%" class="text-center">کردار</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int rowNo = 1;
+                                    }
+                                    @foreach (var item in Model.ProductList)
+                                    {
+                                        var rowCls = item.IsActive ? "" : "row-archived";
+                                        var nameCls = item.IsActive ? "prod-name" : "prod-name archived";
+                                        var dotCls = item.IsActive ? "active" : "archived";
+                                        var stockCls = item.CurrentStock <= 0 ? "out" : (item.CurrentStock < 5 ? "low" : "good");
+                                        <tr class="@rowCls">
+                                            <td style="color:#e2e8f0;font-size:.65rem;font-weight:500;">@rowNo</td>
+                                            <td>
+                                                <div class="prod-cell">
+                                                    <div class="prod-av @(item.IsActive ? "av-active" : "av-archived")">
+                                                        @item.Name.First()
+                                                    </div>
+                                                    <div>
+                                                        <div class="@nameCls">@item.Name</div>
+                                                        <span class="barcode">@item.Barcode</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (item.QtyPerCarton > 1 || item.QtyPerDozen > 1 || item.QtyPerBundle > 1)
+                                                {
+                                                    <div class="unit-list">
+                                                        @if (item.QtyPerCarton > 1)
+                                                        {
+                                                            <span class="unit-item">
+                                                                <span class="ui carton"><i class="fas fa-box"></i></span>
+                                                                <span class="unit-num">@item.QtyPerCarton</span>
+                                                            </span>
+                                                        }
+                                                        @if (item.QtyPerDozen > 1)
+                                                        {
+                                                            <span class="unit-item">
+                                                                <span class="ui dozen"><i class="fas fa-th"></i></span>
+                                                                <span class="unit-num">@item.QtyPerDozen</span>
+                                                            </span>
+                                                        }
+                                                        @if (item.QtyPerBundle > 1)
+                                                        {
+                                                            <span class="unit-item">
+                                                                <span class="ui bundle"><i class="fas fa-layer-group"></i></span>
+                                                                <span class="unit-num">@item.QtyPerBundle</span>
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color:#cbd5e1;font-size:.72rem;">—</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="td-price">@string.Format("{0:N0}", item.SalePrice)</span>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (item.WholesalePrice > 0)
+                                                {
+                                                    <span class="td-price wsale">@string.Format("{0:N0}", item.WholesalePrice)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color:#cbd5e1;font-size:.72rem;">—</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="stock-badge @stockCls">@item.CurrentStock</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="status-dot @dotCls"
+                                                      title="@(item.IsActive ? "چالاک" : "ئەرشیف")"></span>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex gap-1 justify-content-center">
+                                                    <button class="action-btn edit"
+                                                            onclick="openEditModal(@item.ProductId)" title="دەستکاری">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    @if (item.IsActive)
+                                                    {
+                                                        <button class="action-btn archive"
+                                                                onclick="toggleStatus(@item.ProductId)" title="ئەرشیفکردن">
+                                                            <i class="fas fa-archive"></i>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="action-btn restore"
+                                                                onclick="toggleStatus(@item.ProductId)" title="چالاككردنەوە">
+                                                            <i class="fas fa-redo"></i>
+                                                        </button>
+                                                    }
+                                                    <button class="action-btn delete"
+                                                            onclick="deleteProduct(@item.ProductId,'@item.Name.Replace("'", "\\'")')" title="سڕینەوە">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        rowNo++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <h5>هیچ کاڵایەک نییە</h5>
+                            <p>دووگمەی کاڵای نوێ بکە تا یەکی زیاد بکەیت</p>
+                            <button type="button" class="btn-header" onclick="openAddModal()">
+                                <i class="fas fa-plus"></i> کاڵای نوێ
+                            </button>
+                        </div>
+                    }
+                </div>
+
+            </div><!-- /card#mainCard -->
+        </div><!-- /col-table -->
+        <!-- ── خشتەی ئاماری کاڵاکان ── -->
+        <div style="width:280px;flex-shrink:0;align-self:flex-start;">
+            <div class="card">
+                <div class="card-head" style="min-height:48px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <i class="fas fa-chart-pie" style="color:var(--purple);font-size:.82rem;"></i>
+                        <span style="font-size:.88rem;font-weight:600;color:var(--dark-1);">ئاماری کاڵاکان</span>
+                    </div>
+                </div>
+                <!-- خشتە — دەرکەوێت لە ستایلی گەورە ── -->
+                <table class="stats-tbl">
+                    <tbody>
+                        <tr>
+                            <td><span class="st-label"><span class="st-icon purple"><i class="fas fa-cubes"></i></span>کۆی گشتی</span></td>
+                            <td class="st-val" id="statTotal" style="color:var(--dark-1);">@Model.TotalProducts</td>
+                        </tr>
+                        <tr>
+                            <td><span class="st-label"><span class="st-icon emerald"><i class="fas fa-check-circle"></i></span>چالاک</span></td>
+                            <td class="st-val" id="statActive" style="color:var(--success);">@Model.ActiveProducts</td>
+                        </tr>
+                        <tr>
+                            <td><span class="st-label"><span class="st-icon amber"><i class="fas fa-archive"></i></span>ئەرشیف</span></td>
+                            <td class="st-val" id="statInactive" style="color:var(--warning);">@Model.InactiveProducts</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- کارتی مۆبایل — تەنها لە ستایلی بچووک دەرکەوێت ── -->
+                <div class="stats-cards-mobile" style="display:none;">
+                    <div style="background:#faf5ff;border-radius:10px;padding:12px;text-align:center;">
+                        <div style="font-size:1.2rem;font-weight:700;color:var(--purple);" id="statTotalM">@Model.TotalProducts</div>
+                        <div style="font-size:.7rem;color:#94a3b8;">کۆی گشتی</div>
+                    </div>
+                    <div style="background:#f0fdf4;border-radius:10px;padding:12px;text-align:center;">
+                        <div style="font-size:1.2rem;font-weight:700;color:var(--success);" id="statActiveM">@Model.ActiveProducts</div>
+                        <div style="font-size:.7rem;color:#94a3b8;">چالاک</div>
+                    </div>
+                    <div style="background:#fffbeb;border-radius:10px;padding:12px;text-align:center;">
+                        <div style="font-size:1.2rem;font-weight:700;color:var(--warning);" id="statInactiveM">@Model.InactiveProducts</div>
+                        <div style="font-size:.7rem;color:#94a3b8;">ئەرشیف</div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /stats sidebar -->
+
+    </div><!-- /main-row -->
+</div><!-- /page-wrapper -->
+<!-- ══ Modal ══ -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header purple">
+                <h6 class="modal-title" id="productModalTitle">
+                    <i class="fas fa-plus-circle me-2"></i>زیادکردنی کاڵا
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="productId" value="0">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">ناوی کاڵا <span class="required">*</span></label>
+                        <input type="text" id="productName" class="form-control" placeholder="ناوی کاڵا بنووسە...">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">باڕکۆد <span class="required">*</span></label>
+                        <div class="input-group">
+                            <input type="text" id="productBarcode" class="form-control font-monospace" placeholder="باڕکۆد...">
+                            <button class="btn-generate" type="button" onclick="generateBarcode()" title="دروستکردنی باڕکۆد">
+                                <i class="fas fa-random"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">نرخی تاک <span class="required">*</span></label>
+                        <div class="input-group">
+                            <input type="number" id="productPrice" class="form-control text-center fw-bold" min="0" step="250" placeholder="0">
+                            <span class="input-group-text">د.ع</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">نرخی جوملە</label>
+                        <div class="input-group">
+                            <input type="number" id="wholesalePrice" class="form-control text-center fw-bold" min="0" step="250" placeholder="0">
+                            <span class="input-group-text">د.ع</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" style="color:#94a3b8;">
+                            <i class="fas fa-cubes me-1"></i>یەکەکان (ئیختیاری)
+                        </label>
+                        <div class="unit-inputs">
+                            <div class="unit-input-box">
+                                <label>کارتۆن</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text carton"><i class="fas fa-box"></i></span>
+                                    <input type="number" id="qtyPerCarton" class="form-control text-center" min="1" value="1">
+                                </div>
+                            </div>
+                            <div class="unit-input-box">
+                                <label>دەرزەن</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text dozen"><i class="fas fa-th"></i></span>
+                                    <input type="number" id="qtyPerDozen" class="form-control text-center" min="1" value="1">
+                                </div>
+                            </div>
+                            <div class="unit-input-box">
+                                <label>بەستە</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bundle"><i class="fas fa-layer-group"></i></span>
+                                    <input type="number" id="qtyPerBundle" class="form-control text-center" min="1" value="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" data-bs-dismiss="modal">پاشگەزبوونەوە</button>
+                <button type="button" class="btn-save" id="saveProductBtn" onclick="saveProduct()">
+                    <i class="fas fa-save me-1"></i>پاشەکەوت
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let isEditMode  = false;
+        let searchTimer = null;
+
+        // ══════════════════════════════════════════════════════
+        //  یاریدەرەکانی ڕیزەکان — HTML builder
+        // ══════════════════════════════════════════════════════
+        function unitHtml(p) {
+            // ئایکۆنی یەکەکان
+            // کارتۆن: fa-box  دەرزەن: fa-th  بەستە: fa-layer-group
+            const hasUnits = p.qtyPerCarton > 1 || p.qtyPerDozen > 1 || p.qtyPerBundle > 1;
+            if (!hasUnits) return '<span style="color:#cbd5e1;">—</span>';
+            let html = '<div class="unit-list">';
+            if (p.qtyPerCarton > 1)
+                html += `<span class="unit-item"><span class="ui carton"><i class="fas fa-box"></i></span><span class="unit-num">${p.qtyPerCarton}</span></span>`;
+            if (p.qtyPerDozen > 1)
+                html += `<span class="unit-item"><span class="ui dozen"><i class="fas fa-th"></i></span><span class="unit-num">${p.qtyPerDozen}</span></span>`;
+            if (p.qtyPerBundle > 1)
+                html += `<span class="unit-item"><span class="ui bundle"><i class="fas fa-layer-group"></i></span><span class="unit-num">${p.qtyPerBundle}</span></span>`;
+            html += '</div>';
+            return html;
+        }
+
+        function stockHtml(n) {
+            const cls = n <= 0 ? 'out' : n < 5 ? 'low' : 'good';
+            return `<span class="stock-badge ${cls}">${n}</span>`;
+        }
+
+        function buildRow(p, idx) {
+            const archived  = !p.isActive;
+            const rowCls    = archived ? 'row-archived' : '';
+            const nameCls   = archived ? 'prod-name archived' : 'prod-name';
+            const dotCls    = p.isActive ? 'active' : 'archived';
+            const avCls     = p.isActive ? 'av-active' : 'av-archived';
+            const firstChar = p.name.length > 0 ? p.name[0] : '؟';
+
+            const archBtn = p.isActive
+                ? `<button class="action-btn archive" onclick="toggleStatus(${p.productId})" title="ئەرشیفکردن"><i class="fas fa-archive"></i></button>`
+                : `<button class="action-btn restore" onclick="toggleStatus(${p.productId})" title="چالاككردنەوە"><i class="fas fa-redo"></i></button>`;
+
+            const wholesale = p.wholesalePrice > 0
+                ? `<span class="td-price wsale">${fmt(p.wholesalePrice)}</span>`
+                : `<span style="color:#cbd5e1;font-size:.72rem;">—</span>`;
+
+            const safeName = p.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+            return `<tr class="${rowCls}">
+                <td style="color:#e2e8f0;font-size:.65rem;font-weight:500;">${idx}</td>
+                <td>
+                    <div class="prod-cell">
+                        <div class="prod-av ${avCls}">${firstChar}</div>
+                        <div>
+                            <div class="${nameCls}">${p.name}</div>
+                            <span class="barcode">${p.barcode}</span>
+                        </div>
+                    </div>
+                </td>
+                <td class="text-center">${unitHtml(p)}</td>
+                <td class="text-center"><span class="td-price">${fmt(p.salePrice)}</span></td>
+                <td class="text-center">${wholesale}</td>
+                <td class="text-center">${stockHtml(p.currentStock)}</td>
+                <td class="text-center"><span class="status-dot ${dotCls}" title="${p.isActive ? 'چالاک' : 'ئەرشیف'}"></span></td>
+                <td class="text-center">
+                    <div class="d-flex gap-1 justify-content-center">
+                        <button class="action-btn edit"   onclick="openEditModal(${p.productId})" title="دەستکاری"><i class="fas fa-edit"></i></button>
+                        ${archBtn}
+                        <button class="action-btn delete" onclick="deleteProduct(${p.productId},'${safeName}')" title="سڕینەوە"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </td>
+            </tr>`;
+        }
+
+        function buildTable(products) {
+            if (!products || products.length === 0) {
+                return `<div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h5>هیچ کاڵایەک نەدۆزرایەوە</h5>
+                    <p>جۆری گەڕانەکە بگۆڕە یان کاڵای نوێ زیاد بکە</p>
+                </div>`;
+            }
+            let rows = products.map((p, i) => buildRow(p, i + 1)).join('');
+            return `<div class="table-scroll">
+                <table class="data-table">
+                    <thead><tr>
+                        <th style="width:4%">#</th>
+                        <th style="width:30%">کاڵا</th>
+                        <th style="width:15%" class="text-center">یەکەکان</th>
+                        <th style="width:12%" class="text-center">نرخ تاک</th>
+                        <th style="width:12%" class="text-center">نرخ جوملە</th>
+                        <th style="width:9%"  class="text-center">ستۆک</th>
+                        <th style="width:5%"  class="text-center">دۆخ</th>
+                        <th style="width:13%" class="text-center">کردار</th>
+                    </tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+        }
+
+        function fmt(n) { return Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
+
+        // ══════════════════════════════════════════════════════
+        //  AJAX گەڕان — بێ ڕیلۆد
+        // ══════════════════════════════════════════════════════
+        function doSearch() {
+            const term    = document.getElementById('fSearch').value.trim();
+            const showArc = document.getElementById('fShowInactive').checked;
+
+            // نیشانەی گەڕان
+            document.getElementById('searchSpinner').style.display = 'block';
+            document.getElementById('searchIcon').style.display    = 'none';
+
+            const p = new URLSearchParams({ handler: 'Search' });
+            if (term)    p.set('SearchTerm',   term);
+            if (showArc) p.set('ShowInactive', 'true');
+
+            fetch(`?${p}`)
+                .then(r => r.json())
+                .then(data => {
+                    // نوێکردنەوەی کارتەکانی ئامار
+                    document.getElementById('statTotal').textContent   = data.total;
+                    document.getElementById('statActive').textContent  = data.active;
+                    document.getElementById('statInactive').textContent= data.inactive;
+                    // مۆبایل IDەکانیش
+                    const tm = document.getElementById('statTotalM');
+                    const am = document.getElementById('statActiveM');
+                    const im = document.getElementById('statInactiveM');
+                    if (tm) tm.textContent = data.total;
+                    if (am) am.textContent = data.active;
+                    if (im) im.textContent = data.inactive;
+                    // نوێکردنەوەی خشتە
+                    document.getElementById('tableContainer').innerHTML = buildTable(data.products);
+                })
+                .catch(err => console.error('Search error:', err))
+                .finally(() => {
+                    document.getElementById('searchSpinner').style.display = 'none';
+                    document.getElementById('searchIcon').style.display    = 'block';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // گەڕانی دەم — debounce 500ms
+            document.getElementById('fSearch').addEventListener('input', () => {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(doSearch, 500);
+            });
+            // سویچی ئەرشیف — فەوری
+            document.getElementById('fShowInactive').addEventListener('change', doSearch);
+        });
+
+        // ══════════════════════════════════════════════════════
+        //  Modal: زیادکردن
+        // ══════════════════════════════════════════════════════
+        function openAddModal() {
+            isEditMode = false;
+            $('#productModalTitle').html('<i class="fas fa-plus-circle me-2"></i>زیادکردنی کاڵا');
+            $('#productId').val(0);
+            $('#productName, #productBarcode, #productPrice, #wholesalePrice').val('');
+            $('#qtyPerCarton, #qtyPerDozen, #qtyPerBundle').val(1);
+            new bootstrap.Modal(document.getElementById('productModal')).show();
+            setTimeout(() => $('#productName').focus(), 300);
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  Modal: دەستکاری
+        // ══════════════════════════════════════════════════════
+        async function openEditModal(id) {
+            isEditMode = true;
+            try {
+                const r    = await fetch(`?handler=Product&id=${id}`);
+                const data = await r.json();
+                if (!data.success) return;
+                const p = data.product;
+                $('#productModalTitle').html('<i class="fas fa-edit me-2"></i>دەستکاری کاڵا');
+                $('#productId').val(p.productId);
+                $('#productName').val(p.name);
+                $('#productBarcode').val(p.barcode);
+                $('#productPrice').val(p.salePrice);
+                $('#wholesalePrice').val(p.wholesalePrice || '');
+                $('#qtyPerCarton').val(p.qtyPerCarton);
+                $('#qtyPerDozen').val(p.qtyPerDozen);
+                $('#qtyPerBundle').val(p.qtyPerBundle);
+                new bootstrap.Modal(document.getElementById('productModal')).show();
+            } catch(err) { console.error(err); }
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  پاشەکەوتکردن
+        // ══════════════════════════════════════════════════════
+        function generateBarcode() {
+            let b = '';
+            for (let i = 0; i < 13; i++) b += Math.floor(Math.random() * 10);
+            $('#productBarcode').val(b);
+        }
+
+        async function saveProduct() {
+            const name  = $('#productName').val().trim();
+            const bc    = $('#productBarcode').val().trim();
+            const price = parseFloat($('#productPrice').val()) || 0;
+            if (!name)      { alert('ناوی کاڵا بنووسە');  $('#productName').focus();    return; }
+            if (!bc)        { alert('باڕکۆد بنووسە');      $('#productBarcode').focus(); return; }
+            if (price <= 0) { alert('نرخ بنووسە');         $('#productPrice').focus();   return; }
+
+            const fd = new FormData();
+            fd.append('ProductInput.ProductId',    $('#productId').val());
+            fd.append('ProductInput.Name',         name);
+            fd.append('ProductInput.Barcode',      bc);
+            fd.append('ProductInput.SalePrice',    price);
+            fd.append('ProductInput.WholesalePrice', parseFloat($('#wholesalePrice').val()) || 0);
+            fd.append('ProductInput.QtyPerCarton', $('#qtyPerCarton').val() || 1);
+            fd.append('ProductInput.QtyPerDozen',  $('#qtyPerDozen').val()  || 1);
+            fd.append('ProductInput.QtyPerBundle', $('#qtyPerBundle').val() || 1);
+            fd.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+
+            const btn = $('#saveProductBtn');
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+            try {
+                const handler = isEditMode ? 'UpdateProduct' : 'AddProduct';
+                const r = await fetch(`?handler=${handler}`, { method:'POST', body:fd });
+                const result  = await r.json();
+                if (result.success) { bootstrap.Modal.getInstance(document.getElementById('productModal'))?.hide(); doSearch(); }
+                else alert(result.message);
+            } catch(err) { alert('هەڵە: ' + err); }
+            finally { btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>پاشەکەوت'); }
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  ئەرشیف / چالاككردنەوە — بێ ڕیلۆد
+        // ══════════════════════════════════════════════════════
+        async function toggleStatus(id) {
+            if (!confirm('گۆڕینی دۆخی کاڵا؟')) return;
+            const fd = new FormData();
+            fd.append('id', id);
+            fd.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+            try {
+                const r = await fetch('?handler=ToggleStatus', { method:'POST', body:fd });
+                const result = await r.json();
+                if (result.success) doSearch();
+                else alert(result.message);
+            } catch(err) { alert('هەڵە: ' + err); }
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  سڕینەوە — بێ ڕیلۆد
+        // ══════════════════════════════════════════════════════
+        async function deleteProduct(id, name) {
+            if (!confirm(`دڵنیایت لە سڕینەوەی "${name}"؟`)) return;
+            const fd = new FormData();
+            fd.append('id', id);
+            fd.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+            try {
+                const r = await fetch('?handler=DeleteProduct', { method:'POST', body:fd });
+                const result = await r.json();
+                if (result.success) doSearch();
+                else alert('⚠️ ' + result.message);
+            } catch(err) { alert('هەڵە: ' + err); }
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  Fullscreen
+        // ══════════════════════════════════════════════════════
+        function toggleFullscreen() {
+            const card = document.getElementById('mainCard');
+            const icon = document.getElementById('expandIcon');
+            const isFs = card.classList.toggle('is-fullscreen');
+            icon.className = isFs ? 'fas fa-compress' : 'fas fa-expand';
+            document.body.style.overflow = isFs ? 'hidden' : '';
+        }
+
+        // Enter لە مۆدال
+        $('#productModal input').on('keypress', e => {
+            if (e.key === 'Enter') { e.preventDefault(); saveProduct(); }
+        });
+    </script>
+}

@@ -1,0 +1,1067 @@
+﻿@page
+@model MyStore.Pages.CashRegister.IndexModel
+@{
+    ViewData["Title"] = "قاسە";
+}
+
+<style>
+    /* ══ هێنانی فۆنتەکە ══ */
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    :root {
+        --ca-page: #0b1120;
+        --ca-card: rgba(15,23,42,.7);
+        --ca-stat: rgba(15,23,42,.6);
+        --ca-thead: rgba(15,23,42,.5);
+        --ca-hover: rgba(99,102,241,.04);
+        --ca-input: rgba(30,41,59,.8);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --border-input: rgba(148,163,184,.12);
+        --border-focus: rgba(129,140,248,.5);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --accent-border: rgba(99,102,241,.2);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --warning-bg: rgba(252,211,77,.1);
+        --info: #93c5fd;
+        --info-bg: rgba(59,130,246,.1);
+        --cyan: #67e8f9;
+        --cyan-bg: rgba(6,182,212,.1);
+        --gradient-top: linear-gradient(135deg,rgba(30,27,75,.4),rgba(49,46,129,.3),rgba(30,27,75,.2));
+        --shadow-sm: none;
+        --btn-ghost-bg: rgba(30,41,59,.8);
+        --btn-ghost-border: rgba(148,163,184,.1);
+    }
+
+    [data-theme="light"] {
+        --ca-page: #eef1f6;
+        --ca-card: #ffffff;
+        --ca-stat: #ffffff;
+        --ca-thead: #f8f9fb;
+        --ca-hover: rgba(99,102,241,.03);
+        --ca-input: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --border-input: rgba(0,0,0,.12);
+        --border-focus: rgba(99,102,241,.45);
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --accent-border: rgba(99,102,241,.12);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --warning-bg: rgba(217,119,6,.08);
+        --info: #2563eb;
+        --info-bg: rgba(59,130,246,.08);
+        --cyan: #0891b2;
+        --cyan-bg: rgba(6,182,212,.08);
+        --gradient-top: linear-gradient(135deg,rgba(238,242,255,.95),rgba(224,231,255,.7),rgba(238,242,255,.5));
+        --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+        --btn-ghost-bg: #ffffff;
+        --btn-ghost-border: rgba(0,0,0,.1);
+    }
+
+    .ca-page {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        background: var(--ca-page);
+        color: var(--text-primary);
+        min-height: 100vh;
+        position: relative;
+        transition: background .35s, color .35s;
+    }
+
+        .ca-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+            transition: background .35s
+        }
+
+    .ca-in {
+        position: relative;
+        z-index: 1;
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 100vh;
+    }
+
+    .ca-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+        .ca-top h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 2px
+        }
+
+        .ca-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0
+        }
+
+    .ca-top-ico {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#6366f1,#818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff
+    }
+
+    .ca-stats {
+        display: grid;
+        grid-template-columns: repeat(4,1fr);
+        gap: 10px;
+        flex-shrink: 0
+    }
+
+    .ca-st {
+        background: var(--ca-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 14px 16px;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .ca-st:hover {
+            border-color: var(--accent-border);
+            transform: translateY(-1px)
+        }
+
+    .ca-st-lbl {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 400;
+        margin-bottom: 6px
+    }
+
+    .ca-st-val {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1
+    }
+
+    .ca-st-sub {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 4px
+    }
+
+    .ca-st-ico {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0
+    }
+
+    .bg-indigo {
+        background: var(--accent-bg);
+        color: var(--accent)
+    }
+
+    .bg-emerald {
+        background: var(--success-bg);
+        color: var(--success)
+    }
+
+    .bg-rose {
+        background: var(--danger-bg);
+        color: var(--danger)
+    }
+
+    .bg-info-c {
+        background: var(--info-bg);
+        color: var(--info)
+    }
+
+    /* ═══ دیزاینی دووگمە مۆدێرنەکان لە هێدەر ═══ */
+    .ca-actions {
+        display: flex;
+        gap: 12px;
+        flex-shrink: 0;
+        align-items: center;
+    }
+
+    .btn-act-main {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 30px;
+        padding: 0 20px;
+        border-radius: 8px;
+        border: none;
+        color: #ffffff !important;
+        font-size: 12px;
+        font-weight: 400;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        font-family: inherit;
+    }
+
+        .btn-act-main i {
+            font-size: 15px;
+        }
+
+        .btn-act-main::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s ease;
+        }
+
+        .btn-act-main:hover {
+            transform: translateY(-2px);
+        }
+
+            .btn-act-main:hover::after {
+                left: 150%;
+            }
+
+    .btn-act-green {
+        background: linear-gradient(135deg, #10b981, #059669);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+        .btn-act-green:hover {
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+        }
+
+    .btn-act-red {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
+        .btn-act-red:hover {
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+        }
+
+    .ca-card {
+        background: var(--ca-card);
+        border: 1px solid var(--border-card);
+        border-radius: 14px;
+        overflow: hidden;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0
+    }
+
+    .ca-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border-subtle);
+        flex-shrink: 0;
+        flex-wrap: wrap
+    }
+
+    .ca-inp {
+        height: 28px;
+        padding: 0 8px;
+        background: var(--ca-input);
+        border: 1px solid var(--border-input);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 11px;
+        font-family: inherit;
+        outline: none;
+        transition: all .25s
+    }
+
+        .ca-inp:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-bg)
+        }
+
+        .ca-inp option {
+            background: var(--ca-card);
+            color: var(--text-primary)
+        }
+
+    [data-theme="light"] .ca-inp::-webkit-calendar-picker-indicator {
+        --icon-invert: 0
+    }
+
+    :root .ca-inp::-webkit-calendar-picker-indicator {
+        filter: invert(var(--icon-invert,1));
+        cursor: pointer;
+        opacity: .6
+    }
+
+    .ca-tbl-scroll {
+        flex: 1;
+        overflow: auto;
+        min-height: 0
+    }
+
+        .ca-tbl-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px
+        }
+
+        .ca-tbl-scroll::-webkit-scrollbar-track {
+            background: var(--ca-card)
+        }
+
+        .ca-tbl-scroll::-webkit-scrollbar-thumb {
+            background: var(--text-dim);
+            border-radius: 6px
+        }
+
+    .ca-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 650px
+    }
+
+        .ca-tbl th {
+            padding: 8px 10px;
+            text-align: right;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--ca-thead);
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            transition: all .35s
+        }
+
+        .ca-tbl td {
+            padding: 6px 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+            transition: all .35s
+        }
+
+        .ca-tbl tbody tr {
+            transition: background .15s
+        }
+
+            .ca-tbl tbody tr:hover {
+                background: var(--ca-hover)
+            }
+
+            .ca-tbl tbody tr:last-child td {
+                border-bottom: none
+            }
+
+    .type-badge {
+        display: inline-flex;
+        padding: 2px 8px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 700
+    }
+
+    .type-CashSale {
+        background: var(--accent-bg);
+        color: var(--accent-text)
+    }
+
+    .type-DebtReceived {
+        background: var(--success-bg);
+        color: var(--success)
+    }
+
+    .type-PurchaseOut {
+        background: var(--info-bg);
+        color: var(--info)
+    }
+
+    .type-ManualIn {
+        background: var(--success-bg);
+        color: var(--success)
+    }
+
+    .type-ManualOut {
+        background: var(--danger-bg);
+        color: var(--danger)
+    }
+
+    .type-OpeningBalance {
+        background: rgba(148,163,184,.08);
+        color: var(--text-dim)
+    }
+
+    .type-InlineSalePayment {
+        background: var(--accent-bg);
+        color: var(--accent-text)
+    }
+
+    .type-VoidCashSale, .type-VoidInlinePayment, .type-RefundDebtPayment, .type-SaleEditDecrease, .type-AdvanceRefund {
+        background: var(--danger-bg);
+        color: var(--danger)
+    }
+
+    .type-SaleEditIncrease {
+        background: var(--success-bg);
+        color: var(--success)
+    }
+
+    .amt-in {
+        color: var(--success);
+        font-weight: 700
+    }
+
+    .amt-out {
+        color: var(--danger);
+        font-weight: 700
+    }
+
+    .ca-foot {
+        padding: 10px 14px;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
+        color: var(--text-muted);
+        flex-shrink: 0
+    }
+
+        .ca-foot b {
+            color: var(--text-secondary);
+            font-weight: 600
+        }
+
+    .ca-empty {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-dim);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center
+    }
+
+        .ca-empty i {
+            font-size: 2.5rem;
+            opacity: .3;
+            margin-bottom: 10px
+        }
+
+        .ca-empty p {
+            font-size: 13px;
+            margin: 0
+        }
+
+    /* ═══ مۆدالەکان (نوێکراوە) ═══ */
+    .ca-modal .modal-content {
+        background: var(--ca-card);
+        border: 1px solid var(--border-card);
+        border-radius: 14px;
+        overflow: hidden;
+        color: var(--text-primary);
+        box-shadow: 0 20px 40px rgba(0,0,0,.3)
+    }
+
+    .ca-modal .modal-body {
+        background: var(--ca-card);
+        padding: 22px
+    }
+
+    .mh-gr {
+        background: linear-gradient(135deg,rgba(52,211,153,.15),rgba(4,120,87,.1));
+        border-bottom: 1px solid rgba(52,211,153,.15);
+        padding: 16px 22px
+    }
+
+    .mh-rd {
+        background: linear-gradient(135deg,rgba(251,113,133,.15),rgba(190,18,60,.1));
+        border-bottom: 1px solid rgba(251,113,133,.15);
+        padding: 16px 22px
+    }
+
+    .modal-header {
+        border: none
+    }
+
+        .modal-header .modal-title {
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .modal-header .btn-close {
+            filter: var(--close-filter,invert(1));
+            opacity: .6
+        }
+
+    .f-wrap {
+        position: relative;
+        margin-bottom: 14px
+    }
+
+        .f-wrap label {
+            position: absolute;
+            top: 7px;
+            right: 12px;
+            font-size: 9px;
+            color: var(--text-dim);
+            font-weight: 700;
+            text-transform: uppercase;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .f-wrap input, .f-wrap select {
+            width: 100%;
+            border: 1.5px solid var(--border-input);
+            border-radius: 9px;
+            padding: 22px 12px 8px;
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+            background: var(--ca-input);
+            color: var(--text-primary);
+            transition: border .15s;
+            appearance: none;
+        }
+
+            .f-wrap input:focus, .f-wrap select:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px var(--accent-bg);
+            }
+
+    .select-arrow {
+        position: absolute;
+        left: 14px;
+        top: 22px;
+        color: var(--text-dim);
+        pointer-events: none;
+        font-size: 12px;
+        z-index: 2;
+    }
+
+    .amount-big {
+        font-size: 1.3rem !important;
+        text-align: left;
+        font-weight: 700;
+        padding: 22px 12px 8px !important;
+        direction: ltr;
+        font-family: monospace;
+    }
+
+    /* دوگمەی نوێی جیاکراوە بۆ کێشانەوەی هەموو پارەکە */
+    .btn-gen-all-new {
+        width: 100%;
+        padding: 10px;
+        background: rgba(239,68,68,.08);
+        color: var(--danger);
+        border: 1px dashed rgba(239,68,68,.4);
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-family: inherit;
+    }
+
+        .btn-gen-all-new:hover {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+
+    .btn-save-m {
+        width: 100%;
+        padding: 12px;
+        border-radius: 9px;
+        border: none;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-family: inherit;
+        transition: all .2s;
+        margin-top: 10px;
+    }
+
+    .btn-save-green {
+        background: linear-gradient(135deg,#059669,#10b981);
+        color: #fff
+    }
+
+        .btn-save-green:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16,185,129,.3)
+        }
+
+    .btn-save-red {
+        background: linear-gradient(135deg,#ef4444,#dc2626);
+        color: #fff
+    }
+
+        .btn-save-red:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239,68,68,.3)
+        }
+
+    .err-msg {
+        font-size: 12px;
+        min-height: 18px;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+
+    @@media(max-width:1200px) {
+        .ca-stats {
+            grid-template-columns: repeat(2,1fr)
+        }
+    }
+
+    @@media(max-width:768px) {
+        .ca-top {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .ca-stats {
+            grid-template-columns: 1fr 1fr
+        }
+
+        .ca-actions {
+            width: 100%;
+            flex-direction: row;
+        }
+
+            .ca-actions .btn-act-main {
+                flex: 1;
+                justify-content: center;
+                padding: 0 8px;
+            }
+    }
+
+    @@media(max-width:576px) {
+        .ca-in {
+            padding: 12px 12px
+        }
+    }
+</style>
+
+<div class="ca-page">
+    <div class="ca-in">
+
+        <div class="ca-top">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="ca-top-ico"><i class="bi bi-cash-stack" style="font-size:14px;"></i></div>
+                <div><h1>قاسە</h1><p>چاودێریکردنی هاتووچۆی پارە</p></div>
+            </div>
+
+            <div class="ca-actions">
+                <button class="btn-act-main btn-act-green" onclick="openModal('in')">
+                    <i class="bi bi-arrow-down-circle"></i> پارەی هاتوو
+                </button>
+                <button class="btn-act-main btn-act-red" onclick="openModal('out')">
+                    <i class="bi bi-arrow-up-circle"></i> پارەی دەرچوو
+                </button>
+            </div>
+        </div>
+
+        <div class="ca-stats">
+            <div class="ca-st">
+                <div>
+                    <div class="ca-st-lbl">دەستپێکی ڕۆژ</div>
+                    <div class="ca-st-val" id="st-open" style="color:var(--accent-text);">@Model.OpeningBalance.ToString("N0")</div>
+                    <div class="ca-st-sub">دینار</div>
+                </div>
+                <div class="ca-st-ico bg-indigo"><i class="bi bi-door-open"></i></div>
+            </div>
+            <div class="ca-st">
+                <div>
+                    <div class="ca-st-lbl">کۆی هاتوو</div>
+                    <div class="ca-st-val" id="st-in" style="color:var(--success);">@Model.TotalIn.ToString("N0")</div>
+                    <div class="ca-st-sub">دینار</div>
+                </div>
+                <div class="ca-st-ico bg-emerald"><i class="bi bi-box-arrow-in-down"></i></div>
+            </div>
+            <div class="ca-st">
+                <div>
+                    <div class="ca-st-lbl">کۆی دەرچوو</div>
+                    <div class="ca-st-val" id="st-out" style="color:var(--danger);">@Model.TotalOut.ToString("N0")</div>
+                    <div class="ca-st-sub">دینار</div>
+                </div>
+                <div class="ca-st-ico bg-rose"><i class="bi bi-box-arrow-up"></i></div>
+            </div>
+            <div class="ca-st">
+                <div>
+                    <div class="ca-st-lbl">پارەی ئێستا</div>
+                    <div class="ca-st-val" id="st-cur" style="color:var(--info);">@Model.CurrentBalance.ToString("N0")</div>
+                    <div class="ca-st-sub">دینار</div>
+                </div>
+                <div class="ca-st-ico bg-info-c"><i class="bi bi-safe"></i></div>
+            </div>
+        </div>
+
+        <div class="ca-card">
+            <div class="ca-toolbar">
+                <form method="get" style="display:flex;gap:6px;align-items:center;">
+                    <input type="date" name="FilterDate" class="ca-inp" value="@Model.ActiveFilterDate" onchange="this.form.submit()">
+                    @{
+                        var filterGroups = new List<(string GroupLabel, List<(string Value, string Text)> Options)>
+                                        {
+                                        ("━━ مامەڵەی ئۆتۆماتیک ━━", new List<(string, string)>
+                                        {
+                                        ("CashSale", "فرۆشتنی نەقد"),
+                                        ("InlineSalePayment", "واصڵی سەر پسوڵە"),
+                                        ("DebtReceived", "واصڵکردنی قەرز"),
+                                        ("PurchaseOut", "کڕین")
+                                        }),
+                                        ("━━ سڕینەوە و ڕاستکردنەوە ━━", new List<(string, string)>
+                                        {
+                                        ("VoidCashSale", "سڕینەوەی پسوڵەی نەقد"),
+                                        ("VoidInlinePayment", "سڕینەوەی واصڵی سەر پسوڵە"),
+                                        ("RefundDebtPayment", "گەڕاندنەوەی واصڵ"),
+                                        ("SaleEditIncrease", "دەستکاری — زیادبوون"),
+                                        ("SaleEditDecrease", "دەستکاری — کەمبوون"),
+                                        ("AdvanceRefund", "پێدانەوەی پێشینە")
+                                        }),
+                                        ("━━ مامەڵەی دەستی ━━", new List<(string, string)>
+                                        {
+                                        ("ManualIn", "هاتوو بە دەستی"),
+                                        ("ManualOut", "دەرچوو بە دەستی")
+                                        }),
+                                        ("━━ دەستپێک ━━", new List<(string, string)>
+                                        {
+                                        ("OpeningBalance", "پارەی دەستپێک")
+                                        })
+                                        };
+                    }
+                    <select name="FilterType" class="ca-inp" onchange="this.form.submit()">
+                        <option value="" selected="@string.IsNullOrEmpty(Model.FilterType)">هەموو جۆرەکان</option>
+                        @foreach (var grp in filterGroups)
+                        {
+                            <optgroup label="@grp.GroupLabel">
+                                @foreach (var opt in grp.Options)
+                                {
+                                    <option value="@opt.Value" selected="@(Model.FilterType == opt.Value)">@opt.Text</option>
+                                }
+                            </optgroup>
+                        }
+                    </select>
+                </form>
+            </div>
+            @if (Model.Transactions.Any())
+            {
+                <div class="ca-tbl-scroll">
+                    <table class="ca-tbl">
+                        <thead>
+                            <tr>
+                                <th style="width:5%;text-align:center;">#</th>
+                                <th style="width:12%;">بەروار</th>
+                                <th style="width:10%;">جۆر</th>
+                                <th>هۆکار</th>
+                                <th style="width:10%;text-align:center;">هاتوو</th>
+                                <th style="width:10%;text-align:center;">دەرچوو</th>
+                                <th style="width:11%;text-align:center;">باڵانس</th>
+                                <th style="width:10%;">بەکارهێنەر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var flowNames = new Dictionary<MyStore.Models.CashFlowType, string> {
+                                                {MyStore.Models.CashFlowType.CashSale, "فرۆشتنی نەقد"},
+                                                {MyStore.Models.CashFlowType.InlineSalePayment, "واصڵی سەر پسوڵە"},
+                                                {MyStore.Models.CashFlowType.DebtReceived, "واصڵکردن"},
+                                                {MyStore.Models.CashFlowType.PurchaseOut, "کڕین"},
+                                                {MyStore.Models.CashFlowType.VoidCashSale, "سڕینەوەی نەقد"},
+                                                {MyStore.Models.CashFlowType.VoidInlinePayment, "سڕینەوەی واصڵ"},
+                                                {MyStore.Models.CashFlowType.RefundDebtPayment, "گەڕاندنەوە"},
+                                                {MyStore.Models.CashFlowType.SaleEditIncrease, "دەستکاری+"},
+                                                {MyStore.Models.CashFlowType.SaleEditDecrease, "دەستکاری-"},
+                                                {MyStore.Models.CashFlowType.AdvanceRefund, "پێدانەوە"},
+                                                {MyStore.Models.CashFlowType.ManualIn, "هاتووی دەستی"},
+                                                {MyStore.Models.CashFlowType.ManualOut, "دەرچووی دەستی"},
+                                                {MyStore.Models.CashFlowType.OpeningBalance, "دەستپێک"}
+                                                };
+                            }
+                            @foreach (var tx in Model.Transactions)
+                            {
+                                <tr>
+                                    <td style="text-align:center;color:var(--text-dim);font-size:11px;">@tx.Id</td>
+                                    <td style="color:var(--text-dim);white-space:nowrap;">@tx.CreatedAt.ToString("HH:mm:ss")</td>
+                                    <td><span class="type-badge type-@tx.FlowType">@(flowNames.GetValueOrDefault(tx.FlowType, tx.FlowType.ToString()))</span></td>
+                                    <td>@tx.Description</td>
+                                    <td style="text-align:center;">
+                                        @if (tx.IsIncome)
+                                        {
+                                            <span class="amt-in">+@tx.Amount.ToString("N0")</span>
+                                        }
+                                    </td>
+                                    <td style="text-align:center;">
+                                        @if (!tx.IsIncome)
+                                        {
+                                            <span class="amt-out">-@tx.Amount.ToString("N0")</span>
+                                        }
+                                    </td>
+                                    <td style="text-align:center;font-weight:700;">@tx.BalanceAfter.ToString("N0")</td>
+                                    <td style="color:var(--text-dim);">@tx.UserName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="ca-foot">
+                    <b>@Model.Transactions.Count جوڵە</b>
+                    <span style="margin-right:auto;"></span>
+                    <span class="amt-in">هاتوو: @Model.TotalIn.ToString("N0")</span>
+                    <span class="amt-out">دەرچوو: @Model.TotalOut.ToString("N0")</span>
+                </div>
+            }
+            else
+            {
+                <div class="ca-empty"><i class="bi bi-inbox"></i><p>هیچ جوڵەیەک نییە بۆ ئەم ڕۆژە</p></div>
+            }
+        </div>
+
+    </div>
+</div>
+
+<!-- ═══ مۆدالە نوێکراوەکان ═══ -->
+<div class="modal fade ca-modal" id="m-in" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content">
+            <div class="modal-header mh-gr"><h5 class="modal-title"><i class="bi bi-arrow-down-circle"></i> پارەی هاتوو (گەڕانەوە)</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+
+                <div class="f-wrap">
+                    <select id="in-category">
+                        <option value="سەرمایەی ناوەکی">💰 سەرمایەی ناوەکی — پارە لە گیرفانی خۆتەوە دەخەیتە قاسەوە</option>
+                        <option value="قەرزی وەرگیراو">🤝 قەرزی وەرگیراو — قەرزت لە کەسێک وەرگرتووە</option>
+                        <option value="دیکە">📝 هۆکاری دیکە</option>
+                    </select>
+                    <label>جۆری پارەی هاتوو</label>
+                    <i class="bi bi-chevron-down select-arrow"></i>
+                </div>
+
+                <div class="f-wrap">
+                    <input type="number" id="in-amount" class="amount-big" min="0" step="1000" placeholder=" ">
+                    <label>بڕی پارە (دینار) *</label>
+                </div>
+
+                <div class="f-wrap">
+                    <input type="text" id="in-desc" placeholder=" ">
+                    <label>وردەکاری زیاتر (ئارەزوومەندانە)</label>
+                </div>
+
+                <div id="in-msg" class="err-msg"></div>
+
+                <button class="btn-save-m btn-save-green" onclick="saveManual('in')">
+                    <i class="bi bi-check2-circle"></i> تۆمارکردن و خستنە قاسەوە
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ca-modal" id="m-out" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content">
+            <div class="modal-header mh-rd"><h5 class="modal-title"><i class="bi bi-arrow-up-circle"></i> پارەی دەرچوو (خەرجی)</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+
+                <div class="f-wrap">
+                    <select id="out-category" onchange="onCategoryChange('out')">
+                        <option value="مەسروفات">🧾 مەسروفات — کرێ، کارەبا، ئاو، ئینتەرنێت، هتد</option>
+                        <option value="کێشانەوەی کەسی">💵 کێشانەوەی کەسی — پارە بۆ گیرفانی خۆت</option>
+                        <option value="بەتاڵکردنی قاسە">🏦 بەتاڵکردنی قاسە — گواستنەوە بۆ بانک/ماڵەوە</option>
+                        <option value="پارەدانەوە بۆ کڕیار">↩️ پارەدانەوە بۆ کڕیار (گەڕاندنەوە)</option>
+                        <option value="پارەدان بۆ کارمەند">👤 پارەدان بۆ کارمەند — مووچە</option>
+                        <option value="دیکە">📝 هۆکاری دیکە</option>
+                    </select>
+                    <label>جۆری دەرچوون</label>
+                    <i class="bi bi-chevron-down select-arrow"></i>
+                </div>
+
+                <div class="f-wrap">
+                    <input type="number" id="out-amount" class="amount-big" min="0" step="1000" placeholder=" ">
+                    <label>بڕی پارەی دەرچوو (دینار) *</label>
+                </div>
+
+                <!-- ئەمە دوگمە نوێیەکەیە کە بەتەواوی جیاکراوەتەوە -->
+                <div id="btn-all-wrapper" style="display: none; margin-bottom: 14px;">
+                    <button type="button" class="btn-gen-all-new" onclick="setAllMoney()">
+                        <i class="bi bi-wallet2"></i> دانانی هەموو پارەی قاسە (@Model.CurrentBalance.ToString("N0"))
+                    </button>
+                </div>
+
+                <div class="f-wrap">
+                    <input type="text" id="out-desc" placeholder=" ">
+                    <label>وردەکاری زیاتر (ئارەزوومەندانە)</label>
+                </div>
+
+                <div id="out-msg" class="err-msg"></div>
+
+                <button class="btn-save-m btn-save-red" onclick="saveManual('out')">
+                    <i class="bi bi-check2-circle"></i> تۆمارکردن و کەمکردنەوەی قاسە
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        var _tok = function(){ return document.querySelector('input[name="__RequestVerificationToken"]').value; };
+        var _currentBalance = @Model.CurrentBalance;
+
+        // فەنکشن بۆ پیشاندانی نامەی هەڵە بە جوانی
+        function showMsg(id, txt, isSuccess) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.innerHTML = txt ? `<span style="color:${isSuccess ? 'var(--success)' : 'var(--danger)'}; font-weight:600;">${txt}</span>` : '';
+            }
+        }
+
+        function openModal(type) {
+            showMsg(type + '-msg', '', false); // سڕینەوەی نامەی پێشوو
+
+            if (type === 'in') {
+                document.getElementById('in-amount').value = '';
+                document.getElementById('in-desc').value = '';
+                document.getElementById('in-category').selectedIndex = 0;
+                new bootstrap.Modal(document.getElementById('m-in')).show();
+                setTimeout(() => document.getElementById('in-amount').focus(), 200);
+            } else {
+                document.getElementById('out-amount').value = '';
+                document.getElementById('out-desc').value = '';
+                document.getElementById('out-category').selectedIndex = 0;
+                onCategoryChange('out');
+                new bootstrap.Modal(document.getElementById('m-out')).show();
+                setTimeout(() => document.getElementById('out-amount').focus(), 200);
+            }
+        }
+
+        function onCategoryChange(type) {
+            if (type !== 'out') return;
+            var cat = document.getElementById('out-category').value;
+            var btnWrap = document.getElementById('btn-all-wrapper');
+
+            if (cat === 'بەتاڵکردنی قاسە') {
+                btnWrap.style.display = 'block';
+                document.getElementById('out-amount').value = _currentBalance;
+            } else {
+                btnWrap.style.display = 'none';
+            }
+        }
+
+        function setAllMoney() {
+            document.getElementById('out-amount').value = _currentBalance;
+        }
+
+        async function saveManual(type) {
+            var amtInput = document.getElementById(type + '-amount');
+            var amt = parseFloat(amtInput.value) || 0;
+            var cat = document.getElementById(type + '-category').value;
+            var desc = document.getElementById(type + '-desc').value.trim();
+
+            if (amt <= 0) {
+                showMsg(type + '-msg', 'تکایە بڕی پارەکە بە دروستی داخڵ بکە', false);
+                amtInput.focus();
+                return;
+            }
+
+            // پیشاندانی لۆدینگ
+            showMsg(type + '-msg', '<i class="bi bi-hourglass-split"></i> تکایە چاوەڕێبە...', true);
+
+            var fd = new FormData();
+            fd.append('amount', amt);
+            fd.append('category', cat);
+            fd.append('description', desc);
+            fd.append('__RequestVerificationToken', _tok());
+
+            try {
+                var r = await fetch('?handler=' + (type === 'in' ? 'ManualIn' : 'ManualOut'), {method: 'POST', body: fd});
+                var d = await r.json();
+
+                if (d.success) {
+                    location.reload();
+                } else {
+                    showMsg(type + '-msg', d.message || 'هەڵەیەک ڕوویدا لە تۆمارکردن', false);
+                }
+            } catch(e) {
+                showMsg(type + '-msg', 'هێڵی ئینتەرنێتەکەت بپشکنە', false);
+            }
+        }
+    </script>
+}

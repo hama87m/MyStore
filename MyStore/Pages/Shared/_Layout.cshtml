@@ -1,0 +1,952 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject MyStore.Data.ApplicationDbContext DbContext
+
+@{
+    var settings = await DbContext.SystemSettings.ToListAsync();
+    var storeName = settings.FirstOrDefault(s => s.Key == "StoreName")?.Value ?? "MyStore";
+    var storeLogo = settings.FirstOrDefault(s => s.Key == "StoreLogo")?.Value;
+}
+
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - @storeName</title>
+
+    <script>
+        (function () {
+            try {
+                if (window.innerWidth > 992 && localStorage.getItem('sidebarCollapsed') === 'true') {
+                    document.documentElement.classList.add('sidebar-precollapsed');
+                }
+                var t = localStorage.getItem('siteTheme');
+                if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+                var lt = localStorage.getItem('layoutTheme');
+                if (lt === 'light') document.documentElement.setAttribute('data-layout-theme', 'light');
+            } catch (e) { }
+        })();
+    </script>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/pages.css" />
+
+    <style>
+        html:not(.layout-ready) .sidebar,
+        html:not(.layout-ready) .main-wrapper,
+        html:not(.layout-ready) .logo-text,
+        html:not(.layout-ready) .nav-section-title,
+        html:not(.layout-ready) .nav-item,
+        html:not(.layout-ready) .nav-item .text,
+        html:not(.layout-ready) .nav-item .badge,
+        html:not(.layout-ready) .user-info,
+        html:not(.layout-ready) .logout-btn .text,
+        html:not(.layout-ready) .toggle-btn i {
+            transition: none !important;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            right: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: width .3s ease, background .35s;
+            border-left: 1px solid var(--sidebar-border);
+        }
+
+            .sidebar.collapsed {
+                width: var(--sidebar-collapsed);
+            }
+
+        html.sidebar-precollapsed .sidebar {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-header {
+            padding: 12px 14px;
+            border-bottom: 0.5px solid var(--sidebar-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 56px;
+            flex-shrink: 0;
+            transition: border-color .35s;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            flex: 1;
+            min-width: 0;
+        }
+
+            .sidebar-logo:hover {
+                color: var(--sidebar-text);
+                text-decoration: none;
+            }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            background: var(--avatar-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            overflow: hidden;
+            color: #fff;
+        }
+
+            .logo-icon img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .logo-text {
+            font-size: 1rem;
+            font-weight: 700;
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: opacity .25s, width .3s, color .35s;
+            color: var(--sidebar-text);
+        }
+
+        .sidebar.collapsed .logo-text, html.sidebar-precollapsed .sidebar .logo-text {
+            opacity: 0;
+            width: 0;
+        }
+
+        .toggle-btn {
+            position: fixed;
+            top: 24px;
+            right: calc(var(--sidebar-width) - 14px);
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--sidebar-border);
+            background: var(--sidebar-bg);
+            color: var(--sidebar-active-text);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+            transition: right .3s ease, background .2s, border-color .2s, color .35s;
+            font-size: .7rem;
+            box-shadow: -2px 0 8px rgba(0,0,0,.15);
+        }
+
+            .toggle-btn:hover {
+                background: var(--sidebar-hover);
+                border-color: var(--accent-border);
+                color: var(--accent-text);
+            }
+
+        .sidebar.collapsed .toggle-btn {
+            right: calc(var(--sidebar-collapsed) - 14px);
+        }
+
+        html.sidebar-precollapsed .toggle-btn {
+            right: calc(var(--sidebar-collapsed) - 14px);
+        }
+
+        .toggle-btn i {
+            transition: transform .3s;
+        }
+
+        .sidebar.collapsed .toggle-btn i, html.sidebar-precollapsed .sidebar .toggle-btn i {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            padding: 8px 6px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+        }
+
+            .sidebar-nav:hover {
+                scrollbar-color: var(--sidebar-border) transparent;
+            }
+
+            .sidebar-nav::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .sidebar-nav::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .sidebar-nav::-webkit-scrollbar-thumb {
+                background: transparent;
+                border-radius: 4px;
+                transition: background .2s;
+            }
+
+            .sidebar-nav:hover::-webkit-scrollbar-thumb {
+                background: var(--sidebar-border);
+            }
+
+                .sidebar-nav:hover::-webkit-scrollbar-thumb:hover {
+                    background: var(--sidebar-text-muted);
+                }
+
+        .nav-section {
+            display: flex;
+            flex-direction: column;
+            margin-top: 8px;
+        }
+
+        .nav-section-title {
+            font-size: .58rem;
+            font-weight: 700;
+            color: var(--sidebar-text-muted);
+            opacity: .5;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            padding: 0 12px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: opacity .2s, color .35s;
+        }
+
+        .sidebar.collapsed .nav-section-title, html.sidebar-precollapsed .sidebar .nav-section-title {
+            opacity: 0;
+            height: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: var(--radius-md);
+            color: var(--sidebar-text-muted);
+            text-decoration: none;
+            font-size: .8rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            transition: all .18s;
+            white-space: nowrap;
+            overflow: hidden;
+            position: relative;
+            border: 0.5px solid transparent;
+        }
+
+            .nav-item i {
+                width: 20px;
+                min-width: 20px;
+                text-align: center;
+                font-size: .9rem;
+                color: var(--icon-soft);
+                transition: color .2s;
+            }
+
+            .nav-item:hover {
+                background: var(--sidebar-hover);
+                color: var(--sidebar-text);
+                text-decoration: none;
+                border-color: var(--item-border);
+            }
+
+                .nav-item:hover i {
+                    color: var(--sidebar-text);
+                }
+
+            .nav-item.active {
+                background: var(--sidebar-active-bg);
+                color: var(--sidebar-active-text);
+                border: 0.5px solid var(--sidebar-active-border);
+            }
+
+                .nav-item.active i {
+                    color: var(--sidebar-active-text);
+                }
+
+            .nav-item.sales-btn {
+                background: rgba(99,102,241,.1);
+                color: var(--accent-text);
+                margin: 4px 0;
+                border: 0.5px solid rgba(99,102,241,.15);
+            }
+
+                .nav-item.sales-btn i {
+                    color: #fff;
+                }
+
+                .nav-item.sales-btn:hover {
+                    background: rgba(99,102,241,.18);
+                    color: #fff;
+                    border-color: rgba(99,102,241,.25);
+                }
+
+            .nav-item .text {
+                transition: opacity .2s, width .3s;
+                overflow: hidden;
+            }
+
+        .sidebar.collapsed .nav-item .text, html.sidebar-precollapsed .sidebar .nav-item .text {
+            opacity: 0;
+            width: 0;
+        }
+
+        .nav-item .badge {
+            margin-right: auto;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: .55rem;
+            font-weight: 700;
+            transition: opacity .2s;
+        }
+
+        .sidebar.collapsed .nav-item .badge, html.sidebar-precollapsed .sidebar .nav-item .badge {
+            opacity: 0;
+            width: 0;
+            padding: 0;
+        }
+
+        .nav-item .badge.danger {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .sidebar-footer {
+            padding: 8px 6px;
+            border-top: 0.5px solid var(--sidebar-border);
+            flex-shrink: 0;
+            transition: border-color .35s;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: var(--sidebar-hover);
+            border: 0.5px solid var(--sidebar-border);
+            border-radius: var(--radius-md);
+            margin-bottom: 6px;
+            overflow: hidden;
+            transition: all .35s;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            background: var(--avatar-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: .82rem;
+            overflow: hidden;
+        }
+
+            .user-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+            transition: opacity .2s, width .3s;
+        }
+
+        .sidebar.collapsed .user-info, html.sidebar-precollapsed .sidebar .user-info {
+            opacity: 0;
+            width: 0;
+        }
+
+        .user-info .name {
+            color: var(--sidebar-text);
+            font-weight: 600;
+            font-size: .76rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color .35s;
+        }
+
+        .user-info .role {
+            color: var(--accent-text);
+            font-size: .62rem;
+            font-weight: 600;
+            transition: color .35s;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 8px;
+            border-radius: var(--radius-md);
+            border: 0.5px solid var(--sidebar-border);
+            background: transparent;
+            color: var(--sidebar-text-muted);
+            font-size: .76rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap;
+            overflow: hidden;
+            font-family: inherit;
+        }
+
+            .logout-btn i {
+                color: var(--icon-soft);
+                font-size: .85rem;
+            }
+
+            .logout-btn:hover {
+                background: rgba(220,38,38,.08);
+                border-color: rgba(220,38,38,.20);
+                color: #fecaca;
+            }
+
+                .logout-btn:hover i {
+                    color: #fecaca;
+                }
+
+            .logout-btn .text {
+                transition: opacity .2s, width .3s;
+            }
+
+        .sidebar.collapsed .logout-btn .text, html.sidebar-precollapsed .sidebar .logout-btn .text {
+            opacity: 0;
+            width: 0;
+        }
+
+        /* theme-switch لاکرا — گۆڕینی تێم لە ڕێکخستنەکانەوە دەکرێت */
+
+        html.sidebar-precollapsed .main-wrapper {
+            margin-right: var(--sidebar-collapsed);
+        }
+
+        html.sidebar-precollapsed .sidebar .logo-text,
+        html.sidebar-precollapsed .sidebar .nav-section-title,
+        html.sidebar-precollapsed .sidebar .nav-item .text,
+        html.sidebar-precollapsed .sidebar .nav-item .badge,
+        html.sidebar-precollapsed .sidebar .user-info,
+        html.sidebar-precollapsed .sidebar .logout-btn .text {
+            opacity: 0;
+            width: 0;
+        }
+
+        html.sidebar-precollapsed .sidebar .toggle-btn i {
+            transform: rotate(180deg);
+        }
+
+        .main-wrapper {
+            flex: 1;
+            margin-right: var(--sidebar-width);
+            height: 100vh;
+            transition: margin-right .3s;
+            overflow-y: auto;
+            direction: rtl;
+            background: var(--bg-main);
+        }
+
+        .sidebar.collapsed ~ .main-wrapper, html.sidebar-precollapsed .main-wrapper {
+            margin-right: var(--sidebar-collapsed);
+        }
+
+        .main-content {
+            padding: 16px;
+            min-height: 100vh;
+            transition: background .35s;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 999;
+            backdrop-filter: blur(2px);
+        }
+
+        .mobile-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--sidebar-bg);
+            border-bottom: 0.5px solid var(--sidebar-border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            transition: all .35s;
+        }
+
+        .mobile-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            border: 0.5px solid var(--sidebar-border);
+            background: transparent;
+            color: var(--sidebar-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all .2s;
+        }
+
+            .mobile-toggle:hover {
+                background: var(--sidebar-hover);
+            }
+
+        @@media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(100%);
+                width: var(--sidebar-width) !important;
+            }
+
+                .sidebar.show {
+                    transform: translateX(0);
+                }
+
+                .sidebar.collapsed {
+                    width: var(--sidebar-width) !important;
+                }
+
+            .toggle-btn {
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .main-wrapper {
+                margin-right: 0 !important;
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+
+            .sidebar.collapsed .nav-item .text, .sidebar.collapsed .nav-item .badge,
+            .sidebar.collapsed .user-info, .sidebar.collapsed .logout-btn .text,
+            html.sidebar-precollapsed .sidebar .logout-btn .text {
+                opacity: 1;
+                width: auto;
+            }
+        }
+
+        /* ═══ سیستەمی تێمی جیای لەیئاوت ═══ */
+        [data-layout-theme="light"] .sidebar {
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #111827;
+            --sidebar-text-muted: #6b7280;
+            --sidebar-border: #e5e7eb;
+            --sidebar-hover: rgba(99,102,241,.06);
+            --sidebar-active-bg: rgba(99,102,241,.08);
+            --sidebar-active-text: #4338ca;
+            --sidebar-active-border: rgba(99,102,241,.15);
+        }
+
+        [data-layout-theme="light"] .sidebar-header {
+            border-bottom-color: #e5e7eb;
+        }
+
+        [data-layout-theme="light"] .sidebar-footer {
+            border-top-color: #e5e7eb;
+        }
+
+        [data-layout-theme="light"] .toggle-btn {
+            background: #f3f4f6 !important;
+            border-color: #e5e7eb !important;
+            color: #4338ca !important;
+        }
+
+        [data-layout-theme="light"] .user-box {
+            background: #f3f4f6 !important;
+            border-color: #e5e7eb !important;
+        }
+
+        [data-layout-theme="light"] .user-info .name {
+            color: #111827 !important;
+        }
+
+        [data-layout-theme="light"] .user-info .role {
+            color: #6b7280 !important;
+        }
+
+        [data-layout-theme="light"] .logout-btn {
+            color: #6b7280 !important;
+        }
+
+            [data-layout-theme="light"] .logout-btn:hover {
+                color: #be123c !important;
+                background: rgba(190,18,60,.06) !important;
+            }
+
+        [data-layout-theme="light"] .mobile-header {
+            background: #ffffff !important;
+            border-bottom-color: #e5e7eb !important;
+        }
+
+            [data-layout-theme="light"] .mobile-header .logo-text {
+                color: #111827 !important;
+            }
+
+        [data-layout-theme="light"] .mobile-toggle {
+            color: #111827 !important;
+            border-color: #e5e7eb !important;
+        }
+
+        [data-layout-theme="light"] .sidebar .nav-item.sales-btn i {
+            color: #4338ca !important;
+        }
+
+        /* کاتێک پەڕەکان ڕووناکە بەڵام لەیئاوت تاریکە */
+        [data-theme="light"]:not([data-layout-theme="light"]) .sidebar {
+            --sidebar-bg: #0e1726 !important;
+            --sidebar-text: #e2e8f0 !important;
+            --sidebar-text-muted: #64748b !important;
+            --sidebar-border: rgba(148,163,184,.08) !important;
+            --sidebar-hover: rgba(99,102,241,.08) !important;
+            --sidebar-active-bg: rgba(99,102,241,.15) !important;
+            --sidebar-active-text: #a5b4fc !important;
+            --sidebar-active-border: rgba(99,102,241,.25) !important;
+        }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .sidebar-header {
+            border-bottom-color: rgba(148,163,184,.08) !important;
+        }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .sidebar-footer {
+            border-top-color: rgba(148,163,184,.08) !important;
+        }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .toggle-btn {
+            background: rgba(15,23,42,.8) !important;
+            border-color: rgba(148,163,184,.1) !important;
+            color: #a5b4fc !important;
+        }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .user-box {
+            background: rgba(15,23,42,.6) !important;
+            border-color: rgba(148,163,184,.08) !important;
+        }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .user-info .name {
+            color: #e2e8f0 !important;
+        }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .user-info .role {
+            color: #64748b !important;
+        }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .logout-btn {
+            color: #64748b !important;
+        }
+
+            [data-theme="light"]:not([data-layout-theme="light"]) .logout-btn:hover {
+                color: #fda4af !important;
+                background: rgba(251,113,133,.1) !important;
+            }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .sidebar .nav-item.sales-btn {
+            background: linear-gradient(135deg, #6366f1, #818cf8) !important;
+            color: #fff !important;
+        }
+
+            [data-theme="light"]:not([data-layout-theme="light"]) .sidebar .nav-item.sales-btn i {
+                color: #fff !important;
+            }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .mobile-header {
+            background: #0e1726 !important;
+            border-bottom-color: rgba(148,163,184,.08) !important;
+        }
+
+            [data-theme="light"]:not([data-layout-theme="light"]) .mobile-header .logo-text {
+                color: #e2e8f0 !important;
+            }
+
+        [data-theme="light"]:not([data-layout-theme="light"]) .mobile-toggle {
+            color: #e2e8f0 !important;
+            border-color: rgba(148,163,184,.1) !important;
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button type="button" class="toggle-btn" onclick="toggleSidebar()" title="داخستن/کردنەوە">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <a href="/" class="sidebar-logo">
+                <div class="logo-icon">
+                    @if (!string.IsNullOrEmpty(storeLogo))
+                    {
+                        <img src="@storeLogo" alt="Logo" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-store"></i>
+                    }
+                </div>
+                <span class="logo-text">@storeName</span>
+            </a>
+        </div>
+
+        <nav class="sidebar-nav">
+            <!-- سەرەکی (بۆ هەمووان) -->
+            <div class="nav-section">
+                <div class="nav-section-title">سەرەکی</div>
+                <a href="/Sales/Create" class="nav-item sales-btn">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    <span class="text">فرۆشتنی نوێ</span>
+                </a>
+                <a href="/" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString() == "/Index" ? "active" : "")">
+                    <i class="fa-solid fa-table-columns"></i>
+                    <span class="text">داشبۆرد</span>
+                </a>
+            </div>
+
+            <!-- بەڕێوەبردن -->
+            <div class="nav-section">
+                <div class="nav-section-title">بەڕێوەبردن</div>
+
+                <a href="/Sales" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString() == "/Sales/Index" ? "active" : "")">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span class="text">پسوڵەکان</span>
+                </a>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <a href="/Purchases" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Purchases/Index") == true ? "active" : "")">
+                        <i class="fa-solid fa-truck"></i>
+                        <span class="text">کڕینەکان</span>
+                    </a>
+                    <a href="/Purchases/Inventory" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Inventory") == true ? "active" : "")">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span class="text">کۆگا و ستۆک</span>
+                    </a>
+                }
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="/Purchases/StockTake" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("StockTake") == true ? "active" : "")">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span class="text">جەردکردنی کۆگا</span>
+                    </a>
+                }
+
+                <a href="/Records" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Records") == true ? "active" : "")">
+                    <i class="fa-solid fa-box"></i>
+                    <span class="text">تۆمارکردنەکان</span>
+                </a>
+            </div>
+
+            <!-- دارایی (بۆ هەمووان) -->
+            <div class="nav-section">
+                <div class="nav-section-title">دارایی</div>
+                <a href="/CashRegister" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("CashRegister") == true ? "active" : "")">
+                    <i class="fa-solid fa-cash-register"></i>
+                    <span class="text">قاسە</span>
+                </a>
+                <a href="/Customers/Debts" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString() == "/Customers/Debts" ? "active" : "")">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span class="text">قەرزەکان</span>
+                    <span class="badge danger">!</span>
+                </a>
+                <a href="/Reports" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Reports") == true ? "active" : "")">
+                    <i class="fa-solid fa-chart-column"></i>
+                    <span class="text">ڕاپۆرتەکان</span>
+                </a>
+            </div>
+
+            <!-- سیستەم -->
+            <div class="nav-section">
+                <div class="nav-section-title">سیستەم</div>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="/Users" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Users") == true ? "active" : "")">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <span class="text">بەکارهێنەران</span>
+                    </a>
+                }
+
+                <a href="/Admin" class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Admin") == true ? "active" : "")">
+                    <i class="fa-solid fa-gear"></i>
+                    <span class="text">ڕێکخستنەکان</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                var user = await UserManager.GetUserAsync(User);
+                var roles = user != null ? await UserManager.GetRolesAsync(user) : new List<string>();
+                var role = roles.FirstOrDefault() ?? "User";
+                var roleKu = role == "Admin" ? "ئەدمین" : role == "Manager" ? "مەنەجەر" : "کاشێر";
+                var initial = user?.Email?.Substring(0, 1).ToUpper() ?? "U";
+                var userSettings = user != null ? await DbContext.Set<MyStore.Models.UserSettings>().FirstOrDefaultAsync(us => us.UserId == user.Id) : null;
+                var profileImg = userSettings?.ProfileImagePath;
+
+                <div class="user-box">
+                    @if (!string.IsNullOrEmpty(profileImg))
+                    {
+                        <div class="user-avatar"><img src="@profileImg" alt="@initial" /></div>
+                    }
+                    else
+                    {
+                        <div class="user-avatar">@initial</div>
+                    }
+                    <div class="user-info">
+                        <div class="name">@user?.Email</div>
+                        <div class="role">@roleKu</div>
+                    </div>
+                </div>
+
+                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/" method="post">
+                    <button type="submit" class="logout-btn">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="text">چوونەدەرەوە</span>
+                    </button>
+                </form>
+            }
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <div class="mobile-header">
+            <a href="/" class="sidebar-logo">
+                <div class="logo-icon" style="width:32px;height:32px;">
+                    @if (!string.IsNullOrEmpty(storeLogo))
+                    {
+                        <img src="@storeLogo" alt="Logo" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-store" style="font-size:.9rem;"></i>
+                    }
+                </div>
+                <span class="logo-text" style="font-size:.95rem;">@storeName</span>
+            </a>
+            <button type="button" class="mobile-toggle" onclick="toggleMobileSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <main class="main-content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const html = document.documentElement;
+            const willCollapse = !sidebar.classList.contains('collapsed');
+            sidebar.classList.toggle('collapsed');
+            html.classList.toggle('sidebar-precollapsed', willCollapse);
+            localStorage.setItem('sidebarCollapsed', willCollapse);
+        }
+        function toggleMobileSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        // ═══ پاراستنی شوێنی سکڕۆڵی سایدبار ═══
+        (function() {
+            var SIDEBAR_SCROLL_KEY = 'sidebarScrollPos';
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // گەڕاندنەوەی شوێنی سکڕۆڵی سایدبار
+                var nav = document.querySelector('.sidebar-nav');
+                if (nav) {
+                    var saved = sessionStorage.getItem(SIDEBAR_SCROLL_KEY);
+                    if (saved) nav.scrollTop = parseInt(saved, 10);
+
+                    // پاراستنی شوێن کاتێک سکڕۆڵ دەکات
+                    var t = null;
+                    nav.addEventListener('scroll', function() {
+                        clearTimeout(t);
+                        t = setTimeout(function() { sessionStorage.setItem(SIDEBAR_SCROLL_KEY, nav.scrollTop); }, 150);
+                    }, { passive: true });
+                }
+            });
+        })();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebar');
+            const html = document.documentElement;
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (window.innerWidth > 992 && isCollapsed) {
+                sidebar.classList.add('collapsed');
+                html.classList.add('sidebar-precollapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+                html.classList.remove('sidebar-precollapsed');
+            }
+            requestAnimationFrame(() => html.classList.add('layout-ready'));
+        });
+        document.addEventListener('click', function (e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-toggle');
+            if (window.innerWidth <= 992 && sidebar.classList.contains('show') && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                toggleMobileSidebar();
+            }
+        });
+    </script>
+    <script>document.documentElement.classList.add('layout-ready');</script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

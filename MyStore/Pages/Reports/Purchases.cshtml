@@ -1,0 +1,1587 @@
+@page
+@model MyStore.Pages.Reports.PurchasesModel
+@{
+    ViewData["Title"] = "بەڕێوەبردنی کڕینەکان";
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    :root {
+        --rc-page: #0b1120;
+        --rc-card: rgba(15,23,42,.7);
+        --rc-stat: rgba(15,23,42,.6);
+        --rc-thead: #151e32;
+        --rc-hover: rgba(99,102,241,.04);
+        --rc-input: rgba(30,41,59,.8);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --border-focus: rgba(129,140,248,.5);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --info: #93c5fd;
+        --purple: #c084fc;
+        --purple-bg: rgba(168,85,247,.12);
+        --gradient-top: linear-gradient(135deg,rgba(30,27,75,.4),rgba(49,46,129,.3),rgba(30,27,75,.2));
+    }
+
+    [data-theme="light"] {
+        --rc-page: #eef1f6;
+        --rc-card: #ffffff;
+        --rc-stat: #ffffff;
+        --rc-thead: #f8f9fb;
+        --rc-hover: rgba(99,102,241,.03);
+        --rc-input: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --border-focus: rgba(99,102,241,.45);
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --info: #2563eb;
+        --purple: #7e22ce;
+        --purple-bg: rgba(126,34,206,.08);
+        --gradient-top: linear-gradient(135deg,rgba(238,242,255,.95),rgba(224,231,255,.7),rgba(238,242,255,.5));
+    }
+
+    .rc-page {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif !important;
+        background: var(--rc-page);
+        color: var(--text-primary);
+        height: 100vh;
+        overflow: hidden;
+        width: 100%;
+        position: relative;
+        transition: background .35s, color .35s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .rc-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+            transition: background .35s;
+        }
+
+    .rc-in {
+        position: relative;
+        z-index: 1;
+        padding: 12px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .rc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+        margin-bottom: 4px;
+    }
+
+        .rc-top h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 2px;
+        }
+
+        .rc-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+    .btn-back {
+        background: var(--rc-stat);
+        color: var(--text-primary);
+        border: 1px solid var(--border-card);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all .2s;
+    }
+
+        .btn-back:hover {
+            background: var(--rc-hover);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+    .rc-tabs {
+        display: flex;
+        gap: 4px;
+        background: var(--rc-stat);
+        padding: 4px;
+        border-radius: 10px;
+        border: 1px solid var(--border-card);
+    }
+
+    .rc-tab {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all .2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .rc-tab.on {
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+        }
+
+    .us-theme-toggle {
+        padding: 6px;
+        border-radius: 10px;
+        background: var(--rc-stat);
+        border: 1px solid var(--border-card);
+        color: var(--text-primary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .2s;
+        width: 32px;
+        height: 32px;
+    }
+
+        .us-theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+    .pan {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+        gap: 10px;
+    }
+
+        .pan.on {
+            display: flex;
+            animation: fadeIn .3s ease;
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ══ دوگمەکانی فلتەری کات ══ */
+    .rc-btn-group {
+        display: inline-flex;
+        background: var(--rc-input);
+        border: 1px solid var(--border-card);
+        border-radius: 8px;
+        padding: 4px;
+        gap: 2px;
+    }
+
+        .rc-btn-group button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+            .rc-btn-group button:hover {
+                color: var(--text-primary);
+            }
+
+            .rc-btn-group button.active {
+                background: linear-gradient(135deg, var(--accent), #4f46e5);
+                color: #fff;
+                box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+            }
+
+    /* ئامارەکان */
+    .rc-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .rc-st {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 18px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .rc-st-lbl {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .rc-st-val {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: monospace;
+        line-height: 1;
+    }
+
+    .rc-st-ico {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .dash-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 10px;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .chart-card {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+        .chart-card h6 {
+            margin: 0 0 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex-shrink: 0;
+        }
+
+    .chart-wrap {
+        flex: 1;
+        position: relative;
+        width: 100%;
+        min-height: 0;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--rc-card);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--text-muted);
+        border-radius: 6px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--text-muted) var(--rc-card);
+    }
+
+    /* خشتە و تولبار */
+    .rc-toolbar {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .f-grp {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .f-grp label {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .rc-inp {
+        height: 30px;
+        padding: 0 10px;
+        background: var(--rc-input);
+        border: 1px solid var(--border-card);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 11px;
+        outline: none;
+        transition: border .2s;
+    }
+
+        .rc-inp:focus {
+            border-color: var(--accent);
+        }
+
+    .btn-action {
+        background: var(--rc-stat);
+        color: var(--text-primary);
+        border: 1px solid var(--border-card);
+        height: 30px;
+        padding: 0 14px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all .2s;
+    }
+
+        .btn-action:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+    .btn-export {
+        background: var(--success-bg);
+        color: var(--success);
+        border: 1px solid rgba(52,211,153,.3);
+        height: 30px;
+        padding: 0 14px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: auto;
+    }
+
+    .btn-pdf {
+        background: var(--purple-bg);
+        color: var(--purple);
+        border: 1px solid rgba(168,85,247,.3);
+        height: 30px;
+        padding: 0 14px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tbl-card {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .table-scroll {
+        flex: 1;
+        overflow: auto;
+        min-height: 0;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: right;
+        min-width: 700px;
+    }
+
+        .data-table th {
+            padding: 10px 14px;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--rc-thead);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .data-table td {
+            padding: 8px 14px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--rc-hover);
+        }
+
+        .data-table tfoot td {
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            background: var(--rc-thead);
+            border-top: 2px solid var(--border-focus);
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+        }
+
+    .num {
+        font-family: monospace;
+        font-weight: 600;
+    }
+
+    /* ════ دیزاینی پسوڵەی کەستەم ════ */
+    .invoice-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .paper-receipt {
+        background: #fdf9ee;
+        width: 100%;
+        max-width: 600px;
+        padding: 30px;
+        border-radius: 4px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        color: #222;
+        font-family: 'Tahoma', sans-serif;
+        position: relative;
+        border: 1px solid #d1c7b7;
+    }
+
+        .paper-receipt::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -10px;
+            bottom: 0;
+            width: 10px;
+            background: repeating-linear-gradient(to bottom, transparent, transparent 10px, #ccc 10px, #ccc 20px);
+            opacity: 0.3;
+        }
+
+    .receipt-header {
+        text-align: center;
+        border-bottom: 2px solid #888;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+        .receipt-header h2 {
+            margin: 0 0 10px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #222;
+        }
+
+    .receipt-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .receipt-supplier {
+        text-align: right;
+        font-size: 14px;
+        font-weight: bold;
+        background: #f0ebd8;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #d1c7b7;
+        margin-top: 10px;
+    }
+
+    .pen-text {
+        color: #1e3a8a;
+        font-family: 'Courier New', monospace;
+        font-size: 16px;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    .pen-input {
+        background: transparent;
+        border: none;
+        border-bottom: 1px dashed #1e3a8a;
+        color: #1e3a8a;
+        font-family: 'Courier New', monospace;
+        font-size: 16px;
+        font-weight: bold;
+        width: 120px;
+        text-align: center;
+        outline: none;
+        direction: ltr;
+    }
+
+        .pen-input:focus {
+            border-bottom: 1px solid #1e3a8a;
+        }
+
+    .receipt-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        border: 2px solid #888;
+    }
+
+        .receipt-table th, .receipt-table td {
+            border: 1px solid #888;
+            padding: 8px;
+        }
+
+        .receipt-table th {
+            background: #e8e4d9;
+            font-size: 12px;
+        }
+
+        .receipt-table td {
+            color: #1e3a8a;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+    .receipt-footer {
+        margin-top: 20px;
+    }
+
+    .r-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        border-bottom: 1px dashed #ccc;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .r-total {
+        background: #e8e4d9;
+        border: 2px solid #888;
+        font-size: 16px;
+        margin-top: 10px;
+    }
+
+    /* تایبەت بە کارتی شیکاری کاڵا */
+    .stat-result-box {
+        background: var(--rc-stat);
+        border: 1px dashed var(--border-focus);
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        text-align: center;
+        display: none;
+    }
+
+    .stat-val {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--accent);
+        margin: 5px 0;
+    }
+
+    /* Search & Tags styles بۆ چارتی کڕینەکان */
+    .search-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-res {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 100%;
+        min-width: 220px;
+        background: var(--rc-input);
+        border: 1px solid var(--border-focus);
+        border-radius: 6px;
+        z-index: 100;
+        max-height: 200px;
+        overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        display: none;
+        margin-top: 4px;
+    }
+
+        .search-res div {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 11px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+            .search-res div:hover {
+                background: var(--rc-hover);
+            }
+
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px 14px;
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        min-height: 44px;
+        margin-bottom: 10px;
+    }
+
+    .tag-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(52,211,153,.15);
+        color: var(--success);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px solid rgba(52,211,153,.3);
+    }
+
+    .tag-rm {
+        cursor: pointer;
+        color: var(--danger);
+        font-size: 12px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        transition: all .2s;
+    }
+
+        .tag-rm:hover {
+            color: #fff;
+            background: var(--danger);
+            border-radius: 50%;
+        }
+</style>
+
+<div class="rc-page" id="usPage">
+    <div class="rc-in">
+
+        <div class="rc-top">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <a href="/Reports" class="btn-back"><i class="bi bi-arrow-right"></i> گەڕانەوە</a>
+                <div>
+                    <h1>بەڕێوەبردنی کڕینەکان</h1>
+                    <p>ئامار، لیستی کڕینەکان و چاپکردنی پسوڵەی کەستەم</p>
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="rc-tabs">
+                    <button class="rc-tab on" data-target="pan-dash"><i class="bi bi-pie-chart-fill"></i> ئامارەکان</button>
+                    <button class="rc-tab" data-target="pan-list"><i class="bi bi-receipt"></i> پسوڵەکان</button>
+                    <button class="rc-tab" data-target="pan-top"><i class="bi bi-bar-chart-fill"></i> زۆرترین کڕینەکان</button>
+                    <button class="rc-tab" data-target="pan-custom"><i class="bi bi-pen-fill"></i> پسوڵەی کەستەم</button>
+                </div>
+                <button type="button" class="us-theme-toggle" onclick="toggleUsTheme()">
+                    <i class="bi bi-sun" id="usThemeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- تابی ئامارەکان -->
+        <div class="pan on" id="pan-dash">
+            <div class="rc-toolbar">
+                <div class="custom-dash-date" style="display:none; align-items:center; gap:6px;">
+                    <div class="f-grp"><label>لە:</label><input type="date" class="rc-inp" id="dFrom" onchange="loadDashboard()"></div>
+                    <div class="f-grp"><label>تا:</label><input type="date" class="rc-inp" id="dTo" onchange="loadDashboard()"></div>
+                </div>
+                <div class="rc-btn-group" data-target="dash">
+                    <button type="button" data-val="today">ئەمڕۆ</button>
+                    <button type="button" data-val="thisWeek">ئەم هەفتە</button>
+                    <button type="button" data-val="thisMonth" class="active">ئەم مانگە</button>
+                    <button type="button" data-val="thisYear">ئەمساڵ</button>
+                    <button type="button" data-val="custom"><i class="bi bi-calendar3"></i> بەروار</button>
+                </div>
+            </div>
+
+            <div class="rc-stats">
+                <div class="rc-st">
+                    <div><div class="rc-st-lbl">کۆی پارەی کڕینەکان</div><div class="rc-st-val" style="color:var(--danger);" id="stTotalPurchases">0</div></div>
+                    <div class="rc-st-ico" style="background:rgba(251,113,133,.1); color:var(--danger);"><i class="bi bi-cash-stack"></i></div>
+                </div>
+                <div class="rc-st">
+                    <div><div class="rc-st-lbl">ژمارەی پسوڵەکان</div><div class="rc-st-val" style="color:var(--info);" id="stInvoiceCount">0</div></div>
+                    <div class="rc-st-ico" style="background:rgba(147,197,253,.1); color:var(--info);"><i class="bi bi-receipt-cutoff"></i></div>
+                </div>
+            </div>
+
+            <div class="dash-grid">
+                <!-- چارتی کڕینەکان بەپێی کات -->
+                <div class="chart-card">
+                    <h6><i class="bi bi-graph-up-arrow" style="color:var(--accent);"></i> چارتی کڕینەکان بەپێی ڕۆژ</h6>
+                    <div class="chart-wrap"><canvas id="purchasesChart"></canvas></div>
+                </div>
+
+                <!-- شیکاری کاڵای دیاریکراو -->
+                <div class="chart-card">
+                    <h6><i class="bi bi-search" style="color:var(--success);"></i> شیکاری کاڵای دیاریکراو</h6>
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">بەپێی ئەو بەروارەی لە سەرەوە دیاریکراوە</div>
+
+                    <div style="display:flex; gap:6px;">
+                        <select class="rc-inp" id="searchProductSelect" style="flex:1;">
+                            <option value="">تکایە کاڵا هەڵبژێرە...</option>
+                        </select>
+                        <button class="btn-action" onclick="searchProductStats()" style="height:30px; padding:0 12px; background: linear-gradient(135deg, var(--accent), #4f46e5); color:#fff; border:none;"><i class="bi bi-search"></i></button>
+                    </div>
+
+                    <div id="productResultBox" class="stat-result-box">
+                        <div style="font-size:12px; color:var(--text-secondary);">لەو ماوەیەدا کڕدراوە بە بڕی:</div>
+                        <div class="stat-val num"><span id="pResQty">0</span> دانە</div>
+                        <div style="font-size:12px; color:var(--text-secondary); margin-top:5px;">لەنێو <span id="pResTimes" class="num" style="font-weight:bold;">0</span> پسوڵەدا، بە کۆی تێچووی:</div>
+                        <div class="stat-val num" style="color:var(--danger);"><span id="pResCost">0</span> د.ع</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تابی پسوڵەکان (لیست و خشتە) -->
+        <div class="pan" id="pan-list">
+            <div class="rc-toolbar">
+                <div class="custom-tbl-date" style="display:none; align-items:center; gap:6px;">
+                    <div class="f-grp"><label>لە:</label><input type="date" class="rc-inp" id="tbFrom" onchange="loadTable()"></div>
+                    <div class="f-grp"><label>تا:</label><input type="date" class="rc-inp" id="tbTo" onchange="loadTable()"></div>
+                </div>
+                <div class="rc-btn-group" data-target="tbl">
+                    <button type="button" data-val="today">ئەمڕۆ</button>
+                    <button type="button" data-val="thisWeek">ئەم هەفتە</button>
+                    <button type="button" data-val="thisMonth" class="active">ئەم مانگە</button>
+                    <button type="button" data-val="thisYear">ئەمساڵ</button>
+                    <button type="button" data-val="custom"><i class="bi bi-calendar3"></i> بەروار</button>
+                </div>
+
+                <div class="f-grp" style="margin-right: 15px;">
+                    <label>دابینکەر:</label>
+                    <select class="rc-inp" id="tbSupplier" style="min-width:150px;" onchange="loadTable()">
+                        <option value="">هەموویان</option>
+                    </select>
+                </div>
+
+                <button class="btn-export" onclick="exportExcel()"><i class="bi bi-file-earmark-excel-fill"></i> داگرتنی ئێکسڵ</button>
+                <button class="btn-pdf" onclick="printPdf()"><i class="bi bi-printer-fill"></i> چاپکردنی ڕیپۆرت</button>
+            </div>
+
+            <div class="tbl-card">
+                <div class="table-scroll">
+                    <table class="data-table" id="purchasesTable">
+                        <thead>
+                            <tr>
+                                <th>ژ. پسوڵە</th>
+                                <th>بەروار و کات</th>
+                                <th>ناوی دابینکەر</th>
+                                <th>کۆی گشتی تێچوو</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbBody">
+                            <tr><td colspan="4" style="text-align:center; padding:30px;">چاوەڕوانی داتا...</td></tr>
+                        </tbody>
+                        <tfoot id="tbFoot" style="display:none;">
+                            <tr>
+                                <td colspan="3" style="text-align: left; font-size: 13px;">کۆی گشتی ئەم ڕیپۆرتە (<span id="ftCount">0</span> پسوڵە):</td>
+                                <td class="num" id="ftTotal" style="color:var(--danger);">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- تابی زۆرترین کڕینەکان (چارت لەگەڵ گەڕان و تاگ) -->
+        <div class="pan" id="pan-top">
+            <div class="rc-toolbar" style="margin-bottom:10px;">
+                <div class="custom-tp-date" style="display:none; align-items:center; gap:6px;">
+                    <div class="f-grp"><label>لە:</label><input type="date" class="rc-inp" id="tpFrom" onchange="loadTopPurchasesReport()"></div>
+                    <div class="f-grp"><label>تا:</label><input type="date" class="rc-inp" id="tpTo" onchange="loadTopPurchasesReport()"></div>
+                </div>
+                <div class="rc-btn-group" data-target="top">
+                    <button type="button" data-val="today">ئەمڕۆ</button>
+                    <button type="button" data-val="thisWeek">ئەم هەفتە</button>
+                    <button type="button" data-val="thisMonth" class="active">ئەم مانگە</button>
+                    <button type="button" data-val="thisYear">ئەمساڵ</button>
+                    <button type="button" data-val="custom"><i class="bi bi-calendar3"></i> بەروار</button>
+                </div>
+
+                <div class="search-wrap" style="flex:1; max-width:300px; margin-right:auto; margin-left:10px;">
+                    <i class="bi bi-search" style="position:absolute; right:10px; color:var(--text-muted); font-size:12px;"></i>
+                    <input type="text" id="prodSearchInput" class="rc-inp" style="width:100%; padding-right:28px;" placeholder="گەڕان بەپێی ناو یان باڕکۆد (کاڵا زیاد بکە)..." autocomplete="off" onkeyup="searchChartProducts(this.value)">
+                    <div id="prodSearchResults" class="search-res"></div>
+                </div>
+
+                <button class="btn-action" onclick="resetChartAuto()" title="گەڕانەوە بۆ باری ئۆتۆماتیکی"><i class="bi bi-arrow-clockwise"></i> ئۆتۆماتیکی</button>
+            </div>
+
+            <!-- شوێنی نیشاندانی تاگی کاڵا هەڵبژێردراوەکان -->
+            <div class="tag-list" id="chartTags">
+                <span style="color:var(--text-muted); font-size:11px;">کاڵاکان لێرە دەردەکەون...</span>
+            </div>
+
+            <div class="chart-card" style="flex:1;">
+                <h6><i class="bi bi-bar-chart-fill text-primary"></i> بەراوردکاری و ئاماری کڕین بەپێی دانە (ستوونی)</h6>
+                <div class="chart-wrap">
+                    <canvas id="topPurchasesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- تابی پسوڵەی کەستەم (شێوازی دەفتەری بازاڕ) -->
+        <div class="pan" id="pan-custom">
+            <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:10px; background:var(--rc-stat); padding:10px; border-radius:10px; border:1px solid var(--border-card);">
+                <label style="font-size:12px; font-weight:bold;">دیاریکردنی پسوڵەی کڕین:</label>
+                <select id="customInvPicker" class="rc-inp" style="width:350px;" onchange="loadCustomInvoice(this.value)">
+                    <option value="">چاوەڕوانی داتا...</option>
+                </select>
+                <button class="btn-action" onclick="printMarketInvoice()" style="background: linear-gradient(135deg, var(--accent), #4f46e5); color:#fff; border:none;"><i class="bi bi-printer"></i> چاپکردنی دەفتەری وەسڵ</button>
+            </div>
+
+            <div class="invoice-wrapper">
+                <div class="paper-receipt" id="paperReceipt">
+                    <div class="receipt-header">
+                        <h2>وەسڵی کڕین</h2>
+                        <div class="receipt-info">
+                            <span>ژمارەی پسوڵە: <span class="pen-text" id="r_id">-</span></span>
+                            <span>بەروار: <span class="pen-text" id="r_date" dir="ltr">-</span></span>
+                        </div>
+                        <div class="receipt-supplier">
+                            <span>فرۆشیار (دابینکەر): <span class="pen-text" id="r_supplier">-</span></span>
+                        </div>
+                    </div>
+
+                    <table class="receipt-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:right;">ناو و جۆری کاڵا</th>
+                                <th style="text-align:center;">بڕ (دانە)</th>
+                                <th style="text-align:center;">نرخی تاک</th>
+                                <th style="text-align:left;">کۆی نرخ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="r_tbody">
+                            <tr><td colspan="4" style="text-align:center; padding:20px; color:#666; font-family:Tahoma;">تکایە پسوڵەیەک لە سەرەوە هەڵبژێرە</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="receipt-footer">
+                        <div class="r-row">
+                            <span>کۆی پارەی کاڵاکان:</span>
+                            <span class="pen-text num" id="r_sub">0</span>
+                        </div>
+                        <div class="r-row">
+                            <span><input type="text" value="کرێی گواستنەوە و حەماڵی:" style="background:transparent; border:none; font-weight:bold; font-size:14px; font-family:Tahoma; width:200px;"></span>
+                            <input type="number" id="custShipping" value="0" class="pen-input num" oninput="calcR()" />
+                        </div>
+                        <div class="r-row r-total">
+                            <span>کۆی گشتی دانیشتوو:</span>
+                            <span class="pen-text num" id="r_grand" style="font-size:18px;">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var F = function(n) { return Number(n||0).toLocaleString('en-US', { maximumFractionDigits: 0 }); };
+
+        var usIsDark = true;
+        var chartPurchases = null;
+        var chartTopPurchases = null;
+
+        // گۆڕاوەکانی تایبەت بە چارتەکەی زۆرترین کڕینەکان
+        let selectedChartIds = [];
+        let isCustomChartMode = false;
+
+        function toggleUsTheme() {
+            usIsDark = !usIsDark;
+            var page = document.getElementById('usPage');
+            if (usIsDark) { page.removeAttribute('data-theme'); }
+            else { page.setAttribute('data-theme', 'light'); }
+            document.getElementById('usThemeIcon').className = usIsDark ? 'bi bi-sun' : 'bi bi-moon';
+
+            Chart.defaults.color = usIsDark ? '#94a3b8' : '#6b7280';
+            Chart.defaults.scale.grid.color = usIsDark ? 'rgba(148,163,184,.1)' : 'rgba(0,0,0,.05)';
+            if(chartPurchases) chartPurchases.update();
+            if(chartTopPurchases) chartTopPurchases.update();
+        }
+
+        Chart.defaults.font.family = "'IBM Plex Sans Arabic', sans-serif";
+        Chart.defaults.color = '#94a3b8';
+
+        document.querySelectorAll('.rc-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.rc-tab').forEach(t => t.classList.remove('on'));
+                document.querySelectorAll('.pan').forEach(p => p.classList.remove('on'));
+                this.classList.add('on');
+                document.getElementById(this.dataset.target).classList.add('on');
+            });
+        });
+
+        // ══════ لۆجیکی فلتەری کاتەکان بە شێوازی نوێ ══════
+        function setDatesByPreset(val, fromId, toId) {
+            let d = new Date();
+            const fmt = dt => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+
+            let fromStr = '', toStr = fmt(d);
+
+            if (val === 'today') {
+                fromStr = fmt(d);
+            } else if (val === 'thisWeek') {
+                let wStart = new Date(d);
+                let day = wStart.getDay();
+                let diff = (day === 6) ? 0 : day + 1; // بۆ ڕۆژهەڵاتی ناوەڕاست واتا شەممە دەستپێکی هەفتەیە
+                wStart.setDate(wStart.getDate() - diff);
+                fromStr = fmt(wStart);
+            } else if (val === 'thisMonth') {
+                fromStr = fmt(new Date(d.getFullYear(), d.getMonth(), 1));
+            } else if (val === 'thisYear') {
+                fromStr = fmt(new Date(d.getFullYear(), 0, 1));
+            }
+
+            if (fromStr) {
+                document.getElementById(fromId).value = fromStr;
+                document.getElementById(toId).value = toStr;
+            }
+        }
+
+        function initDatePresetGroup(target, fromId, toId, customWrapSelector, loaderFn) {
+            let grp = document.querySelector('.rc-btn-group[data-target="' + target + '"]');
+            if (!grp) return;
+            grp.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    grp.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    let val = this.dataset.val;
+                    let customWrap = document.querySelector(customWrapSelector);
+
+                    if (val === 'custom') {
+                        if (customWrap) customWrap.style.display = 'flex';
+                    } else {
+                        if (customWrap) customWrap.style.display = 'none';
+                        setDatesByPreset(val, fromId, toId);
+                        loaderFn();
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // دیاریکردنی بەرواری سەرەتایی بە (ئەم مانگە) بۆ کڕینەکان چونکە زیاتر باوە
+            setDatesByPreset('thisMonth', 'dFrom', 'dTo');
+            setDatesByPreset('thisMonth', 'tbFrom', 'tbTo');
+            setDatesByPreset('thisMonth', 'tpFrom', 'tpTo');
+
+            initDatePresetGroup('dash', 'dFrom', 'dTo', '.custom-dash-date', loadDashboard);
+            initDatePresetGroup('tbl', 'tbFrom', 'tbTo', '.custom-tbl-date', loadTable);
+            initDatePresetGroup('top', 'tpFrom', 'tpTo', '.custom-tp-date', loadTopPurchasesReport);
+
+            loadSuppliers();
+            loadProductsList();
+            loadDashboard();
+            loadTable();
+            loadTopPurchasesReport();
+            loadPurchaseDropdown();
+
+            // شاردنەوەی ئەنجامی گەڕان کاتێک لە دەرەوەی کلیک دەکرێت
+            document.addEventListener('click', function(e) {
+                if(!e.target.closest('.search-wrap')) {
+                    document.getElementById('prodSearchResults').style.display = 'none';
+                }
+            });
+        });
+
+        // ----------------- لۆجیکی گەڕان و زیادکردنی کاڵا بۆ چارت -----------------
+        let searchTimeout = null;
+        function searchChartProducts(term) {
+            clearTimeout(searchTimeout);
+            let resDiv = document.getElementById('prodSearchResults');
+
+            if (!term || term.trim() === '') {
+                resDiv.style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    let r = await fetch(`?handler=SearchProducts&term=${encodeURIComponent(term)}`);
+                    let items = await r.json();
+
+                    resDiv.innerHTML = '';
+                    if (items.length === 0) {
+                        resDiv.innerHTML = '<div style="color:var(--text-muted);text-align:center;">هیچ کاڵایەک نەدۆزرایەوە</div>';
+                    } else {
+                        items.forEach(p => {
+                            let bc = p.barcode ? ` - ${p.barcode}` : '';
+                            resDiv.innerHTML += `<div onclick="addChartProduct(${p.id})">${p.name}${bc}</div>`;
+                        });
+                    }
+                    resDiv.style.display = 'block';
+                } catch(e) {}
+            }, 300);
+        }
+
+        function addChartProduct(id) {
+            if (selectedChartIds.length >= 5 && !selectedChartIds.includes(id)) {
+                alert('تەنها دەتوانیت ٥ کاڵا لە یەک کاتدا دیاری بکەیت!');
+                document.getElementById('prodSearchResults').style.display = 'none';
+                document.getElementById('prodSearchInput').value = '';
+                return;
+            }
+
+            if (!selectedChartIds.includes(id)) {
+                selectedChartIds.push(id);
+                isCustomChartMode = true;
+                loadTopPurchasesReport();
+            }
+
+            document.getElementById('prodSearchResults').style.display = 'none';
+            document.getElementById('prodSearchInput').value = '';
+        }
+
+        function removeChartProduct(id) {
+            selectedChartIds = selectedChartIds.filter(p => p !== id);
+            isCustomChartMode = true;
+
+            if (selectedChartIds.length === 0) {
+                isCustomChartMode = false;
+            }
+            loadTopPurchasesReport();
+        }
+
+        function resetChartAuto() {
+            isCustomChartMode = false;
+            selectedChartIds = [];
+            loadTopPurchasesReport();
+        }
+
+        function renderChartTags(dataArray) {
+            let tagsHtml = '';
+            if (dataArray && dataArray.length > 0) {
+                dataArray.forEach(p => {
+                    tagsHtml += `<div class="tag-item">
+                                    <span>${p.name}</span>
+                                    <span class="tag-rm" onclick="removeChartProduct(${p.id})"><i class="bi bi-x"></i></span>
+                                 </div>`;
+                });
+            } else {
+                tagsHtml = '<span style="color:var(--text-muted); font-size:11px;">داتا نییە</span>';
+            }
+            document.getElementById('chartTags').innerHTML = tagsHtml;
+        }
+
+        // ---------------------------------------------------------------------
+
+        async function loadSuppliers() {
+            try {
+                let r = await fetch('?handler=SuppliersList');
+                let d = await r.json();
+                let selList = document.getElementById('tbSupplier');
+                d.forEach(s => {
+                    selList.innerHTML += `<option value="${s.supplierId}">${s.name}</option>`;
+                });
+            } catch(e) {}
+        }
+
+        async function loadProductsList() {
+            try {
+                let r = await fetch('?handler=ProductsList');
+                let d = await r.json();
+                let sel = document.getElementById('searchProductSelect');
+                d.forEach(p => {
+                    sel.innerHTML += `<option value="${p.productId}">${p.name} (${p.barcode})</option>`;
+                });
+            } catch(e) {}
+        }
+
+        async function loadDashboard() {
+            let from = document.getElementById('dFrom').value;
+            let to = document.getElementById('dTo').value;
+            try {
+                let r = await fetch(`?handler=PurchasesSummary&from=${from}&to=${to}`);
+                let d = await r.json();
+                if(d.error) return;
+
+                document.getElementById('stTotalPurchases').textContent = F(d.summary.totalPurchasesAmount);
+                document.getElementById('stInvoiceCount').textContent = d.summary.invoiceCount;
+
+                // دروستکردنی چارتی کڕینەکان
+                let ctx = document.getElementById('purchasesChart').getContext('2d');
+                if(chartPurchases) chartPurchases.destroy();
+                chartPurchases = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: d.dailyPurchases.map(x => x.date),
+                        datasets: [{
+                            label: 'کڕین',
+                            data: d.dailyPurchases.map(x => x.total),
+                            borderColor: '#fb7185',
+                            backgroundColor: 'rgba(251,113,133,.1)',
+                            fill: true, tension: 0.4, borderWidth: 3, pointRadius: 2
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, layout: { padding: 0 } }
+                });
+
+                document.getElementById('productResultBox').style.display = 'none';
+
+            } catch(e) {}
+        }
+
+        async function loadTopPurchasesReport() {
+            let from = document.getElementById('tpFrom').value;
+            let to = document.getElementById('tpTo').value;
+
+            try {
+                let url = `?handler=TopPurchasedProducts&from=${from}&to=${to}`;
+                if (isCustomChartMode && selectedChartIds.length > 0) {
+                    url = `?handler=SpecificProductsPurchase&from=${from}&to=${to}&ids=${selectedChartIds.join(',')}`;
+                }
+
+                let r = await fetch(url);
+                let d = await r.json();
+
+                if (!isCustomChartMode) {
+                    selectedChartIds = d.map(x => x.id);
+                }
+
+                renderChartTags(d);
+
+                let ctx = document.getElementById('topPurchasesChart').getContext('2d');
+                if(chartTopPurchases) chartTopPurchases.destroy();
+
+                if (d.error || d.length === 0) {
+                    chartTopPurchases = new Chart(ctx, { type: 'bar', data: { labels: [], datasets: [] } });
+                    return;
+                }
+
+                chartTopPurchases = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: d.map(x => x.name),
+                        datasets: [{
+                            label: 'بڕی کڕدراو (دانە)',
+                            data: d.map(x => x.qty),
+                            backgroundColor: 'rgba(52,211,153,0.85)',
+                            hoverBackgroundColor: 'rgba(4,120,87,1)',
+                            borderRadius: 6,
+                            maxBarThickness: 60
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let item = d[context.dataIndex];
+                                        return [
+                                            'کڕدراوە: ' + item.qty + ' دانە',
+                                            'کۆی تێچوو: ' + F(item.totalCost) + ' د.ع'
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
+                });
+
+            } catch(e) {}
+        }
+
+        async function searchProductStats() {
+            let pid = document.getElementById('searchProductSelect').value;
+            let from = document.getElementById('dFrom').value;
+            let to = document.getElementById('dTo').value;
+
+            if(!pid) { alert("تکایە کاڵایەک هەڵبژێرە"); return; }
+
+            try {
+                let r = await fetch(`?handler=ProductPurchaseStats&productId=${pid}&from=${from}&to=${to}`);
+                let d = await r.json();
+
+                if(d.success) {
+                    document.getElementById('pResQty').innerText = F(d.totalQty);
+                    document.getElementById('pResTimes').innerText = F(d.timesBought);
+                    document.getElementById('pResCost').innerText = F(d.totalCost);
+
+                    let box = document.getElementById('productResultBox');
+                    box.style.display = 'block';
+                    box.style.animation = 'fadeIn 0.3s ease';
+                } else {
+                    alert(d.message || "هەڵەیەک ڕوویدا");
+                }
+            } catch(e) {
+                alert("کێشە هەیە لە پەیوەندی کردن بە سێرڤەر");
+            }
+        }
+
+        async function loadTable() {
+            let from = document.getElementById('tbFrom').value;
+            let to = document.getElementById('tbTo').value;
+            let supId = document.getElementById('tbSupplier').value;
+
+            try {
+                let r = await fetch(`?handler=PurchasesTable&from=${from}&to=${to}&supplierId=${supId}`);
+                let d = await r.json();
+
+                let h = '';
+                d.purchases.forEach(p => {
+                    h += `<tr>
+                            <td class="num">PUR-${p.purchaseId}</td>
+                            <td dir="ltr" style="text-align:right;">${p.date}</td>
+                            <td style="font-weight:600;color:var(--text-primary);">${p.supplierName}</td>
+                            <td class="num" style="color:var(--danger);">${F(p.totalAmount)}</td>
+                          </tr>`;
+                });
+                document.getElementById('tbBody').innerHTML = h || '<tr><td colspan="4" style="text-align:center;padding:30px;">هیچ پسوڵەیەک نەدۆزرایەوە</td></tr>';
+
+                if(d.summary && d.summary.count > 0) {
+                    document.getElementById('tbFoot').style.display = 'table-footer-group';
+                    document.getElementById('ftCount').innerText = d.summary.count;
+                    document.getElementById('ftTotal').innerText = F(d.summary.totalPurchases);
+                } else {
+                    document.getElementById('tbFoot').style.display = 'none';
+                }
+            } catch(e) {}
+        }
+
+        function exportExcel() {
+            let tbody = document.getElementById('tbBody');
+            if(!tbody || tbody.innerText.includes('نەدۆزرایەوە') || tbody.innerText.includes('چاوەڕوانی')) {
+                alert('داتا نییە بۆ داگرتن!'); return;
+            }
+
+            let csv = [];
+            csv.push('\uFEFF');
+            csv.push(`"ڕیپۆرتی کڕینەکان"`);
+            csv.push(`"لە بەرواری:","${document.getElementById('tbFrom').value}","تا بەرواری:","${document.getElementById('tbTo').value}"`);
+            csv.push('');
+
+            let headers = [];
+            document.querySelectorAll('#purchasesTable thead th').forEach(th => { headers.push(`"${th.innerText}"`); });
+            csv.push(headers.join(','));
+
+            document.querySelectorAll('#purchasesTable tbody tr, #purchasesTable tfoot tr').forEach(tr => {
+                let row = [];
+                let tds = tr.querySelectorAll('td');
+                for(let i=0; i<tds.length; i++) { row.push(`"${tds[i].innerText.replace(/"/g, '""')}"`); }
+                csv.push(row.join(','));
+            });
+
+            let blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Purchases_Report_" + new Date().toISOString().split('T')[0] + ".csv";
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        async function printPdf() {
+            var tbody = document.getElementById('tbBody');
+            if(!tbody || tbody.innerText.includes('نەدۆزرایەوە') || tbody.innerText.includes('چاوەڕوانی')) {
+                alert('داتا نییە بۆ چاپکردن!'); return;
+            }
+
+            let tblClone = document.getElementById('purchasesTable').cloneNode(true);
+            let tft = tblClone.querySelector('tfoot');
+            let tbd = tblClone.querySelector('tbody');
+            if(tft && tft.style.display !== 'none') {
+                Array.from(tft.querySelectorAll('tr')).forEach(tr => {
+                    tr.classList.add('print-summary-row');
+                    tbd.appendChild(tr);
+                });
+                tft.remove();
+            } else if (tft) { tft.remove(); }
+
+            var tableHtml = tblClone.outerHTML;
+            var todayDate = new Date().toISOString().split('T')[0];
+
+            let store = { StoreName: 'Diamond Center', StoreLogo: '', StoreAddress: '', StorePhone: '' };
+            try {
+                let res = await fetch('?handler=StoreSettings');
+                store = await res.json();
+            } catch(e) { }
+
+            let logoHtml = '';
+            if (store.storeLogo) {
+                logoHtml = '\x3Cimg src="' + store.storeLogo + '" style="max-width:120px; margin-bottom:10px;" /\x3E';
+            }
+
+            var h = '\x3C!DOCTYPE html\x3E\x3Chtml dir="rtl"\x3E\x3Chead\x3E\x3Ctitle\x3Eڕیپۆرتی کڕینەکان\x3C/title\x3E';
+            h += '\x3Cstyle\x3E';
+            h += '@@page { size: A4; margin: 15mm; } ';
+            h += 'body { font-family: Tahoma, Arial, sans-serif; font-size: 13px; color: #000; background: #fff; margin: 0; padding: 0; } ';
+            h += '.header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; } ';
+            h += '.header h2 { margin: 0 0 5px; font-size: 24px; font-weight: bold; } ';
+            h += '.report-title { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 15px; text-decoration: underline; } ';
+            h += '.meta-box { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; } ';
+            h += '.meta-item { font-size: 14px; font-weight: bold; width: calc(50% - 15px); } ';
+            h += '.meta-item span { font-weight: normal; color: #333; margin-right: 5px; } ';
+            h += 'table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; } ';
+            h += 'th { background-color: #eee; border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold; } ';
+            h += 'td { border: 1px solid #000; padding: 6px 8px; } ';
+            h += 'tr.print-summary-row td { background-color: #eef2ff !important; border-top: 2px solid #000 !important; font-weight: bold !important; font-size: 14px !important; color: #111 !important; } ';
+            h += '.num { font-family: monospace; font-size: 13px; direction: ltr; text-align: left; } ';
+            h += '\x3C/style\x3E\x3C/head\x3E\x3Cbody\x3E';
+
+            h += '\x3Cdiv class="header"\x3E' + logoHtml + '\x3Ch2\x3E' + (store.storeName || 'Diamond Center') + '\x3C/h2\x3E\x3C/div\x3E';
+            h += '\x3Cdiv class="report-title"\x3Eڕیپۆرتی گشتی کڕینەکان\x3C/div\x3E';
+
+            h += '\x3Cdiv class="meta-box"\x3E';
+            h += '\x3Cdiv class="meta-item"\x3Eماوەی ڕیپۆرت: \x3Cspan\x3Eلە ' + document.getElementById('tbFrom').value + ' تا ' + document.getElementById('tbTo').value + '\x3C/span\x3E\x3C/div\x3E';
+            h += '\x3Cdiv class="meta-item"\x3Eڕێکەوتی دەرکردن: \x3Cspan class="num" dir="ltr"\x3E' + todayDate + '\x3C/span\x3E\x3C/div\x3E';
+            h += '\x3C/div\x3E';
+
+            h += tableHtml;
+            h += '\x3C/body\x3E\x3C/html\x3E';
+
+            var printWin = window.open('about:blank', '_blank');
+            if (printWin) {
+                printWin.document.open();
+                printWin.document.write(h);
+                printWin.document.close();
+                setTimeout(function() { printWin.focus(); printWin.print(); }, 500);
+            } else { alert('تکایە ڕێگە بدە بە کرانەوەی پەنجەرەی نوێ'); }
+        }
+
+        // ══════ کۆدەکانی تایبەت بە پسوڵەی کەستەم ══════
+
+        async function loadPurchaseDropdown() {
+            try {
+                let r = await fetch('?handler=PurchasesDropdown');
+                let d = await r.json();
+                let sel = document.getElementById('customInvPicker');
+                sel.innerHTML = '<option value="">-- تکایە پسوڵەیەک هەڵبژێرە --</option>';
+                d.forEach(i => {
+                    sel.innerHTML += `<option value="${i.id}">${i.text}</option>`;
+                });
+            } catch(e) {}
+        }
+
+        let currentPurchaseTotal = 0;
+
+        async function loadCustomInvoice(id) {
+            if(!id) {
+                document.getElementById('r_id').innerText = '-';
+                document.getElementById('r_date').innerText = '-';
+                document.getElementById('r_supplier').innerText = '-';
+                document.getElementById('r_tbody').innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666; font-family:Tahoma;">تکایە پسوڵەیەک لە سەرەوە هەڵبژێرە</td></tr>';
+                currentPurchaseTotal = 0;
+                calcR();
+                return;
+            }
+
+            try {
+                let r = await fetch(`?handler=PurchaseDetails&id=${id}`);
+                let d = await r.json();
+
+                if(d.error) return alert(d.error);
+
+                document.getElementById('r_id').innerText = d.purchaseId;
+                document.getElementById('r_date').innerText = d.date;
+                document.getElementById('r_supplier').innerText = d.supplierName;
+
+                let tbody = document.getElementById('r_tbody');
+                tbody.innerHTML = '';
+
+                if(d.items && d.items.length > 0) {
+                    d.items.forEach(i => {
+                        tbody.innerHTML += `<tr>
+                            <td style="text-align:right;">${i.productName}</td>
+                            <td style="text-align:center;" class="num">${i.quantity}</td>
+                            <td style="text-align:center;" class="num">${F(i.unitPrice)}</td>
+                            <td style="text-align:left;" class="num">${F(i.subtotal)}</td>
+                        </tr>`;
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">هیچ کاڵایەک لەم پسوڵەیەدا نییە</td></tr>';
+                }
+
+                currentPurchaseTotal = d.totalAmount;
+                document.getElementById('r_sub').innerText = F(currentPurchaseTotal);
+                document.getElementById('custShipping').value = '0';
+                calcR();
+
+            } catch(e) {
+                alert('هەڵەیەک ڕوویدا لە هێنانی زانیارییەکانی پسوڵەکە');
+            }
+        }
+
+        function calcR() {
+            let ship = parseFloat(document.getElementById('custShipping').value) || 0;
+            let grand = currentPurchaseTotal + ship;
+            document.getElementById('r_grand').innerText = F(grand);
+        }
+
+        function printMarketInvoice() {
+            let id = document.getElementById('r_id').innerText;
+            if(id === '-' || !id) { alert('تکایە سەرەتا پسوڵەیەک لە لیستی سەرەوە هەڵبژێرە'); return; }
+
+            let clone = document.getElementById('paperReceipt').cloneNode(true);
+
+            let shipInput = clone.querySelector('#custShipping');
+            let shipVal = shipInput.value || "0";
+            let spanVal = document.createElement('span');
+            spanVal.className = "pen-text num";
+            spanVal.innerText = F(shipVal);
+            shipInput.parentNode.replaceChild(spanVal, shipInput);
+
+            let labelInputs = clone.querySelectorAll('input[type="text"]');
+            labelInputs.forEach(inp => {
+                let s = document.createElement('span');
+                s.style.cssText = "font-weight:bold; font-size:14px; font-family:Tahoma;";
+                s.innerText = inp.value;
+                inp.parentNode.replaceChild(s, inp);
+            });
+
+            var h = '\x3C!DOCTYPE html\x3E\x3Chtml dir="rtl"\x3E\x3Chead\x3E\x3Ctitle\x3Eوەسڵی کڕین - ' + id + '\x3C/title\x3E';
+            h += '\x3Cstyle\x3E';
+            h += '@@page { size: A5; margin: 10mm; } ';
+            h += 'body { font-family: Tahoma, Arial, sans-serif; background: #fff; padding: 0; margin: 0; } ';
+            h += '.paper-receipt { background: #fdf9ee; width: 100%; padding: 20px; border: 1px solid #d1c7b7; color: #333; box-sizing: border-box; } ';
+            h += '.receipt-header { text-align: center; border-bottom: 2px solid #888; padding-bottom: 10px; margin-bottom: 15px; } ';
+            h += '.receipt-header h2 { margin: 0 0 10px; font-size: 20px; color: #222; } ';
+            h += '.receipt-info { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; margin-bottom: 5px; } ';
+            h += '.receipt-supplier { text-align: right; font-size: 13px; font-weight: bold; background: #f0ebd8; padding: 6px; border-radius: 4px; border: 1px solid #d1c7b7; margin-top: 10px; } ';
+            h += '.pen-text { color: #1e3a8a !important; font-family: monospace; font-size: 15px; font-weight: bold; margin-right: 5px; } ';
+            h += '.receipt-table { width: 100%; border-collapse: collapse; margin-top: 15px; border: 2px solid #888; } ';
+            h += '.receipt-table th, .receipt-table td { border: 1px solid #888; padding: 6px; } ';
+            h += '.receipt-table th { background: #e8e4d9; font-size: 12px; text-align:center; } ';
+            h += '.receipt-table td { color: #1e3a8a !important; font-family: monospace; font-weight: bold; font-size: 14px; } ';
+            h += '.receipt-footer { margin-top: 15px; } ';
+            h += '.r-row { display: flex; justify-content: space-between; padding: 6px; border-bottom: 1px dashed #ccc; font-size: 13px; font-weight: bold; } ';
+            h += '.r-total { background: #e8e4d9; border: 2px solid #888; font-size: 15px; margin-top: 10px; } ';
+            h += '.num { direction: ltr; display: inline-block; } ';
+            h += '\x3C/style\x3E\x3C/head\x3E\x3Cbody\x3E';
+            h += clone.outerHTML;
+            h += '\x3Cdiv style="text-align:center; margin-top: 20px; font-size:11px; color:#666;"\x3Eچاپکراوە لە ڕێگەی سیستەمی کۆگا\x3C/div\x3E';
+            h += '\x3C/body\x3E\x3C/html\x3E';
+
+            var printWin = window.open('about:blank', '_blank');
+            if (printWin) {
+                printWin.document.open();
+                printWin.document.write(h);
+                printWin.document.close();
+                setTimeout(function() {
+                    printWin.focus();
+                    printWin.print();
+                }, 500);
+            } else {
+                alert('تکایە ڕێگە بدە بە کرانەوەی پەنجەرەی نوێ (Popup Blocker)');
+            }
+        }
+    </script>
+}

@@ -1,0 +1,1464 @@
+﻿@page
+@model MyStore.Pages.Settings.IndexModel
+@{
+    ViewData["Title"] = "ڕێکخستنەکان";
+    // پشکنینی دەسەڵاتەکان بۆ پیشاندان یان شاردنەوەی بەشە هەستیارەکان
+    bool isAdmin = User.IsInRole("Admin") || User.IsInRole("Manager");
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    /* سڕینەوەی پادینگەکان */
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    :root {
+        --bg-page: #0b1120;
+        --bg-card: rgba(15,23,42,.7);
+        --bg-stat: rgba(15,23,42,.6);
+        --bg-thead: rgba(15,23,42,.5);
+        --bg-hover: rgba(99,102,241,.04);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --accent-border: rgba(99,102,241,.2);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --gradient-top: linear-gradient(135deg, rgba(30,27,75,.4), rgba(49,46,129,.3), rgba(30,27,75,.2));
+        --card-shadow: none;
+        --td-text: #cbd5e1;
+    }
+
+    [data-theme="light"] {
+        --bg-page: #eef1f6;
+        --bg-card: #ffffff;
+        --bg-stat: #ffffff;
+        --bg-thead: #f8f9fb;
+        --bg-hover: rgba(99,102,241,.03);
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --accent-border: rgba(99,102,241,.12);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --gradient-top: linear-gradient(135deg, rgba(238,242,255,.95), rgba(224,231,255,.7), rgba(238,242,255,.5));
+        --card-shadow: 0 1px 3px rgba(0,0,0,.06);
+        --td-text: #1f2937;
+    }
+
+
+    /* ══ فیتکردنی شاشە ══ */
+    .db {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        background: var(--bg-page);
+        color: var(--text-primary);
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition: background .35s, color .35s;
+    }
+
+        .db::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+            transition: background .35s;
+        }
+
+    .db-in {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+        padding: 16px 20px;
+        gap: 12px;
+    }
+
+
+    /* ══ هێدەر ══ */
+    .db-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+        .db-top h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 2px 0;
+        }
+
+        .db-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+    .db-top-ico {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent);
+        box-shadow: var(--card-shadow);
+    }
+
+        .db-top-ico svg {
+            width: 16px;
+            height: 16px;
+        }
+
+
+    /* ══ ئاگادارییەکان (Alerts) ══ */
+    .alert-c {
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 12px;
+        flex-shrink: 0;
+        border: 1px solid transparent;
+    }
+
+        .alert-c.ok {
+            background: var(--success-bg);
+            color: var(--success);
+            border-color: rgba(52,211,153,.2);
+        }
+
+        .alert-c.err {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: rgba(251,113,133,.2);
+        }
+
+        .alert-c svg {
+            width: 16px;
+            height: 16px;
+        }
+
+
+    /* ══ تابەکان ══ */
+    .tab-bar {
+        display: flex;
+        gap: 6px;
+        flex-shrink: 0;
+        background: var(--bg-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        padding: 4px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all .2s;
+        font-family: inherit;
+    }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        }
+
+        .tab-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    .tab-badge {
+        background: rgba(255,255,255,.2);
+        color: #fff;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        margin-right: 4px;
+    }
+
+
+    /* ══ ناوچەی تابەکان ══ */
+    .tab-panel {
+        display: none;
+        flex: 1;
+        min-height: 0;
+        flex-direction: column;
+        gap: 12px;
+        overflow: hidden;
+    }
+
+        .tab-panel.active {
+            display: flex;
+        }
+
+
+    /* ══ دیزاینی گشتی کارت ══ */
+    .db-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+
+    .db-card-hd {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border-subtle);
+        flex-shrink: 0;
+    }
+
+    .db-card-t {
+        font-size: 13px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .db-card-t svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent);
+        }
+
+    .db-card-body {
+        padding: 16px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+
+    /* ══ فۆڕم و ئینپوت ══ */
+    .f-group {
+        margin-bottom: 14px;
+    }
+
+    .f-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .f-label svg {
+            width: 12px;
+            height: 12px;
+            color: var(--accent);
+        }
+
+    .f-input {
+        background: var(--bg-stat);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 12px;
+        color: var(--text-primary);
+        width: 100%;
+        transition: all .2s;
+        outline: none;
+        font-family: inherit;
+    }
+
+        .f-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-bg);
+        }
+
+    .f-hint {
+        font-size: 10px;
+        color: var(--text-dim);
+        margin-top: 4px;
+    }
+
+    .btn-save {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--accent), #4f46e5);
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all .2s;
+        font-family: inherit;
+        margin-top: 10px;
+    }
+
+        .btn-save:hover {
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+
+    /* ══ تابی فرۆشگا (Grid) ══ */
+    .s-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 12px;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .s-col {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        gap: 12px;
+    }
+
+
+    /* ══ لۆگۆ بچووک لە ناو فۆرم ══ */
+    .logo-inline {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--border-subtle);
+    }
+
+        .logo-inline .logo-area {
+            flex-shrink: 0;
+            width: 120px;
+            padding: 12px 8px;
+        }
+
+        .logo-inline .receipt-preview {
+            flex: 1;
+            margin: 0;
+            padding: 14px;
+        }
+
+
+    /* ══ سویچی تێم ══ */
+    .theme-section {
+        padding: 12px 0;
+    }
+
+    .theme-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+        .theme-row:last-child {
+            border-bottom: none;
+        }
+
+    .theme-row-lbl {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .theme-row-lbl svg {
+            width: 16px;
+            height: 16px;
+            color: var(--accent);
+        }
+
+    .theme-row-hint {
+        font-size: 10px;
+        color: var(--text-dim);
+        margin-top: 2px;
+    }
+
+    .theme-toggle-btns {
+        display: inline-flex;
+        background: var(--bg-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 8px;
+        padding: 3px;
+        gap: 2px;
+    }
+
+        .theme-toggle-btns button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 5px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .theme-toggle-btns button:hover {
+                color: var(--text-primary);
+            }
+
+            .theme-toggle-btns button.active {
+                background: linear-gradient(135deg, var(--accent), #4f46e5);
+                color: #fff;
+                box-shadow: 0 2px 6px rgba(99,102,241,0.3);
+            }
+
+            .theme-toggle-btns button svg {
+                width: 12px;
+                height: 12px;
+            }
+
+
+    /* ══ نموونەی پسوڵە و لۆگۆ ══ */
+    .receipt-preview {
+        background: var(--bg-stat);
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px dashed var(--border-subtle);
+        margin-top: 16px;
+        text-align: center;
+    }
+
+        .receipt-preview .logo {
+            max-width: 80px;
+            max-height: 60px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .receipt-preview .sn {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .receipt-preview .si {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+    .logo-area {
+        border: 2px dashed var(--border-subtle);
+        border-radius: 12px;
+        padding: 24px 16px;
+        text-align: center;
+        position: relative;
+        cursor: pointer;
+        transition: all .2s;
+        background: var(--bg-stat);
+    }
+
+        .logo-area:hover {
+            border-color: var(--accent);
+            background: var(--accent-bg);
+        }
+
+        .logo-area.has-logo {
+            border-style: solid;
+            border-color: var(--success);
+        }
+
+        .logo-area input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+    .logo-preview-img {
+        max-width: 120px;
+        max-height: 80px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+
+    .btn-del-logo {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: none;
+        background: var(--danger-bg);
+        color: var(--danger);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: all .2s;
+    }
+
+        .btn-del-logo:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+
+    /* ══ تابی باکئەپ ══ */
+    .bk-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .bk-stat {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 14px;
+        text-align: center;
+        box-shadow: var(--card-shadow);
+    }
+
+        .bk-stat .v {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .bk-stat .l {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+    .btn-backup {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all .2s;
+        background: var(--success-bg);
+        color: var(--success);
+        font-family: inherit;
+    }
+
+        .btn-backup:hover {
+            background: var(--success);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(52,211,153,.3);
+        }
+
+    .bk-warn {
+        background: var(--warning);
+        color: #fff;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 10px rgba(245,158,11,.3);
+    }
+
+    .bk-list {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bk-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background .2s;
+    }
+
+        .bk-item:last-child {
+            border-bottom: none;
+        }
+
+        .bk-item:hover {
+            background: var(--bg-hover);
+        }
+
+    .bk-name {
+        font-weight: 700;
+        font-size: 12px;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .bk-meta {
+        font-size: 10px;
+        color: var(--text-dim);
+        margin-top: 4px;
+        font-family: monospace;
+    }
+
+    .bk-btns {
+        display: flex;
+        gap: 6px;
+    }
+
+    .bk-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+        .bk-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .bk-btn.dl {
+            background: var(--accent-bg);
+            color: var(--accent-text);
+        }
+
+            .bk-btn.dl:hover {
+                background: var(--accent);
+                color: #fff;
+            }
+
+        .bk-btn.rs {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+            .bk-btn.rs:hover {
+                background: var(--success);
+                color: #fff;
+            }
+
+        .bk-btn.rm {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+            .bk-btn.rm:hover {
+                background: var(--danger);
+                color: #fff;
+            }
+
+    .empty-bk {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-dim);
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .empty-bk svg {
+            width: 32px;
+            height: 32px;
+            opacity: 0.5;
+        }
+
+
+    /* ══ تابی مێژووی کردارەکان ══ */
+    .aud-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .f-sel {
+        height: 30px;
+        padding: 0 10px;
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        font-size: 11px;
+        color: var(--text-primary);
+        background: var(--bg-stat);
+        outline: none;
+        font-family: inherit;
+    }
+
+        .f-sel:focus {
+            border-color: var(--accent);
+        }
+
+    .db-tbl-scroll {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .db-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+    }
+
+        .db-tbl th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-thead);
+            padding: 8px 12px;
+            text-align: right;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 2;
+            backdrop-filter: blur(5px);
+        }
+
+        .db-tbl td {
+            padding: 8px 12px;
+            font-size: 11px;
+            color: var(--td-text);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .db-tbl tr:hover {
+            background: var(--bg-hover);
+        }
+
+    .cat-b {
+        display: inline-flex;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .cat-Sale {
+        background: rgba(139,92,246,.15);
+        color: #8b5cf6;
+    }
+
+    .cat-Purchase {
+        background: rgba(59,130,246,.15);
+        color: #3b82f6;
+    }
+
+    .cat-Payment {
+        background: rgba(16,185,129,.15);
+        color: #10b981;
+    }
+
+    .cat-User {
+        background: rgba(245,158,11,.15);
+        color: #f59e0b;
+    }
+
+    .cat-Settings {
+        background: var(--bg-hover);
+        color: var(--text-secondary);
+    }
+
+    .cat-Backup {
+        background: rgba(6,182,212,.15);
+        color: #06b6d4;
+    }
+
+    .cat-Product {
+        background: rgba(234,88,12,.15);
+        color: #ea580c;
+    }
+
+    .cat-Auth {
+        background: rgba(236,72,153,.15);
+        color: #ec4899;
+    }
+
+    .act-b {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 5px;
+    }
+
+    .act-Create, .act-Receive {
+        color: var(--success);
+        background: var(--success-bg);
+    }
+
+    .act-Edit, .act-Change {
+        color: var(--accent-text);
+        background: var(--accent-bg);
+    }
+
+    .act-Delete, .act-Void {
+        color: var(--danger);
+        background: var(--danger-bg);
+    }
+
+    .act-Undo {
+        color: var(--warning);
+        background: rgba(245,158,11,.15);
+    }
+
+    .act-Login {
+        color: #06b6d4;
+        background: rgba(6,182,212,.15);
+    }
+
+    .act-Logout, .act-Restore, .act-Lock, .act-Unlock, .act-Archive {
+        color: var(--text-secondary);
+        background: var(--bg-hover);
+    }
+
+    .aud-pag-wrap {
+        padding: 10px 14px;
+        border-top: 1px solid var(--border-subtle);
+        background: var(--bg-card);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .aud-pg {
+        display: flex;
+        gap: 4px;
+    }
+
+    .aud-pg-b {
+        min-width: 26px;
+        height: 26px;
+        padding: 0 6px;
+        border-radius: 6px;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-stat);
+        color: var(--text-primary);
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: inherit;
+        transition: all .2s;
+    }
+
+        .aud-pg-b:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .aud-pg-b.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            pointer-events: none;
+        }
+
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--border-card);
+        border-radius: 5px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+
+    /* ══ ڕیسپانسیڤ ══ */
+    @@media (max-width: 992px), (max-height: 700px) {
+        .db {
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
+        }
+
+        .db-in {
+            overflow: visible;
+        }
+
+        .tab-panel, .s-col {
+            overflow: visible;
+        }
+
+        .s-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .bk-stats {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .db-card {
+            height: 400px;
+            flex: none;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .db-top {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+    }
+</style>
+
+<div class="db">
+    <div class="db-in">
+
+        <!-- ══ هێدەر ══ -->
+        <div class="db-top">
+            <div style="display:flex;align-items:center;gap:10px">
+                <div class="db-top-ico">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.8.98 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" /></svg>
+                </div>
+                <div><h1>ڕێکخستنەکان</h1><p>ڕێکخستنی فرۆشگا و باکئەپی داتابەیس</p></div>
+            </div>
+        </div>
+
+        <!-- ══ ئاگادارییەکان ══ -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-c ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> @TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-c err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> @TempData["Error"]</div>
+        }
+
+        <!-- ══ تابەکان ══ -->
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tab-store" onclick="stab('store')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> فرۆشگا
+            </button>
+            <button class="tab-btn" id="tab-backup" onclick="stab('backup')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 21 19V5" /><path d="M3 12A9 3 0 0 0 21 12" /></svg> باکئەپ و ڕیستۆر
+            </button>
+            <button class="tab-btn" id="tab-audit" onclick="stab('audit')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></svg> مێژووی کردارەکان <span class="tab-badge">@Model.AuditTotalCount</span>
+            </button>
+        </div>
+
+        <!-- ═══ 1. تابی فرۆشگا ═══ -->
+        <div class="tab-panel active" id="panel-store">
+            <form method="post" enctype="multipart/form-data" style="display:flex; flex:1; min-height:0; width:100%;">
+                <div class="s-grid" style="@(isAdmin ? "" : "grid-template-columns: 1fr; max-width: 600px; margin: 0 auto;")">
+                    <!-- لای ڕاست (تەنها ئەدمین دەیبینێت) -->
+                    @if (isAdmin)
+                    {
+                        <div class="s-col">
+                            <div class="db-card" style="flex:1;">
+                                <div class="db-card-hd">
+                                    <span class="db-card-t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg> زانیاری فرۆشگا</span>
+                                </div>
+                                <div class="db-card-body">
+                                    <div class="f-group">
+                                        <label class="f-label">ناوی فرۆشگا</label>
+                                        <input type="text" asp-for="StoreName" class="f-input" placeholder="ناوی فرۆشگا بنووسە..." oninput="updP()">
+                                        <div class="f-hint">ئەم ناوە لە سەرەوەی پسوڵەکان دەردەکەوێت.</div>
+                                    </div>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                                        <div class="f-group" style="margin:0;">
+                                            <label class="f-label">ژ. تەلەفۆن</label>
+                                            <input type="text" asp-for="StorePhone" class="f-input" placeholder="0750..." oninput="updP()">
+                                        </div>
+                                        <div class="f-group" style="margin:0;">
+                                            <label class="f-label">ناونیشان</label>
+                                            <input type="text" asp-for="StoreAddress" class="f-input" placeholder="شار، گەڕەک..." oninput="updP()">
+                                        </div>
+                                    </div>
+
+                                    <!-- لۆگۆ + پێشبینین لە ناو هەمان کارت -->
+                                    <div class="logo-inline">
+                                        <div class="logo-area @(!string.IsNullOrEmpty(Model.CurrentLogo) ? "has-logo" : "")" id="logoArea">
+                                            @if (!string.IsNullOrEmpty(Model.CurrentLogo))
+                                            {
+                                                <img src="@Model.CurrentLogo" alt="" class="logo-preview-img" id="logoImg">
+                                                <button type="button" class="btn-del-logo" onclick="delLogo(event)" title="سڕینەوەی لۆگۆ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                            }
+                                            else
+                                            {
+                                                <div style="color:var(--text-dim);margin-bottom:4px;" id="logoPlc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:32px;height:32px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></div>
+                                                <img src="" alt="" class="logo-preview-img" id="logoImg" style="display:none;">
+                                            }
+                                            <div style="font-size:10px;color:var(--text-muted);"><strong>لۆگۆ</strong><br><small>PNG, JPG</small></div>
+                                            <input type="file" asp-for="LogoFile" accept="image/*" onchange="prevLogo(this)">
+                                        </div>
+
+                                        <div class="receipt-preview">
+                                            @if (!string.IsNullOrEmpty(Model.CurrentLogo))
+                                            {
+                                                <img src="@Model.CurrentLogo" alt="" class="logo" id="rLogo">
+                                            }
+                                            <div class="sn" id="rName">@(string.IsNullOrEmpty(Model.StoreName) ? "ناوی فرۆشگا" : Model.StoreName)</div>
+                                            <div class="si" id="rAddr">@Model.StoreAddress</div>
+                                            <div class="si" id="rPhone">@Model.StorePhone</div>
+                                            <div style="font-size:10px;color:var(--text-dim);margin-top:10px;padding-top:8px;border-top:1px dashed var(--border-subtle);">شێوەی پسوڵە</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="20 6 9 17 4 12" /></svg> پاشەکەوتکردنی گۆڕانکارییەکان</button>
+                        </div>
+                    }
+
+                    <!-- لای چەپ (تێم - هەمووان دەیبینن) -->
+                    <div class="s-col">
+                        <div class="db-card" style="flex:1;">
+                            <div class="db-card-hd">
+                                <span class="db-card-t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg> دۆخی ڕووکار</span>
+                            </div>
+                            <div class="db-card-body">
+                                <div class="theme-section">
+                                    <!-- سویچی لەیئاوت -->
+                                    <div class="theme-row">
+                                        <div>
+                                            <div class="theme-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 3v18" /></svg> لەیئاوت (سایدبار)</div>
+                                            <div class="theme-row-hint">ڕەنگی سایدبار و مێنیو</div>
+                                        </div>
+                                        <div class="theme-toggle-btns" id="layoutThemeBtns">
+                                            <button type="button" data-val="dark" onclick="setLayoutTheme('dark')">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg> تاریک
+                                            </button>
+                                            <button type="button" data-val="light" onclick="setLayoutTheme('light')">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg> ڕووناک
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- سویچی پەڕەکان -->
+                                    <div class="theme-row">
+                                        <div>
+                                            <div class="theme-row-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg> پەڕەکان (ناوەڕۆک)</div>
+                                            <div class="theme-row-hint">ڕەنگی داشبۆرد، خشتەکان، ڕیپۆرتەکان</div>
+                                        </div>
+                                        <div class="theme-toggle-btns" id="pageThemeBtns">
+                                            <button type="button" data-val="dark" onclick="setPageTheme('dark')">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg> تاریک
+                                            </button>
+                                            <button type="button" data-val="light" onclick="setPageTheme('light')">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg> ڕووناک
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- پێشبینینی زیندوو -->
+                                <div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--border-subtle);">
+                                    <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:5px;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                                        پێشبینینی زیندوو
+                                    </div>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                        <div style="background:var(--bg-stat);border:1px solid var(--border-subtle);border-radius:8px;padding:10px;text-align:center;">
+                                            <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px;">لەیئاوت</div>
+                                            <div id="layoutPreviewBox" style="height:40px;border-radius:6px;border:1px solid var(--border-subtle);transition:all .3s;"></div>
+                                        </div>
+                                        <div style="background:var(--bg-stat);border:1px solid var(--border-subtle);border-radius:8px;padding:10px;text-align:center;">
+                                            <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px;">پەڕەکان</div>
+                                            <div id="pagePreviewBox" style="height:40px;border-radius:6px;border:1px solid var(--border-subtle);transition:all .3s;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            @if (isAdmin)
+            {
+                <form method="post" asp-page-handler="DeleteLogo" id="delLogoForm" style="display:none;"></form>
+            }
+        </div>
+
+        <!-- ═══ 2. تابی باکئەپ ═══ -->
+        <div class="tab-panel" id="panel-backup">
+            <div class="bk-stats">
+                <div class="bk-stat"><div class="v" style="color:var(--success);">@Model.BackupFiles.Count</div><div class="l">باکئەپی ئامادە</div></div>
+                <div class="bk-stat"><div class="v" style="color:var(--accent);">@(Model.BackupFiles.Any() ? Model.BackupFiles.First().CreatedAt.ToString("MM/dd HH:mm") : "\u2014")</div><div class="l">دوایین باکئەپ</div></div>
+                <div class="bk-stat"><div class="v" style="color:var(--warning);">@(Model.BackupFiles.Any() ? Model.BackupFiles.Sum(b => b.SizeMB).ToString("F1") : "0") MB</div><div class="l">کۆی قەبارە</div></div>
+            </div>
+
+            <div class="db-card" style="flex:1;">
+                <div class="db-card-hd">
+                    <span class="db-card-t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg> کۆنتڕۆڵی باکئەپەکان</span>
+                    <form method="post" asp-page-handler="Backup" style="display:inline;">
+                        <button type="submit" class="btn-backup" onclick="return confirm('دڵنیایت دەتەوێت ئێستا باکئەپێکی نوێ دروست بکەیت؟')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg> باکئەپ دروست بکە</button>
+                    </form>
+                </div>
+                <div class="db-card-body" style="padding:0;display:flex;flex-direction:column;">
+                    <div style="padding:14px;border-bottom:1px solid var(--border-subtle);">
+                        <div class="bk-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg> تکایە پێش هەر گۆڕانکارییەکی گەورە لە داتابەیسەکەدا، باکئەپێک دروست بکە بۆ سەلامەتی داتاکانت!</div>
+                    </div>
+
+                    @if (Model.BackupFiles.Any())
+                    {
+                        <div class="bk-list">
+                            @foreach (var bk in Model.BackupFiles)
+                            {
+                                <div class="bk-item">
+                                    <div>
+                                        <div class="bk-name"><svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" style="width:14px;height:14px;"><path d="M21 8v13H3V3h13l5 5Z" /><path d="m10 12 2 2 4-4" /></svg> @bk.FileName</div>
+                                        <div class="bk-meta">@bk.CreatedAt.ToString("yyyy/MM/dd HH:mm") &mdash; @bk.SizeMB MB</div>
+                                    </div>
+                                    <div class="bk-btns">
+                                        <a href="?handler=DownloadBackup&backupFile=@bk.FileName" class="bk-btn dl" title="داونلۆد"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg></a>
+                                        @if (isAdmin)
+                                        {
+                                            <form method="post" asp-page-handler="Restore" asp-route-backupFile="@bk.FileName" style="display:inline;"><button type="submit" class="bk-btn rs" title="ڕیستۆر کردن" onclick="return confirm('ئاگاداربە! هەموو داتای ئێستای فرۆشگاکە دەسڕێتەوە و دەگەڕێتەوە بۆ کاتی ئەم باکئەپە. دڵنیایت؟')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></svg></button></form>
+                                            <form method="post" asp-page-handler="DeleteBackup" asp-route-backupFile="@bk.FileName" style="display:inline;"><button type="submit" class="bk-btn rm" title="سڕینەوە" onclick="return confirm('دڵنیایت لە سڕینەوەی ئەم باکئەپە؟')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg></button></form>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-bk">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></svg>
+                            هیچ باکئەپێک لە سیستەمەکەدا نییە.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ 3. تابی مێژوو ═══ -->
+        <div class="tab-panel" id="panel-audit">
+            <div class="db-card" style="flex:1;">
+                <div class="db-card-hd" style="gap:10px;">
+                    <span class="db-card-t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg> تۆماری گۆڕانکارییەکان</span>
+                    <div class="aud-controls">
+                        <input type="date" id="aud-start" class="f-sel" title="لە بەرواری" onchange="loadAudit(1)">
+                        <input type="date" id="aud-end" class="f-sel" title="تا بەرواری" onchange="loadAudit(1)">
+
+                        <select id="aud-cat" class="f-sel" onchange="loadAudit(1)">
+                            <option value="">هەموو بەشەکان</option>
+                            <option value="Sale">فرۆشتن</option>
+                            <option value="Purchase">کڕین</option>
+                            <option value="Payment">پارەدان</option>
+                            <option value="User">بەکارهێنەر</option>
+                            <option value="Product">کاڵا</option>
+                            <option value="Settings">ڕێکخستن</option>
+                            <option value="Backup">باکئەپ</option>
+                            <option value="Auth">لۆگین</option>
+                        </select>
+
+                        @if (isAdmin)
+                        {
+                            <input type="text" id="aud-user" class="f-sel" placeholder="ناوی بەکارهێنەر..." style="width:120px;" oninput="clearTimeout(_audTimer);_audTimer=setTimeout(function(){loadAudit(1);},400);">
+                        }
+                        <input type="text" id="aud-search" class="f-sel" placeholder="گەڕان..." style="width:120px;" oninput="clearTimeout(_audTimer);_audTimer=setTimeout(function(){loadAudit(1);},400);">
+                    </div>
+                </div>
+
+                <div id="aud-loading" style="text-align:center;padding:30px;color:var(--accent);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;animation:spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg></div>
+
+                <div class="db-tbl-scroll">
+                    <table class="db-tbl" id="aud-table" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th style="width:5%;text-align:center;">#</th>
+                                <th style="width:15%">بەروار</th>
+                                <th style="width:12%">بەکارهێنەر</th>
+                                <th style="width:10%">بەش</th>
+                                <th style="width:10%">کردار</th>
+                                <th>وردەکاری</th>
+                            </tr>
+                        </thead>
+                        <tbody id="aud-body"></tbody>
+                    </table>
+                    <div id="aud-empty" style="display:none;" class="empty-bk">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></svg>
+                        هیچ تۆمارێک نەدۆزرایەوە بۆ ئەم گەڕانە.
+                    </div>
+                </div>
+
+                <div class="aud-pag-wrap" id="aud-pag" style="display:none;"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        @@keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script>
+        // لۆژیکی گۆڕینی تابەکان
+        function stab(t) {
+            ['store','backup','audit'].forEach(function(x){
+                document.getElementById('tab-'+x).classList.remove('active');
+                document.getElementById('panel-'+x).classList.remove('active');
+            });
+            document.getElementById('tab-'+t).classList.add('active');
+            document.getElementById('panel-'+t).classList.add('active');
+
+            // گەر تابی مێژوو بوو و پێشتر لۆد نەببوو با لۆد بێت
+            if (t === 'audit' && !_audLoaded) loadAudit(1);
+        }
+
+        // نوێکردنەوەی پێشبینینی پسوڵە
+        function updP() {
+            var e = function(id){ return document.getElementById(id); };
+            var v = function(n){ var el=document.querySelector('[name="'+n+'"]'); return el?el.value:''; };
+            if(e('rName')) e('rName').textContent = v('StoreName') || 'ناوی فرۆشگا';
+            if(e('rAddr')) e('rAddr').textContent = v('StoreAddress');
+            if(e('rPhone')) e('rPhone').textContent = v('StorePhone');
+        }
+
+        // پیشاندانی لۆگۆی نوێ پێش ئەپلۆد
+        function prevLogo(input) {
+            if (!input.files || !input.files[0]) return;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var img = document.getElementById('logoImg');
+                var plc = document.getElementById('logoPlc');
+                if(img) { img.src=ev.target.result; img.style.display=''; }
+                if(plc) plc.style.display='none';
+                document.getElementById('logoArea').classList.add('has-logo');
+
+                var rL = document.getElementById('rLogo');
+                if(!rL) { rL=document.createElement('img'); rL.id='rLogo'; rL.className='logo'; document.querySelector('.receipt-preview').prepend(rL); }
+                rL.src = ev.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function delLogo(e) {
+            e.preventDefault(); e.stopPropagation();
+            if(confirm('دڵنیایت لە سڕینەوەی لۆگۆکە؟')) document.getElementById('delLogoForm').submit();
+        }
+
+        // ══ لۆژیکی مێژووی کردارەکان (AJAX) ══
+        var _audLoaded = false, _audTimer = null, _audPage = 1;
+
+        async function loadAudit(pg) {
+            _audPage = pg || 1;
+            var cat = document.getElementById('aud-cat').value;
+            var srch = document.getElementById('aud-search').value.trim();
+            var sDate = document.getElementById('aud-start').value;
+            var eDate = document.getElementById('aud-end').value;
+
+            var userEl = document.getElementById('aud-user');
+            var usr = userEl ? userEl.value.trim() : '';
+
+            document.getElementById('aud-loading').style.display = 'block';
+            document.getElementById('aud-table').style.display = 'none';
+            document.getElementById('aud-empty').style.display = 'none';
+            document.getElementById('aud-pag').style.display = 'none';
+
+            var url = '?handler=AuditLogs&page=' + pg;
+            if (cat) url += '&category=' + encodeURIComponent(cat);
+            if (srch) url += '&search=' + encodeURIComponent(srch);
+            if (sDate) url += '&startDate=' + encodeURIComponent(sDate);
+            if (eDate) url += '&endDate=' + encodeURIComponent(eDate);
+            if (usr) url += '&user=' + encodeURIComponent(usr);
+
+            try {
+                var r = await fetch(url);
+                var d = await r.json();
+                document.getElementById('aud-loading').style.display = 'none';
+                _audLoaded = true;
+
+                if (!d.success || !d.logs || d.logs.length === 0) {
+                    document.getElementById('aud-empty').style.display = 'flex';
+                    return;
+                }
+
+                var h = '';
+                for (var i=0; i<d.logs.length; i++) {
+                    var l = d.logs[i];
+                    h += '<tr>';
+                    h += '<td style="text-align:center;color:var(--text-dim);font-family:monospace;">'+l.id+'</td>';
+                    h += '<td>'+l.date+'</td>';
+                    h += '<td style="font-weight:600;">'+l.userName+'</td>';
+                    h += '<td><span class="cat-b cat-'+l.category+'">'+l.category+'</span></td>';
+                    h += '<td><span class="act-b act-'+l.action+'">'+l.action+'</span></td>';
+                    h += '<td>'+l.description+'</td>';
+                    h += '</tr>';
+                }
+                document.getElementById('aud-body').innerHTML = h;
+                document.getElementById('aud-table').style.display = 'table';
+
+                // دروستکردنی پەڕەکان (Pagination)
+                if (d.totalPages > 1) {
+                    var pb = '<div class="aud-pg">';
+                    if (d.page > 1) pb += '<button class="aud-pg-b" onclick="loadAudit('+(d.page-1)+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="9 18 15 12 9 6"/></svg></button>';
+
+                    var start = Math.max(1, d.page - 2), end = Math.min(d.totalPages, d.page + 2);
+                    for (var p=start; p<=end; p++) {
+                        pb += '<button class="aud-pg-b '+(p===d.page?'active':'')+'" onclick="loadAudit('+p+')">'+p+'</button>';
+                    }
+
+                    if (d.page < d.totalPages) pb += '<button class="aud-pg-b" onclick="loadAudit('+(d.page+1)+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="15 18 9 12 15 6"/></svg></button>';
+                    pb += '</div>';
+
+                    document.getElementById('aud-pag').innerHTML = '<span style="font-size:11px;color:var(--text-muted);font-weight:600;">کۆی گشتی: '+d.total+' تۆمار</span> ' + pb;
+                    document.getElementById('aud-pag').style.display = 'flex';
+                }
+            } catch(e) {
+                console.error("Error loading audit:", e);
+                document.getElementById('aud-loading').style.display = 'none';
+                document.getElementById('aud-empty').style.display = 'flex';
+            }
+        }
+
+        // ══ سیستەمی تێمی دوو لایەنە (global بۆ SPA) ══
+        window.setLayoutTheme = function(val) {
+            var html = document.documentElement;
+            if (val === 'light') {
+                html.setAttribute('data-layout-theme', 'light');
+            } else {
+                html.removeAttribute('data-layout-theme');
+            }
+            localStorage.setItem('layoutTheme', val);
+            window.updateThemeBtns();
+            window.updateThemePreviews();
+            window.dispatchEvent(new Event('themeChanged'));
+        };
+
+        window.setPageTheme = function(val) {
+            var html = document.documentElement;
+            if (val === 'light') {
+                html.setAttribute('data-theme', 'light');
+            } else {
+                html.removeAttribute('data-theme');
+            }
+            localStorage.setItem('siteTheme', val);
+            window.updateThemeBtns();
+            window.updateThemePreviews();
+            window.dispatchEvent(new Event('themeChanged'));
+        };
+
+        window.updateThemeBtns = function() {
+            var layoutVal = localStorage.getItem('layoutTheme') || 'dark';
+            var pageVal = localStorage.getItem('siteTheme') || 'dark';
+
+            document.querySelectorAll('#layoutThemeBtns button').forEach(function(b) {
+                b.classList.toggle('active', b.dataset.val === layoutVal);
+            });
+            document.querySelectorAll('#pageThemeBtns button').forEach(function(b) {
+                b.classList.toggle('active', b.dataset.val === pageVal);
+            });
+        };
+
+        window.updateThemePreviews = function() {
+            var layoutVal = localStorage.getItem('layoutTheme') || 'dark';
+            var pageVal = localStorage.getItem('siteTheme') || 'dark';
+            var lBox = document.getElementById('layoutPreviewBox');
+            var pBox = document.getElementById('pagePreviewBox');
+            if (lBox) lBox.style.background = layoutVal === 'light' ? '#eef1f6' : '#0b1120';
+            if (pBox) pBox.style.background = pageVal === 'light' ? '#eef1f6' : '#0b1120';
+        };
+
+        // لە کاتی لۆد و SPA nav
+        (function initTheme() {
+            window.updateThemeBtns();
+            window.updateThemePreviews();
+        })();
+        document.addEventListener('DOMContentLoaded', function() {
+            window.updateThemeBtns();
+            window.updateThemePreviews();
+        });
+    </script>
+}

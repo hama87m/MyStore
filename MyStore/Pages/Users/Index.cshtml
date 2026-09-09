@@ -1,0 +1,1340 @@
+﻿@page
+@model MyStore.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = "بەڕێوەبردنی بەکارهێنەران";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    /* سڕینەوەی پادینگەکان */
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    /* ══ تێمی تاریک (بنەڕەتی) ══ */
+    :root {
+        --bg-page: #0b1120;
+        --bg-card: rgba(15,23,42,.7);
+        --bg-stat: rgba(15,23,42,.6);
+        --bg-thead: rgba(15,23,42,.5);
+        --bg-hover: rgba(99,102,241,.04);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --accent-border: rgba(99,102,241,.2);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --warning-bg: rgba(252,211,77,.1);
+        --info: #93c5fd;
+        --info-bg: rgba(59,130,246,.1);
+        --purple: #c084fc;
+        --purple-bg: rgba(168,85,247,.12);
+        --gradient-top: linear-gradient(135deg, rgba(30,27,75,.4), rgba(49,46,129,.3), rgba(30,27,75,.2));
+        --card-shadow: none;
+        --td-text: #cbd5e1;
+    }
+
+    /* ══ تێمی ڕووناک ══ */
+    [data-theme="light"] {
+        --bg-page: #eef1f6;
+        --bg-card: #ffffff;
+        --bg-stat: #ffffff;
+        --bg-thead: #f8f9fb;
+        --bg-hover: rgba(99,102,241,.03);
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --accent-border: rgba(99,102,241,.12);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --warning-bg: rgba(217,119,6,.08);
+        --info: #2563eb;
+        --info-bg: rgba(59,130,246,.08);
+        --purple: #7e22ce;
+        --purple-bg: rgba(126,34,206,.08);
+        --gradient-top: linear-gradient(135deg, rgba(238,242,255,.95), rgba(224,231,255,.7), rgba(238,242,255,.5));
+        --card-shadow: 0 1px 3px rgba(0,0,0,.06);
+        --td-text: #1f2937;
+    }
+
+    /* ══ فیتکردنی شاشە ══ */
+    .db {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        background: var(--bg-page);
+        color: var(--text-primary);
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition: background .35s, color .35s;
+    }
+
+        .db::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+            transition: background .35s;
+        }
+
+    .db-in {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+        padding: 16px 20px;
+        gap: 12px;
+    }
+
+    /* ══ هێدەر ══ */
+    .db-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+        .db-top h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 2px 0;
+            color: var(--text-primary);
+        }
+
+        .db-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+    .db-top-ico {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent);
+        box-shadow: var(--card-shadow);
+    }
+
+        .db-top-ico svg {
+            width: 16px;
+            height: 16px;
+        }
+
+    /* ══ دوگمەی سەرەکی (زیادکردن) ══ */
+    .btn-add {
+        background: linear-gradient(135deg, var(--accent), #4f46e5);
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all .2s;
+        font-family: inherit;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+
+        .btn-add:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-add svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    /* ══ کارتەکانی ئامار (5 دانە) ══ */
+    .db-stats {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .db-st {
+        background: var(--bg-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 12px 14px;
+        transition: all .3s;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .db-st:hover {
+            border-color: var(--accent-border);
+            transform: translateY(-1px);
+        }
+
+    .db-st-lbl {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-bottom: 3px;
+    }
+
+    .db-st-val {
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .db-st-sub {
+        font-size: 10px;
+        color: var(--text-dim);
+        margin-top: 3px;
+    }
+
+    .db-st-ico {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .db-st-ico svg {
+            width: 16px;
+            height: 16px;
+        }
+
+    /* ڕەنگەکانی ئامار */
+    .c-indigo {
+        color: var(--accent-text);
+    }
+
+    .bg-indigo {
+        background: var(--accent-bg);
+        color: var(--accent);
+    }
+
+    .c-purple {
+        color: var(--purple);
+    }
+
+    .bg-purple {
+        background: var(--purple-bg);
+        color: var(--purple);
+    }
+
+    .c-info {
+        color: var(--info);
+    }
+
+    .bg-info {
+        background: var(--info-bg);
+        color: var(--info);
+    }
+
+    .c-emerald {
+        color: var(--success);
+    }
+
+    .bg-emerald {
+        background: var(--success-bg);
+        color: var(--success);
+    }
+
+    .c-slate {
+        color: var(--text-dim);
+    }
+
+    .bg-slate {
+        background: rgba(148,163,184,.1);
+        color: var(--text-dim);
+    }
+
+    /* ══ خشتە و تولبار ══ */
+    .db-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        flex: 1;
+        min-height: 0;
+    }
+
+    .db-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border-subtle);
+        flex-shrink: 0;
+        flex-wrap: wrap;
+    }
+
+    .search-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+        .search-wrapper input {
+            padding-right: 32px;
+        }
+
+    .search-btn-icon {
+        position: absolute;
+        right: 8px;
+        background: none;
+        border: none;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-dim);
+        transition: color 0.2s;
+    }
+
+        .search-btn-icon:hover {
+            color: var(--accent);
+        }
+
+    .f-inp {
+        height: 30px;
+        padding: 0 12px;
+        background: var(--bg-stat);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 11px;
+        outline: none;
+        font-family: inherit;
+        transition: all .2s;
+    }
+
+        .f-inp:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-bg);
+        }
+
+    .db-tbl-scroll {
+        flex: 1;
+        overflow-y: auto;
+        transition: opacity 0.2s;
+    }
+
+    .db-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+    }
+
+        .db-tbl th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-thead);
+            padding: 8px 12px;
+            text-align: right;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 2;
+            backdrop-filter: blur(5px);
+            white-space: nowrap;
+        }
+
+        .db-tbl td {
+            padding: 8px 12px;
+            font-size: 11px;
+            color: var(--td-text);
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .db-tbl tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .db-tbl tr.locked-row td {
+            opacity: 0.6;
+        }
+
+        .db-tbl tr:last-child td {
+            border-bottom: none;
+        }
+
+    /* ══ باجەکان و وێنە ══ */
+    .us-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+        .us-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .us-avatar.admin {
+            background: linear-gradient(135deg, var(--purple), #7c3aed);
+        }
+
+        .us-avatar.manager {
+            background: linear-gradient(135deg, var(--info), #2563eb);
+        }
+
+        .us-avatar.cashier {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+    .us-user-name {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 12px;
+        margin-bottom: 2px;
+    }
+
+    .us-user-email {
+        font-size: 10px;
+        color: var(--text-dim);
+        font-family: monospace;
+    }
+
+    .db-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+        .db-badge svg {
+            width: 10px;
+            height: 10px;
+        }
+
+    .b-admin {
+        background: var(--purple-bg);
+        color: var(--purple);
+    }
+
+    .b-manager {
+        background: var(--info-bg);
+        color: var(--info);
+    }
+
+    .b-cashier {
+        background: var(--success-bg);
+        color: var(--success);
+    }
+
+    .b-on {
+        background: var(--success-bg);
+        color: var(--success);
+    }
+
+    .b-off {
+        background: var(--danger-bg);
+        color: var(--danger);
+    }
+
+    /* ══ دوگمەکانی ناو خشتە ══ */
+    .act-grp {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+    }
+
+    .act-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .2s;
+        cursor: pointer;
+        background: transparent;
+    }
+
+        .act-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+    .ab-e {
+        color: var(--info);
+        background: var(--info-bg);
+    }
+
+        .ab-e:hover {
+            background: var(--info);
+            color: #fff;
+        }
+
+    .ab-w {
+        color: var(--warning);
+        background: var(--warning-bg);
+    }
+
+        .ab-w:hover {
+            background: var(--warning);
+            color: #fff;
+        }
+
+    .ab-s {
+        color: var(--success);
+        background: var(--success-bg);
+    }
+
+        .ab-s:hover {
+            background: var(--success);
+            color: #fff;
+        }
+
+    .ab-d {
+        color: var(--danger);
+        background: var(--danger-bg);
+    }
+
+        .ab-d:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+    .us-foot {
+        padding: 10px 14px;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        background: var(--bg-card);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-dim);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .empty-state svg {
+            width: 40px;
+            height: 40px;
+            opacity: 0.5;
+        }
+
+    /* ══ مۆدالەکان ══ */
+    .rc-modal .modal-content {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        overflow: hidden;
+        color: var(--text-primary);
+        box-shadow: 0 15px 35px rgba(0,0,0,.3);
+    }
+
+    .rc-modal .modal-body {
+        background: var(--bg-card);
+        padding: 20px;
+    }
+
+    .rc-modal .modal-footer {
+        background: var(--bg-stat);
+        border-top: 1px solid var(--border-subtle);
+        padding: 12px 20px;
+    }
+
+    .modal-header {
+        border: none;
+        padding: 15px 20px;
+    }
+
+        .modal-header .modal-title {
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .modal-header .modal-title svg {
+                width: 16px;
+                height: 16px;
+            }
+
+        .modal-header .btn-close {
+            filter: var(--close-filter, invert(1));
+            opacity: .5;
+            font-size: 10px;
+        }
+
+    .mh-add {
+        background: linear-gradient(135deg, rgba(99,102,241,.15), rgba(79,70,229,.05));
+        border-bottom: 1px solid rgba(99,102,241,.15);
+    }
+
+    .mh-edit {
+        background: linear-gradient(135deg, rgba(245,158,11,.15), rgba(217,119,6,.05));
+        border-bottom: 1px solid rgba(245,158,11,.15);
+    }
+
+    .mh-del {
+        background: linear-gradient(135deg, rgba(239,68,68,.15), rgba(220,38,38,.05));
+        border-bottom: 1px solid rgba(239,68,68,.15);
+    }
+
+    /* Floating Labels بۆ مۆدال */
+    .f-wrap {
+        position: relative;
+        margin-bottom: 12px;
+    }
+
+        .f-wrap label {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            font-size: 9px;
+            color: var(--text-dim);
+            font-weight: 700;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        .f-wrap input, .f-wrap select {
+            width: 100%;
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 22px 10px 8px;
+            font-size: 12px;
+            outline: none;
+            transition: all .2s;
+            background: var(--bg-stat);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+            .f-wrap input:focus, .f-wrap select:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px var(--accent-bg);
+            }
+
+    .f-r2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .btn-md-save {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0 20px;
+        height: 34px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all .2s;
+        flex: 1;
+        font-family: inherit;
+    }
+
+        .btn-md-save:hover {
+            box-shadow: 0 4px 12px rgba(16,185,129,.3);
+            transform: translateY(-1px);
+        }
+
+    .btn-md-ghost {
+        background: var(--bg-stat);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-card);
+        height: 34px;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+        .btn-md-ghost:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+    /* سکڕۆڵ */
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--border-card);
+        border-radius: 5px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+    /* ڕیسپانسیڤ */
+    @@media (max-width: 1100px) {
+        .db-stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px), (max-height: 700px) {
+        .db {
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
+        }
+
+        .db-in {
+            overflow: visible;
+            height: auto;
+        }
+
+        .db-top {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .btn-add {
+            justify-content: center;
+        }
+
+        .db-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .db-card {
+            min-height: 400px;
+        }
+    }
+</style>
+
+<div class="db" id="usPage">
+    <div class="db-in">
+
+        <!-- ══ هێدەر ══ -->
+        <div class="db-top">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="db-top-ico">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                </div>
+                <div>
+                    <h1>بەڕێوەبردنی بەکارهێنەران</h1>
+                    <p>زیادکردن، دەستکاری، و بەڕێوەبردنی دەسەڵاتەکان</p>
+                </div>
+            </div>
+
+            <button type="button" class="btn-add" onclick="openAddModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg> بەکارهێنەری نوێ
+            </button>
+        </div>
+
+        <!-- ══ ئامارەکان ══ -->
+        <div class="db-stats">
+            <div class="db-st">
+                <div><div class="db-st-lbl">کۆی گشتی</div><div class="db-st-val c-indigo">@Model.TotalUsers</div><div class="db-st-sub">بەکارهێنەر</div></div>
+                <div class="db-st-ico bg-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+            </div>
+            <div class="db-st">
+                <div><div class="db-st-lbl">ئەدمین</div><div class="db-st-val c-purple">@Model.AdminCount</div><div class="db-st-sub">دەسەڵاتی تەواو</div></div>
+                <div class="db-st-ico bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
+            </div>
+            <div class="db-st">
+                <div><div class="db-st-lbl">مەنەجەر</div><div class="db-st-val c-info">@Model.ManagerCount</div><div class="db-st-sub">بەڕێوەبەر</div></div>
+                <div class="db-st-ico bg-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
+            </div>
+            <div class="db-st">
+                <div><div class="db-st-lbl">کاشێر</div><div class="db-st-val c-emerald">@Model.CashierCount</div><div class="db-st-sub">فرۆشیار</div></div>
+                <div class="db-st-ico bg-emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg></div>
+            </div>
+            <div class="db-st">
+                <div><div class="db-st-lbl">قفڵکراو</div><div class="db-st-val c-slate">@Model.LockedCount</div><div class="db-st-sub">ڕاگیراو</div></div>
+                <div class="db-st-ico bg-slate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+            </div>
+        </div>
+
+        <!-- ══ خشتەی بەکارهێنەران ══ -->
+        <div class="db-card">
+
+            <!-- ══ تولباری گەڕان بە پشت بەستن بە سێرڤەر (AJAX) ══ -->
+            <div class="db-toolbar">
+                <form id="searchForm" style="display:flex; align-items:center; gap:8px; width:100%; margin:0;" onsubmit="event.preventDefault(); performSearch();">
+
+                    <div class="search-wrapper">
+                        <!-- کاتێک بەکارهێنەر شتێک دەنووسێت، فەنکشنی autoSearch دوای 300 میلی چرکە کار دەکات بێ ڕیفڕێش -->
+                        <input type="text" id="searchInput" name="searchTerm" value="@ViewData["SearchTerm"]" class="f-inp" placeholder="گەڕان بۆ ناو یان ئیمەیڵ..." style="width:220px;" autocomplete="off" oninput="autoSearch()">
+
+                        <!-- ئایکۆنی گەڕان -->
+                        <button type="submit" class="search-btn-icon" title="گەڕان">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                        </button>
+                    </div>
+
+                    <!-- فلتەری ڕۆڵیش بە هەمان شێوە بێ ڕیفڕێش کاردەکات -->
+                    <select name="roleFilter" class="f-inp" style="width:120px; cursor:pointer;" onchange="performSearch();">
+                        <option value="">هەموو ڕۆڵەکان</option>
+                        <option value="Admin" selected="@(ViewData["RoleFilter"]?.ToString() == "Admin")">ئەدمین</option>
+                        <option value="Manager" selected="@(ViewData["RoleFilter"]?.ToString() == "Manager")">مەنەجەر</option>
+                        <option value="Cashier" selected="@(ViewData["RoleFilter"]?.ToString() == "Cashier")">کاشێر</option>
+                    </select>
+
+                </form>
+            </div>
+
+            <div class="db-tbl-scroll">
+                @if (Model.Users.Any())
+                {
+                    <table class="db-tbl">
+                        <thead>
+                            <tr>
+                                <th style="width:50px; text-align:center;">#</th>
+                                <th>بەکارهێنەر</th>
+                                <th style="text-align:center;">ڕۆڵ</th>
+                                <th style="text-align:center;">داشکاندن</th>
+                                <th style="text-align:center;">دۆخ</th>
+                                <th style="text-align:center;">کردارەکان</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            @{
+                                int rowNo = 1;
+                            }
+                            @foreach (var user in Model.Users)
+                            {
+                                var roleBadge = user.Role switch { "Admin" => "b-admin", "Manager" => "b-manager", _ => "b-cashier" };
+                                var roleName = user.Role switch { "Admin" => "ئەدمین", "Manager" => "مەنەجەر", _ => "کاشێر" };
+                                var avatarCls = user.Role switch { "Admin" => "admin", "Manager" => "manager", _ => "cashier" };
+                                var initial = user.UserName.Length > 0 ? user.UserName[0].ToString().ToUpper() : "؟";
+
+                                <tr class="us-row @(user.IsLocked ? "locked-row" : "")">
+                                    <td style="text-align:center; color:var(--text-dim);">@rowNo</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:10px;">
+                                            <div class="us-avatar @avatarCls" style="@(user.IsLocked ? "filter: grayscale(1);" : "")">
+                                                @if (!string.IsNullOrWhiteSpace(user.ProfileImagePath))
+                                                {
+                                                    <img src="@user.ProfileImagePath" alt="avatar" />
+                                                }
+                                                else
+                                                {
+                                                    @initial
+                                                }
+                                            </div>
+                                            <div>
+                                                <div class="us-user-name" style="@(user.IsLocked ? "text-decoration:line-through;color:var(--text-muted);" : "")">@user.UserName</div>
+                                                <div class="us-user-email">@user.Email</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <span class="db-badge @roleBadge" style="@(user.IsLocked ? "opacity:0.7;" : "")">@roleName</span>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        @if (user.Role == "Admin")
+                                        {
+                                            <span style="color:var(--text-dim);font-size:11px;">بێ سنوور</span>
+                                        }
+                                        else if (user.MaxDiscountPercent > 0)
+                                        {
+                                            <span style="color:var(--text-primary);font-size:11px;font-weight:700;">@user.MaxDiscountPercent%</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color:var(--text-dim);font-size:11px;">0%</span>
+                                        }
+                                    </td>
+                                    <td style="text-align:center;">
+                                        @if (user.IsLocked)
+                                        {
+                                            <span class="db-badge b-off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> قفڵکراو</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="db-badge b-on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> چالاک</span>
+                                        }
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <div class="act-grp">
+                                            <button type="button" class="act-btn ab-e" onclick="openEditModal('@user.Id')" title="دەستکاری">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                            </button>
+
+                                            <button type="button" class="act-btn @(user.IsLocked ? "ab-s" : "ab-w")" onclick="toggleLock('@user.Id')" title="@(user.IsLocked ? "کردنەوە" : "قفڵکردن")">
+                                                @if (user.IsLocked)
+                                                {
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+                                                }
+                                                else
+                                                {
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                                }
+                                            </button>
+
+                                            <button type="button" class="act-btn ab-d" onclick="deleteUser('@user.Id','@user.UserName.Replace("'", "\\'")')" title="سڕینەوە">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                rowNo++;
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <p style="font-size:12px; font-weight:600; margin:0;">هیچ بەکارهێنەرێک نەدۆزرایەوە</p>
+                    </div>
+                }
+            </div>
+            @if (Model.Users.Any())
+            {
+                <div class="us-foot">
+                    <div>کۆی گشتی: <b style="color:var(--text-primary);">@Model.TotalUsers</b> بەکارهێنەر.</div>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+<!-- ══ مۆدالی زیادکردن ══ -->
+<div class="modal fade rc-modal" id="addModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+        <div class="modal-content">
+            <div class="modal-header mh-add">
+                <h5 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg> زیادکردنی بەکارهێنەر</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @Html.AntiForgeryToken()
+
+                <div style="display:flex; align-items:center; gap:12px; padding:12px; background:var(--bg-stat); border:1px dashed var(--border-subtle); border-radius:8px; margin-bottom:16px;">
+                    <div id="addAvatarPreview" style="width:40px; height:40px; border-radius:8px; background:var(--bg-hover); border:1px solid var(--border-card); display:flex; align-items:center; justify-content:center; color:var(--text-dim); overflow:hidden;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <input type="file" id="addProfileImage" class="f-inp" style="padding: 4px; height: 30px; border:none; background:transparent; width:100%;" accept="image/*" onchange="previewAvatar(this, 'addAvatarPreview')">
+                        <div style="font-size:9px; color:var(--text-dim); margin-top:2px;">وێنەی JPG, PNG هەڵبژێرە.</div>
+                    </div>
+                </div>
+
+                <div class="f-wrap"><input type="text" id="addUserName" placeholder=" "><label>ناوی بەکارهێنەر *</label></div>
+                <div class="f-wrap"><input type="email" id="addEmail" style="direction:ltr; text-align:left;" placeholder=" "><label>ئیمەیڵ *</label></div>
+                <div class="f-wrap"><input type="password" id="addPassword" style="direction:ltr; text-align:left;" placeholder=" "><label>پاسۆرد *</label></div>
+
+                <div class="f-r2">
+                    <div class="f-wrap" style="margin-bottom:0;">
+                        <select id="addRole" onchange="toggleDiscount('addRole', 'addDiscountWrap')">
+                            <option value="Cashier">کاشێر</option>
+                            <option value="Manager">مەنەجەر</option>
+                            <option value="Admin">ئەدمین</option>
+                        </select>
+                        <label>ڕۆڵ</label>
+                    </div>
+                    <div class="f-wrap" id="addDiscountWrap" style="margin-bottom:0;">
+                        <input type="number" id="addMaxDiscount" placeholder=" " value="5" min="0" max="100">
+                        <label>زۆرترین داشکاندن (%)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="gap:8px; justify-content:flex-start;">
+                <button type="button" class="btn-md-save" onclick="addUser()">پاشەکەوتکردن</button>
+                <button type="button" class="btn-md-ghost" data-bs-dismiss="modal">پاشگەزبوونەوە</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ مۆدالی دەستکاری ══ -->
+<div class="modal fade rc-modal" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+        <div class="modal-content">
+            <div class="modal-header mh-edit">
+                <h5 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> دەستکاری بەکارهێنەر</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                <input type="hidden" id="editCurrentImagePath">
+
+                <div style="display:flex; align-items:center; gap:12px; padding:12px; background:var(--bg-stat); border:1px dashed var(--border-subtle); border-radius:8px; margin-bottom:16px;">
+                    <div id="editAvatarPreview" style="width:40px; height:40px; border-radius:8px; background:var(--bg-hover); border:1px solid var(--border-card); display:flex; align-items:center; justify-content:center; color:var(--text-dim); overflow:hidden;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <input type="file" id="editProfileImage" class="f-inp" style="padding: 4px; height: 30px; border:none; background:transparent; width:100%;" accept="image/*" onchange="previewAvatar(this, 'editAvatarPreview')">
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                            <input type="checkbox" id="removeEditProfileImage" style="accent-color:var(--accent);">
+                            <label for="removeEditProfileImage" style="font-size:10px;color:var(--text-secondary);cursor:pointer;margin:0;">لابردنی وێنەی ئێستا</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="f-wrap"><input type="text" id="editUserName" placeholder=" "><label>ناوی بەکارهێنەر</label></div>
+                <div class="f-wrap"><input type="email" id="editEmail" style="direction:ltr; text-align:left;" placeholder=" "><label>ئیمەیڵ</label></div>
+                <div class="f-wrap"><input type="password" id="editPassword" style="direction:ltr; text-align:left;" placeholder=" "><label>پاسۆردی نوێ (بەتاڵ بۆ نەگۆڕین)</label></div>
+
+                <div class="f-r2">
+                    <div class="f-wrap" style="margin-bottom:0;">
+                        <select id="editRole" onchange="toggleDiscount('editRole', 'editDiscountWrap')">
+                            <option value="Cashier">کاشێر</option>
+                            <option value="Manager">مەنەجەر</option>
+                            <option value="Admin">ئەدمین</option>
+                        </select>
+                        <label>ڕۆڵ</label>
+                    </div>
+                    <div class="f-wrap" id="editDiscountWrap" style="margin-bottom:0;">
+                        <input type="number" id="editMaxDiscount" placeholder=" " min="0" max="100">
+                        <label>زۆرترین داشکاندن (%)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="gap:8px; justify-content:flex-start;">
+                <button type="button" class="btn-md-save" style="background:linear-gradient(135deg,#d97706,#f59e0b);" onclick="updateUser()">هەڵگرتن</button>
+                <button type="button" class="btn-md-ghost" data-bs-dismiss="modal">پاشگەزبوونەوە</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ مۆدالی سڕینەوە ══ -->
+<div class="modal fade rc-modal" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:350px;">
+        <div class="modal-content">
+            <div class="modal-header mh-del">
+                <h5 class="modal-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> سڕینەوەی بەکارهێنەر</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center" style="padding: 25px 20px;">
+                <input type="hidden" id="deleteId">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" style="width:48px;height:48px;margin-bottom:12px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                <p style="font-size: 14px; font-weight: 700; margin-bottom: 6px;">دڵنیایت لە سڕینەوە؟</p>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 20px;">
+                    ئایا بەڕاستی دەتەوێت بەکارهێنەر <b id="deleteUserName" style="color:var(--danger);"></b> بسڕیتەوە؟ ئەم کردارە پاشگەزبوونەوەی تێدانییە.
+                </p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap:10px;">
+                <button type="button" class="btn-md-ghost" style="width:80px;" data-bs-dismiss="modal">نەخێر</button>
+                <button type="button" class="btn-md-save" style="background:linear-gradient(135deg,#ef4444,#dc2626); width:100px; flex:none;" onclick="confirmDelete()">بەڵێ، بسڕەوە</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ══ گەڕانی خۆکار بێ ڕیفڕێشکردنی پەڕەکە (AJAX Search) ══
+        let searchTimeout = null;
+
+        async function performSearch() {
+            // گۆڕینی شێوازی دروستکردنی لینکەکە بۆ ئەوەی زۆر پارێزراو بێت
+            const searchInput = document.getElementById('searchInput');
+            const roleSelect = document.querySelector('select[name="roleFilter"]');
+
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+            const roleFilter = roleSelect ? roleSelect.value : '';
+
+            // بەکارهێنانی لینکی ئێستای پەڕەکە بە هەموو کوێریەکانییەوە وەکو بنەما
+            const url = new URL(window.location.href);
+
+            if (searchTerm) {
+                url.searchParams.set('searchTerm', searchTerm);
+            } else {
+                url.searchParams.delete('searchTerm');
+            }
+
+            if (roleFilter) {
+                url.searchParams.set('roleFilter', roleFilter);
+            } else {
+                url.searchParams.delete('roleFilter');
+            }
+
+            // کەمێک کاڵکردنەوەی خشتەکە بۆ هەستکردن بە گەڕان
+            const tblScroll = document.querySelector('.db-tbl-scroll');
+            if(tblScroll) tblScroll.style.opacity = '0.5';
+
+            try {
+                // ناردنی داواکارییەکە
+                const response = await fetch(url.toString(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Network Error');
+
+                const html = await response.text();
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // نوێکردنەوەی خشتەکە
+                const newTblScroll = doc.querySelector('.db-tbl-scroll');
+                if (newTblScroll && tblScroll) {
+                    tblScroll.innerHTML = newTblScroll.innerHTML;
+                }
+
+                // نوێکردنەوەی ئامارەکان
+                const newStats = doc.querySelector('.db-stats');
+                const currentStats = document.querySelector('.db-stats');
+                if (newStats && currentStats) {
+                    currentStats.innerHTML = newStats.innerHTML;
+                }
+
+                // نوێکردنەوەی فوتەر
+                const newFoot = doc.querySelector('.us-foot');
+                const currentFoot = document.querySelector('.us-foot');
+                const dbCard = document.querySelector('.db-card');
+                if (currentFoot) currentFoot.remove();
+                if (newFoot && dbCard) dbCard.appendChild(newFoot);
+
+                // گۆڕینی لینکی سەرەوە بەبێ ڕیفڕێش
+                window.history.replaceState({}, '', url.toString());
+            } catch (e) {
+                console.error('هەڵە لە گەڕاندا:', e);
+            } finally {
+                if(tblScroll) tblScroll.style.opacity = '1';
+            }
+        }
+
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 300); // لە دوای 300 میلی چرکە لە وەستانی دەستت گەڕانەکە ئەنجام دەدرێت
+        }
+
+        // ══ پێشبینینی وێنە ══
+        function previewAvatar(input, previewId, imageUrl = null) {
+            const preview = document.getElementById(previewId);
+            if (!preview) return;
+
+            if (imageUrl) {
+                preview.innerHTML = `<img src="${imageUrl}" alt="avatar" style="width:100%;height:100%;object-fit:cover;">`;
+                return;
+            }
+
+            const file = input?.files?.[0];
+            if (!file) {
+                preview.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = e => preview.innerHTML = `<img src="${e.target.result}" alt="avatar" style="width:100%;height:100%;object-fit:cover;">`;
+            reader.readAsDataURL(file);
+        }
+
+        // ── داشکاندن: شاردن/پیشاندان ──
+        function toggleDiscount(selectId, wrapId) {
+            const role = document.getElementById(selectId).value;
+            const wrap = document.getElementById(wrapId);
+            if(role === 'Admin'){
+                wrap.style.opacity = '0.5';
+                wrap.style.pointerEvents = 'none';
+                wrap.querySelector('input').value = '0';
+            } else {
+                wrap.style.opacity = '1';
+                wrap.style.pointerEvents = 'auto';
+            }
+        }
+
+        // ── مۆدالی زیادکردن ──
+        function openAddModal() {
+            ['addUserName','addEmail','addPassword'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('addProfileImage').value = '';
+            previewAvatar(null, 'addAvatarPreview');
+            document.getElementById('addRole').value = 'Cashier';
+            document.getElementById('addMaxDiscount').value = '5';
+            toggleDiscount('addRole', 'addDiscountWrap');
+            new bootstrap.Modal(document.getElementById('addModal')).show();
+            setTimeout(() => document.getElementById('addUserName').focus(), 300);
+        }
+
+        async function addUser() {
+            const userName    = document.getElementById('addUserName').value.trim();
+            const email       = document.getElementById('addEmail').value.trim();
+            const password    = document.getElementById('addPassword').value;
+            const role        = document.getElementById('addRole').value;
+            const maxDiscount = document.getElementById('addMaxDiscount').value || 0;
+
+            if (!userName) { alert('ناو بنووسە'); return; }
+            if (!email)    { alert('ئیمەیڵ بنووسە'); return; }
+            if (!password) { alert('پاسۆرد بنووسە'); return; }
+
+            const fd = new FormData();
+            fd.append('userName', userName); fd.append('email', email);
+            fd.append('password', password); fd.append('role', role);
+            fd.append('maxDiscount', maxDiscount);
+            const addImage = document.getElementById('addProfileImage').files[0];
+            if (addImage) fd.append('profileImage', addImage);
+            fd.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+            try {
+                const r = await fetch('?handler=AddUser', { method:'POST', body:fd });
+                const d = await r.json();
+                if (d.success) location.reload(); else alert(d.message);
+            } catch(e) { alert('هەڵە: ' + e); }
+        }
+
+        // ── مۆدالی دەستکاری ──
+        async function openEditModal(id) {
+            try {
+                const r = await fetch(`?handler=User&id=${id}`);
+                const d = await r.json();
+                if (!d.success) return;
+
+                document.getElementById('editId').value            = d.user.id;
+                document.getElementById('editUserName').value      = d.user.userName;
+                document.getElementById('editEmail').value         = d.user.email;
+                document.getElementById('editPassword').value      = '';
+                document.getElementById('editRole').value          = d.user.role;
+                document.getElementById('editMaxDiscount').value   = d.user.maxDiscount;
+                document.getElementById('editProfileImage').value  = '';
+                document.getElementById('removeEditProfileImage').checked = false;
+                document.getElementById('editCurrentImagePath').value = d.user.profileImagePath || '';
+
+                previewAvatar(null, 'editAvatarPreview', d.user.profileImagePath || null);
+                toggleDiscount('editRole', 'editDiscountWrap');
+                new bootstrap.Modal(document.getElementById('editModal')).show();
+            } catch(e) { alert('هەڵە: ' + e); }
+        }
+
+        async function updateUser() {
+            const fd = new FormData();
+            fd.append('id',          document.getElementById('editId').value);
+            fd.append('userName',    document.getElementById('editUserName').value);
+            fd.append('email',       document.getElementById('editEmail').value);
+            fd.append('password',    document.getElementById('editPassword').value);
+            fd.append('role',        document.getElementById('editRole').value);
+            fd.append('maxDiscount', document.getElementById('editMaxDiscount').value || 0);
+            fd.append('removeProfileImage', document.getElementById('removeEditProfileImage').checked);
+
+            const editImage = document.getElementById('editProfileImage').files[0];
+            if (editImage) fd.append('profileImage', editImage);
+            fd.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+            try {
+                const r = await fetch('?handler=UpdateUser', { method:'POST', body:fd });
+                const d = await r.json();
+                if (d.success) location.reload(); else alert(d.message);
+            } catch(e) { alert('هەڵە: ' + e); }
+        }
+
+        // ── قفڵکردن/کردنەوە ──
+        async function toggleLock(id) {
+            if (!confirm('دڵنیایت لە گۆڕینی دۆخ؟')) return;
+            const fd = new FormData();
+            fd.append('id', id);
+            fd.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+            try {
+                const r = await fetch('?handler=ToggleLock', { method:'POST', body:fd });
+                const d = await r.json();
+                if (d.success) location.reload(); else alert(d.message);
+            } catch(e) { alert('هەڵە: ' + e); }
+        }
+
+        // ── سڕینەوە ──
+        function deleteUser(id, name) {
+            document.getElementById('deleteId').value            = id;
+            document.getElementById('deleteUserName').textContent = name;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        async function confirmDelete() {
+            const fd = new FormData();
+            fd.append('id', document.getElementById('deleteId').value);
+            fd.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+            try {
+                const r = await fetch('?handler=DeleteUser', { method:'POST', body:fd });
+                const d = await r.json();
+                if (d.success) location.reload(); else alert(d.message);
+            } catch(e) { alert('هەڵە: ' + e); }
+        }
+
+        document.getElementById('addModal')?.addEventListener('keypress',  e => { if(e.key==='Enter'){e.preventDefault();addUser();} });
+        document.getElementById('editModal')?.addEventListener('keypress', e => { if(e.key==='Enter'){e.preventDefault();updateUser();} });
+    </script>
+}

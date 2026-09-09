@@ -1,0 +1,793 @@
+﻿@page
+@model MyStore.Pages.IndexModel
+@{
+    ViewData["Title"] = "داشبۆرد";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    :root {
+        --bg-page: #0b1120;
+        --bg-card: rgba(15,23,42,.7);
+        --bg-stat: rgba(15,23,42,.6);
+        --bg-thead: rgba(15,23,42,.5);
+        --bg-hover: rgba(99,102,241,.04);
+        --bg-input: rgba(30,41,59,.8);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --accent-border: rgba(99,102,241,.2);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --warning-bg: rgba(252,211,77,.1);
+        --info: #93c5fd;
+        --info-bg: rgba(147,197,253,.1);
+        --gradient-top: linear-gradient(135deg, rgba(30,27,75,.4), rgba(49,46,129,.3), rgba(30,27,75,.2));
+        --card-shadow: none;
+    }
+
+    [data-theme="light"] {
+        --bg-page: #eef1f6;
+        --bg-card: #ffffff;
+        --bg-stat: #ffffff;
+        --bg-thead: #f8f9fb;
+        --bg-hover: rgba(99,102,241,.03);
+        --bg-input: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --accent-border: rgba(99,102,241,.12);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --warning-bg: rgba(217,119,6,.08);
+        --info: #2563eb;
+        --info-bg: rgba(37,99,235,.08);
+        --gradient-top: linear-gradient(135deg, rgba(238,242,255,.95), rgba(224,231,255,.7), rgba(238,242,255,.5));
+        --card-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+
+    /* پەڕە — fit کردن بە سکرین (نا سکڕۆڵ) */
+    .db {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        background: var(--bg-page);
+        color: var(--text-primary);
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+        transition: background .35s, color .35s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .db::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+        }
+
+    .db-in {
+        position: relative;
+        z-index: 1;
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        flex: 1;
+        min-height: 0;
+        max-width: 1600px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* سەرەوە */
+    .db-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .db-top-side {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .db-top h1 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 2px;
+    }
+
+    .db-top p {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .db-top-ico {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+    }
+
+        .db-top-ico svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    /* گرووپی دوگمەی ماوە — ساکار بێ باگراوند */
+    .db-period-group {
+        display: inline-flex;
+        gap: 4px;
+    }
+
+        .db-period-group button {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+            .db-period-group button:hover {
+                color: var(--text-primary);
+                background: var(--bg-stat);
+            }
+
+            .db-period-group button.active {
+                background: linear-gradient(135deg, var(--accent), #4f46e5);
+                color: #fff;
+                box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+            }
+
+    /* ══ کارتە گەورەکان (هاوشێوەی Debts) ══ */
+    .db-stats {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .db-st {
+        background: var(--bg-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 18px 20px;
+        transition: all .3s;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .db-st:hover {
+            border-color: var(--accent-border);
+            transform: translateY(-1px);
+        }
+
+    .db-st-lbl {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .db-st-val {
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1;
+        font-family: monospace;
+    }
+
+    .db-st-sub {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 6px;
+    }
+
+    .db-st-ico {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+        .db-st-ico.indigo {
+            background: var(--accent-bg);
+            color: var(--accent-text);
+        }
+
+        .db-st-ico.emerald {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .db-st-ico.rose {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .db-st-ico.amber {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        .db-st-ico.cyan {
+            background: var(--info-bg);
+            color: var(--info);
+        }
+
+    .db-st-val.indigo {
+        color: var(--accent-text);
+    }
+
+    .db-st-val.emerald {
+        color: var(--success);
+    }
+
+    .db-st-val.rose {
+        color: var(--danger);
+    }
+
+    .db-st-val.amber {
+        color: var(--warning);
+    }
+
+    .db-st-val.cyan {
+        color: var(--info);
+    }
+
+    /* ═══ ڕیزی چارت + ئاگاداریی (پڕکردنی شوێنی ماوە) ═══ */
+    .db-bottom-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 12px;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .db-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .db-card-hd {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-subtle);
+        flex-shrink: 0;
+    }
+
+    .db-card-t {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .db-card-t svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent);
+        }
+
+    .db-card-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 10px;
+        border-radius: 10px;
+        background: var(--accent-bg);
+        color: var(--accent-text);
+    }
+
+    .db-chart {
+        flex: 1;
+        padding: 12px;
+        position: relative;
+        min-height: 0;
+    }
+
+    /* پانێڵی ئاگاداریی */
+    .db-alerts {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .db-alert-section {
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: var(--bg-stat);
+        border: 1px solid var(--border-subtle);
+    }
+
+    .db-alert-head {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .db-alert-head.red {
+            color: var(--danger);
+        }
+
+        .db-alert-head.yellow {
+            color: var(--warning);
+        }
+
+        .db-alert-head.blue {
+            color: var(--accent-text);
+        }
+
+    .db-alert-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        padding: 4px 0;
+        border-bottom: 1px dashed var(--border-subtle);
+    }
+
+        .db-alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .db-alert-item .name {
+            color: var(--text-primary);
+            font-weight: 600;
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-left: 8px;
+        }
+
+        .db-alert-item .val {
+            font-weight: 700;
+            font-family: monospace;
+            flex-shrink: 0;
+        }
+
+    .db-alert-count {
+        background: var(--danger-bg);
+        color: var(--danger);
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+        .db-alert-count.yellow {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        .db-alert-count.blue {
+            background: var(--accent-bg);
+            color: var(--accent-text);
+        }
+
+    .db-alert-empty {
+        font-size: 10px;
+        color: var(--text-dim);
+        text-align: center;
+        padding: 6px;
+    }
+
+    /* سکڕۆڵی هاوشێوەی دەفتەری قەرز */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--bg-card);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--text-muted);
+        border-radius: 6px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--text-muted) var(--bg-card);
+    }
+
+    /* ڕیسپانسیڤ */
+    @@media (max-width: 1280px) {
+        .db-stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .db-st-val {
+            font-size: 22px;
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .db {
+            height: auto;
+            overflow: auto;
+        }
+
+        .db-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .db-bottom-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .db-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .db-top {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+    }
+</style>
+
+<div class="db">
+    <div class="db-in">
+
+        <!-- سەرەوە: ناو + فلتەری ماوە -->
+        <div class="db-top">
+            <div class="db-top-side">
+                <div class="db-top-ico">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="2" width="5" height="5" rx="1" />
+                        <rect x="9" y="2" width="5" height="5" rx="1" />
+                        <rect x="2" y="9" width="5" height="5" rx="1" />
+                        <rect x="9" y="9" width="5" height="5" rx="1" />
+                    </svg>
+                </div>
+                <div>
+                    <h1>داشبۆرد</h1>
+                    <p>بەخێربێیت، <b style="color:var(--accent-text);">@User.Identity?.Name</b></p>
+                </div>
+            </div>
+
+            <!-- گرووپی دوگمەی ماوە -->
+            <div class="db-period-group" id="periodBtns">
+                <button type="button" data-val="Today" class="active">ئەمڕۆ</button>
+                <button type="button" data-val="Week">ئەم هەفتەیە</button>
+                <button type="button" data-val="Month">ئەم مانگە</button>
+            @*     <button type="button" data-val="Year">ئەمساڵ</button>
+                <button type="button" data-val="AllTime">هەموو کات</button> *@
+            </div>
+        </div>
+
+        <!-- کارتەکانی ئامار -->
+        <div class="db-stats">
+            <div class="db-st">
+                <div>
+                    <div class="db-st-lbl">فرۆشتن <span id="periodLabel" style="color:var(--accent-text);font-size:11px;">(ئەمڕۆ)</span></div>
+                    <div class="db-st-val indigo" id="statSales">@string.Format("{0:N0}", Model.PeriodSales)</div>
+                    <div class="db-st-sub"><span id="statInvCount">@Model.PeriodInvoicesCount</span> پسوڵە</div>
+                </div>
+                <div class="db-st-ico indigo">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h12M4 8h2v4H4zm3-3h2v7H7zm3-2h2v9h-2z" /></svg>
+                </div>
+            </div>
+
+            <div class="db-st">
+                <div>
+                    <div class="db-st-lbl">پارەی وەرگیراو</div>
+                    <div class="db-st-val emerald" id="statReceived">@string.Format("{0:N0}", Model.PeriodReceived)</div>
+                    <div class="db-st-sub">نەقد</div>
+                </div>
+                <div class="db-st-ico emerald">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12m-4-4l4 4 4-4" /></svg>
+                </div>
+            </div>
+
+            <div class="db-st">
+                <div>
+                    <div class="db-st-lbl">قەرز</div>
+                    <div class="db-st-val rose" id="statDebt">@string.Format("{0:N0}", Model.PeriodDebt)</div>
+                    <div class="db-st-sub">ماوە</div>
+                </div>
+                <div class="db-st-ico rose">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6" /><path d="M8 5v4m0 2v.5" /></svg>
+                </div>
+            </div>
+
+            @if (Model.IsManager)
+            {
+                <div class="db-st">
+                    <div>
+                        <div class="db-st-lbl">قازانج</div>
+                        <div class="db-st-val amber" id="statProfit">@string.Format("{0:N0}", Model.PeriodProfit)</div>
+                        <div class="db-st-sub">خاوێن</div>
+                    </div>
+                    <div class="db-st-ico amber">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l4-5 3 3 5-7" /></svg>
+                    </div>
+                </div>
+
+                <div class="db-st">
+                    <div>
+                        <div class="db-st-lbl">باڵانسی قاسە</div>
+                        <div class="db-st-val cyan">@string.Format("{0:N0}", Model.CashBalance)</div>
+                        <div class="db-st-sub">دینار</div>
+                    </div>
+                    <div class="db-st-ico cyan">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="8" rx="2" /><circle cx="8" cy="8" r="2" /></svg>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- چارت + پانێڵی ئاگاداریی -->
+        <div class="db-bottom-row">
+            <!-- چارت -->
+            <div class="db-card">
+                <div class="db-card-hd">
+                    <span class="db-card-t">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l4-5 3 3 5-7" /></svg>
+                        چارتی ڕوانگە <span id="chartSub" style="color:var(--text-dim);font-weight:400;font-size:11px;margin-right:6px;">(ئەمڕۆ)</span>
+                    </span>
+                    <span class="db-card-badge">فرۆشتن و قازانج</span>
+                </div>
+                <div class="db-chart"><canvas id="dbChart"></canvas></div>
+            </div>
+
+            @if (Model.IsManager)
+            {
+                <!-- پانێڵی ئاگاداریی -->
+                <div class="db-card">
+                    <div class="db-card-hd">
+                        <span class="db-card-t">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a5 5 0 015 5v3l1 2H2l1-2V7a5 5 0 015-5zM6 12a2 2 0 004 0" /></svg>
+                            ئاگاداریی
+                        </span>
+                    </div>
+                    <div class="db-alerts">
+                        <!-- کاڵای لە تەواوبووندا -->
+                        <div class="db-alert-section">
+                            <div class="db-alert-head red">
+                                <span>🔴 کاڵای تەواوبوو</span>
+                                <span class="db-alert-count">@Model.OutOfStockCount</span>
+                            </div>
+                            @if (Model.OutOfStockList.Any())
+                            {
+                                @foreach (var p in Model.OutOfStockList)
+                                {
+                                    <div class="db-alert-item">
+                                        <span class="name" title="@p.Name">@p.Name</span>
+                                        <span class="val" style="color:var(--danger);">@p.CurrentStock</span>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="db-alert-empty">هیچ کاڵایەک نییە ✓</div>
+                            }
+                        </div>
+
+                        <!-- کاڵای کەم -->
+                        <div class="db-alert-section">
+                            <div class="db-alert-head yellow">
+                                <span>🟡 کاڵای کەم (≤ ٥)</span>
+                                <span class="db-alert-count yellow">@Model.LowStockCount</span>
+                            </div>
+                            @if (Model.LowStockList.Any())
+                            {
+                                @foreach (var p in Model.LowStockList)
+                                {
+                                    <div class="db-alert-item">
+                                        <span class="name" title="@p.Name">@p.Name</span>
+                                        <span class="val" style="color:var(--warning);">@p.CurrentStock</span>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="db-alert-empty">هیچ کاڵایەک نییە ✓</div>
+                            }
+                        </div>
+
+                        <!-- زۆرترین قەرزداران -->
+                        <div class="db-alert-section">
+                            <div class="db-alert-head blue">
+                                <span>💰 زۆرترین قەرزداران</span>
+                                <span class="db-alert-count blue">@Model.TopDebtors.Count</span>
+                            </div>
+                            @if (Model.TopDebtors.Any())
+                            {
+                                @foreach (var c in Model.TopDebtors)
+                                {
+                                    <div class="db-alert-item">
+                                        <span class="name" title="@c.Name">@c.Name</span>
+                                        <span class="val" style="color:var(--danger);">@string.Format("{0:N0}", c.Balance)</span>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="db-alert-empty">هیچ قەرزێک نییە ✓</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var chartLabels = @Html.Raw(Model.ChartLabelsJson);
+        var chartSalesData = @Html.Raw(Model.ChartSalesJson);
+        var chartProfitData = @Html.Raw(Model.ChartProfitJson);
+
+        var F = function(n) { return Number(n||0).toLocaleString('en-US', { maximumFractionDigits: 0 }); };
+
+        var periodLabels = {
+            'Today': 'ئەمڕۆ',
+            'Week': 'ئەم هەفتەیە',
+            'Month': 'ئەم مانگە',
+            'Year': 'ئەمساڵ',
+            'AllTime': 'هەموو کات'
+        };
+
+        function buildChart() {
+            var cv = document.getElementById('dbChart');
+            if (!cv) return;
+
+            if (window.dbChartInst) window.dbChartInst.destroy();
+
+            var ctx = cv.getContext('2d');
+            var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            var gc = !isLight ? 'rgba(148,163,184,.08)' : 'rgba(0,0,0,.06)';
+            var tc = !isLight ? '#64748b' : '#6b7280';
+
+            window.dbChartInst = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        { label: 'فرۆشتن', data: chartSalesData, borderColor: '#818cf8', backgroundColor: 'rgba(99,102,241,.1)', borderWidth: 2.5, tension: .4, fill: true, pointBackgroundColor: '#818cf8', pointRadius: 4, pointHoverRadius: 6 },
+                        { label: 'قازانج', data: chartProfitData, borderColor: '#6ee7b7', backgroundColor: 'rgba(52,211,153,.08)', borderWidth: 2, tension: .4, fill: true, pointBackgroundColor: '#6ee7b7', pointRadius: 3, pointHoverRadius: 5 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', align: 'end', labels: { color: tc, font: { family: 'IBM Plex Sans Arabic', size: 11, weight: '600' }, boxWidth: 10, padding: 12 } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15,23,42,.9)',
+                            titleFont: { family: 'IBM Plex Sans Arabic', size: 11 },
+                            bodyFont: { family: 'IBM Plex Sans Arabic', size: 12 },
+                            padding: 10, cornerRadius: 8,
+                            callbacks: { label: function (ctx) { return ctx.dataset.label + ': ' + Number(ctx.parsed.y).toLocaleString() + ' دینار'; } }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: gc }, ticks: { color: tc, font: { family: 'IBM Plex Sans Arabic', size: 10 } } },
+                        y: { grid: { color: gc }, ticks: { color: tc, font: { family: 'IBM Plex Sans Arabic', size: 10 }, callback: function(v) { return v.toLocaleString(); } } }
+                    }
+                }
+            });
+        }
+
+        // گۆڕینی ماوە بەبێ reload
+        async function changePeriod(period) {
+            try {
+                var r = await fetch('?handler=PeriodData&period=' + period);
+                var d = await r.json();
+
+                document.getElementById('statSales').innerText = F(d.cards.periodSales);
+                document.getElementById('statReceived').innerText = F(d.cards.periodReceived);
+                document.getElementById('statDebt').innerText = F(d.cards.periodDebt);
+                document.getElementById('statInvCount').innerText = d.cards.periodInvoicesCount;
+
+                var sp = document.getElementById('statProfit');
+                if (sp) sp.innerText = F(d.cards.periodProfit);
+
+                var lbl = '(' + (periodLabels[period] || period) + ')';
+                var pl = document.getElementById('periodLabel');
+                if (pl) pl.innerText = lbl;
+                var cs = document.getElementById('chartSub');
+                if (cs) cs.innerText = lbl;
+
+                chartLabels = JSON.parse(d.chart.labels);
+                chartSalesData = JSON.parse(d.chart.sales);
+                chartProfitData = JSON.parse(d.chart.profit);
+                buildChart();
+            } catch(e) {
+                console.error('Error loading period data:', e);
+            }
+        }
+
+        document.querySelectorAll('#periodBtns button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#periodBtns button').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                changePeriod(this.dataset.val);
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', buildChart);
+        window.addEventListener('themeChanged', buildChart);
+    </script>
+}

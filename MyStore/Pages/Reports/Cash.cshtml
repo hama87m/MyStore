@@ -1,0 +1,1526 @@
+@page
+@model MyStore.Pages.Reports.CashFlowModel
+@{
+    ViewData["Title"] = "ڕیپۆرتی قاسە و خەرجی";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    :root {
+        --rc-page: #0b1120;
+        --rc-card: rgba(15,23,42,.7);
+        --rc-stat: rgba(15,23,42,.6);
+        --rc-thead: #151e32;
+        --rc-hover: rgba(99,102,241,.04);
+        --rc-input: rgba(30,41,59,.8);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --border-focus: rgba(129,140,248,.5);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --accent: #818cf8;
+        --success: #6ee7b7;
+        --danger: #fda4af;
+        --warning: #fcd34d;
+        --info: #93c5fd;
+        --gradient-top: linear-gradient(135deg,rgba(30,27,75,.4),rgba(49,46,129,.3),rgba(30,27,75,.2));
+    }
+
+    [data-theme="light"] {
+        --rc-page: #eef1f6;
+        --rc-card: #ffffff;
+        --rc-stat: #ffffff;
+        --rc-thead: #f8f9fb;
+        --rc-hover: rgba(99,102,241,.03);
+        --rc-input: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --border-focus: rgba(99,102,241,.45);
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --accent: #6366f1;
+        --success: #047857;
+        --danger: #be123c;
+        --warning: #b45309;
+        --info: #2563eb;
+        --gradient-top: linear-gradient(135deg,rgba(238,242,255,.95),rgba(224,231,255,.7),rgba(238,242,255,.5));
+    }
+
+    .rc-page {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif !important;
+        background: var(--rc-page);
+        color: var(--text-primary);
+        height: 100vh;
+        overflow: hidden;
+        width: 100%;
+        position: relative;
+        transition: background .35s, color .35s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .rc-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+        }
+
+    .rc-in {
+        position: relative;
+        z-index: 1;
+        padding: 12px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .rc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+        margin-bottom: 4px;
+    }
+
+        .rc-top h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 2px;
+        }
+
+        .rc-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+    .btn-back {
+        background: var(--rc-stat);
+        color: var(--text-primary);
+        border: 1px solid var(--border-card);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .rc-tabs {
+        display: flex;
+        gap: 4px;
+        background: var(--rc-stat);
+        padding: 4px;
+        border-radius: 10px;
+        border: 1px solid var(--border-card);
+    }
+
+    .rc-tab {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all .2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .rc-tab.on {
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+        }
+
+    .us-theme-toggle {
+        padding: 6px;
+        border-radius: 10px;
+        background: var(--rc-stat);
+        border: 1px solid var(--border-card);
+        color: var(--text-primary);
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pan {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+        gap: 10px;
+    }
+
+        .pan.on {
+            display: flex;
+            animation: fadeIn .3s ease;
+        }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* ئامارەکان */
+    .rc-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .rc-st {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 18px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .rc-st-lbl {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .rc-st-val {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: monospace;
+        line-height: 1;
+    }
+
+    .rc-st-ico {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .dash-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        flex: 1;
+        min-height: 0;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--rc-card);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--text-muted);
+        border-radius: 6px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--text-muted) var(--rc-card);
+    }
+
+    @@media (max-width: 900px) {
+        .dash-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    .chart-card {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+        .chart-card h6 {
+            margin: 0 0 15px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex-shrink: 0;
+        }
+
+    .chart-wrap {
+        position: relative;
+        width: 100%;
+        height: 240px;
+        margin: 0 auto;
+    }
+
+    /* خشتە و تولبار */
+    .rc-toolbar {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .f-grp {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .f-grp label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .rc-inp {
+        height: 32px;
+        padding: 0 10px;
+        background: var(--rc-input);
+        border: 1px solid var(--border-card);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 12px;
+        outline: none;
+    }
+
+    .rc-btn-group {
+        display: inline-flex;
+        background: var(--rc-input);
+        border: 1px solid var(--border-card);
+        border-radius: 8px;
+        padding: 4px;
+        gap: 2px;
+    }
+
+        .rc-btn-group button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+            .rc-btn-group button:hover {
+                color: var(--text-primary);
+            }
+
+            .rc-btn-group button.active {
+                background: linear-gradient(135deg, var(--accent), #4f46e5);
+                color: #fff;
+                box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+            }
+
+    .btn-action {
+        background: linear-gradient(135deg, var(--accent), #4f46e5);
+        color: #fff;
+        border: none;
+        height: 32px;
+        padding: 0 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-export {
+        background: rgba(52,211,153,.1);
+        color: var(--success);
+        border: 1px solid rgba(52,211,153,.3);
+        height: 32px;
+        padding: 0 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .btn-pdf {
+        background: rgba(168,85,247,.1);
+        color: var(--purple);
+        border: 1px solid rgba(168,85,247,.3);
+        height: 32px;
+        padding: 0 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .tbl-card {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .table-scroll {
+        flex: 1;
+        overflow: auto;
+        min-height: 0;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: right;
+        min-width: 800px;
+    }
+
+        .data-table th {
+            padding: 12px 14px;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--rc-thead);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .data-table td {
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--rc-hover);
+        }
+
+        .data-table tfoot td {
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            background: var(--rc-thead);
+            border-top: 2px solid var(--border-focus);
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+        }
+
+    .num {
+        font-family: monospace;
+        font-weight: 600;
+    }
+
+    .badge {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .bg-in {
+        background: rgba(52,211,153,.1);
+        color: var(--success);
+        border: 1px solid rgba(52,211,153,.3);
+    }
+
+    .bg-out {
+        background: rgba(251,113,133,.1);
+        color: var(--danger);
+        border: 1px solid rgba(251,113,133,.3);
+    }
+
+    /* ════ دیزاینی Z-Report (وەک پسوڵەی Thermal) ════ */
+    .zreport-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .thermal-receipt {
+        background: #fff;
+        width: 100%;
+        max-width: 380px;
+        padding: 24px 22px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+        color: #1f2937;
+        font-family: 'IBM Plex Sans Arabic', 'Tahoma', sans-serif;
+        font-size: 12px;
+        border-radius: 10px;
+        position: relative;
+    }
+
+        .thermal-receipt::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+            border-radius: 10px 10px 0 0;
+        }
+
+    [data-theme="light"] .thermal-receipt {
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .r-head {
+        text-align: center;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 14px;
+        margin-bottom: 16px;
+    }
+
+    .r-logo {
+        max-width: 60px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+    }
+
+    .r-title {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0 0 6px;
+        color: #111827;
+        letter-spacing: -0.5px;
+    }
+
+    .r-subtitle {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 8px;
+        color: #6366f1;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .r-info {
+        font-size: 11px;
+        margin-bottom: 3px;
+        color: #6b7280;
+    }
+
+        .r-info .num {
+            color: #111827;
+            font-weight: 600;
+        }
+
+    .r-opening-box {
+        background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .r-opening-box .lbl {
+            font-size: 11px;
+            color: #4338ca;
+            font-weight: 600;
+        }
+
+        .r-opening-box .val {
+            font-size: 16px;
+            color: #4338ca;
+            font-weight: 800;
+        }
+
+    .r-section-head {
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 10px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .r-section-head.in {
+            background: #d1fae5;
+            color: #065f46;
+            border-right: 3px solid #10b981;
+        }
+
+        .r-section-head.out {
+            background: #fee2e2;
+            color: #991b1b;
+            border-right: 3px solid #ef4444;
+        }
+
+    .r-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        padding: 3px 8px;
+        font-size: 12px;
+    }
+
+        .r-row.zero {
+            opacity: 0.4;
+        }
+
+        .r-row.bold {
+            font-weight: 700;
+            font-size: 13px;
+            background: #f9fafb;
+            border-radius: 4px;
+            padding: 6px 8px;
+            margin-top: 4px;
+        }
+
+        .r-row.in-total {
+            background: #ecfdf5;
+            color: #065f46;
+        }
+
+        .r-row.out-total {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+    .r-final-box {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 10px;
+        padding: 14px;
+        margin-top: 14px;
+    }
+
+        .r-final-box .title {
+            font-size: 11px;
+            color: #78350f;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .r-final-box .value {
+            font-size: 22px;
+            color: #78350f;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .r-final-box .sub {
+            font-size: 11px;
+            color: #92400e;
+            text-align: center;
+            margin-top: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+    .r-line {
+        border-bottom: 1px dashed #d1d5db;
+        margin: 10px 0;
+    }
+
+    .r-foot {
+        text-align: center;
+        margin-top: 18px;
+        font-size: 11px;
+        color: #6b7280;
+        border-top: 2px dashed #e5e7eb;
+        padding-top: 12px;
+    }
+
+    .r-cat-list {
+        background: #f9fafb;
+        border-radius: 6px;
+        padding: 8px 10px;
+        margin-top: 6px;
+    }
+
+        .r-cat-list .r-row {
+            font-size: 11px;
+            color: #4b5563;
+            padding: 2px 0;
+        }
+
+    @@media print {
+        body *
+
+    {
+        visibility: hidden;
+    }
+
+    #print-area, #print-area * {
+        visibility: visible;
+    }
+
+    #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    .thermal-receipt {
+        box-shadow: none;
+        border: none;
+        width: 80mm;
+        padding: 5mm;
+        margin: 0 auto;
+    }
+
+    }</style>
+
+<div class="rc-page" id="usPage">
+    <div class="rc-in">
+
+        <div class="rc-top">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <a href="/Reports" class="btn-back"><i class="bi bi-arrow-right"></i> گەڕانەوە</a>
+                <div>
+                    <h1>ڕیپۆرتی قاسە و خەرجی</h1>
+                    <p>ئاماری باڵانس، کەشفی حساب، خەرجییەکان، و داخستنی ڕۆژ</p>
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="rc-tabs">
+                    @if (isAdmin)
+                    {
+                        <button class="rc-tab on" data-target="pan-dash"><i class="bi bi-pie-chart-fill"></i> ئامارەکان</button>
+                        <button class="rc-tab" data-target="pan-ledger"><i class="bi bi-journal-text"></i> کەشفی قاسە</button>
+                        <button class="rc-tab" data-target="pan-expense"><i class="bi bi-wallet2"></i> خەرجییەکان</button>
+                        <button class="rc-tab" data-target="pan-zreport"><i class="bi bi-receipt-cutoff"></i> ڕیپۆرتی داخستن</button>
+                    }
+                    else
+                    {
+                        <button class="rc-tab on" data-target="pan-zreport"><i class="bi bi-receipt-cutoff"></i> ڕیپۆرتی داخستن</button>
+                    }
+                </div>
+                <button type="button" class="us-theme-toggle" onclick="toggleUsTheme()">
+                    <i class="bi bi-sun" id="usThemeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        @if (isAdmin)
+        {
+            <!-- تابی ١: ئامارەکان -->
+            <div class="pan on" id="pan-dash">
+                <div class="rc-toolbar">
+                    <div class="custom-dash-date" style="display:none; align-items:center; gap:6px;">
+                        <div class="f-grp"><label>لە:</label><input type="date" class="rc-inp" id="dFrom" onchange="loadDashboard()"></div>
+                        <div class="f-grp"><label>تا:</label><input type="date" class="rc-inp" id="dTo" onchange="loadDashboard()"></div>
+                    </div>
+                    <div class="rc-btn-group" data-target="dash">
+                        <button type="button" data-val="today">ئەمڕۆ</button>
+                        <button type="button" data-val="thisWeek">ئەم هەفتە</button>
+                        <button type="button" data-val="thisMonth" class="active">ئەم مانگە</button>
+                        <button type="button" data-val="custom"><i class="bi bi-calendar3"></i> بەروار</button>
+                    </div>
+                </div>
+
+                <div class="rc-stats">
+                    <div class="rc-st" style="border: 1px solid var(--accent); background: linear-gradient(135deg, rgba(99,102,241,0.1), transparent);">
+                        <div><div class="rc-st-lbl">باڵانسی ئێستای قاسە (کۆی گشتی)</div><div class="rc-st-val" style="color:var(--accent);" id="stBalance">0</div></div>
+                        <div class="rc-st-ico" style="background:var(--accent); color:#fff; box-shadow: 0 4px 15px rgba(99,102,241,0.4);"><i class="bi bi-cash-coin"></i></div>
+                    </div>
+                    <div class="rc-st">
+                        <div><div class="rc-st-lbl" id="lblPeriodIn">پارەی هاتوو (ماوەی دیاریکراو)</div><div class="rc-st-val" style="color:var(--success);" id="stIn">0</div></div>
+                        <div class="rc-st-ico" style="background:rgba(52,211,153,.1); color:var(--success);"><i class="bi bi-arrow-down-left-circle"></i></div>
+                    </div>
+                    <div class="rc-st">
+                        <div><div class="rc-st-lbl" id="lblPeriodOut">پارەی دەرچوو (ماوەی دیاریکراو)</div><div class="rc-st-val" style="color:var(--danger);" id="stOut">0</div></div>
+                        <div class="rc-st-ico" style="background:rgba(251,113,133,.1); color:var(--danger);"><i class="bi bi-arrow-up-right-circle"></i></div>
+                    </div>
+                </div>
+
+                <div class="dash-grid">
+                    <div class="chart-card">
+                        <h6><i class="bi bi-pie-chart" style="color:var(--success);"></i> شیکاری پارەی هاتوو</h6>
+                        <div class="chart-wrap"><canvas id="inChart"></canvas></div>
+                        <div id="inLegend" style="margin-top:10px;font-size:12px;"></div>
+                    </div>
+                    <div class="chart-card">
+                        <h6><i class="bi bi-pie-chart" style="color:var(--danger);"></i> شیکاری پارەی دەرچوو</h6>
+                        <div class="chart-wrap"><canvas id="outChart"></canvas></div>
+                        <div id="outLegend" style="margin-top:10px;font-size:12px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تابی ٢: کەشفی قاسە (Ledger) -->
+            <div class="pan" id="pan-ledger">
+                <div class="rc-toolbar">
+                    <div class="custom-ledger-date" style="display:none; align-items:center; gap:6px;">
+                        <div class="f-grp"><label>لە:</label><input type="date" class="rc-inp" id="lFrom" onchange="loadLedger()"></div>
+                        <div class="f-grp"><label>تا:</label><input type="date" class="rc-inp" id="lTo" onchange="loadLedger()"></div>
+                    </div>
+                    <div class="rc-btn-group" data-target="ledger">
+                        <button type="button" data-val="today">ئەمڕۆ</button>
+                        <button type="button" data-val="thisWeek">ئەم هەفتە</button>
+                        <button type="button" data-val="thisMonth" class="active">ئەم مانگە</button>
+                        <button type="button" data-val="custom"><i class="bi bi-calendar3"></i> بەروار</button>
+                    </div>
+
+                    <div style="width:1px; height:20px; background:var(--border-card); margin:0 5px;"></div>
+
+                    <div class="f-grp">
+                        <label>جۆر:</label>
+                        <select class="rc-inp" id="lType" onchange="loadLedger()">
+                            <option value="">هەموو جوڵەکان</option>
+                            <optgroup label="━━ مامەڵەی ئۆتۆماتیک ━━">
+                                <option value="CashSale">فرۆشتنی نەقد</option>
+                                <option value="InlineSalePayment">واصڵی سەر پسوڵە</option>
+                                <option value="DebtReceived">وەرگرتنەوەی قەرز</option>
+                                <option value="PurchaseOut">کڕینی کاڵا</option>
+                            </optgroup>
+                            <optgroup label="━━ سڕینەوە و ڕاستکردنەوە ━━">
+                                <option value="VoidCashSale">سڕینەوەی پسوڵەی نەقد</option>
+                                <option value="VoidInlinePayment">سڕینەوەی واصڵی سەر پسوڵە</option>
+                                <option value="RefundDebtPayment">گەڕاندنەوەی واصڵ</option>
+                                <option value="SaleEditIncrease">دەستکاری — زیادبوون</option>
+                                <option value="SaleEditDecrease">دەستکاری — کەمبوون</option>
+                                <option value="AdvanceRefund">پێدانەوەی پێشینە</option>
+                            </optgroup>
+                            <optgroup label="━━ مامەڵەی دەستی ━━">
+                                <option value="ManualIn">هاتوو بە دەستی</option>
+                                <option value="ManualOut">دەرچوو بە دەستی</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <button class="btn-export" onclick="exportExcel('ledgerTable', 'Cash_Ledger')" style="margin-right:auto;"><i class="bi bi-file-earmark-excel-fill"></i> داگرتنی ئێکسڵ</button>
+                    <button class="btn-pdf" onclick="printTable('ledgerTable', 'کەشفی حسابی قاسە')"><i class="bi bi-printer-fill"></i> چاپکردن (A4)</button>
+                </div>
+
+                <div class="tbl-card">
+                    <div class="table-scroll">
+                        <table class="data-table" id="ledgerTable">
+                            <thead>
+                                <tr>
+                                    <th>بەروار و کات</th>
+                                    <th>جۆری جوڵە</th>
+                                    <th>وردەکاری</th>
+                                    <th>هاتوو (+)</th>
+                                    <th>دەرچوو (-)</th>
+                                    <th>باڵانس</th>
+                                    <th>بەکارهێنەر</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledgerTbody">
+                                <tr><td colspan="7" style="text-align:center; padding:30px;">چاوەڕوانی داتا...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تابی ٣: خەرجییەکان -->
+            <div class="pan" id="pan-expense">
+                <div class="rc-toolbar">
+                    <div class="custom-expense-date" style="display:none; align-items:center; gap:6px;">
+                        <div class="f-grp"><label>لە:</label><input type="date" class="rc-inp" id="eFrom" onchange="loadExpenses()"></div>
+                        <div class="f-grp"><label>تا:</label><input type="date" class="rc-inp" id="eTo" onchange="loadExpenses()"></div>
+                    </div>
+                    <div class="rc-btn-group" data-target="expense">
+                        <button type="button" data-val="today">ئەمڕۆ</button>
+                        <button type="button" data-val="thisWeek">ئەم هەفتە</button>
+                        <button type="button" data-val="thisMonth" class="active">ئەم مانگە</button>
+                        <button type="button" data-val="custom"><i class="bi bi-calendar3"></i> بەروار</button>
+                    </div>
+
+                    <div style="width:1px; height:20px; background:var(--border-card); margin:0 5px;"></div>
+
+                    <div class="f-grp">
+                        <label>کاتەگۆری:</label>
+                        <select class="rc-inp" id="eCategory" onchange="loadExpenses()">
+                            <option value="">هەموو کاتەگۆری</option>
+                            <option value="مەسروفات">مەسروفات</option>
+                            <option value="کێشانەوەی کەسی">کێشانەوەی کەسی</option>
+                            <option value="بەتاڵکردنی قاسە">بەتاڵکردنی قاسە</option>
+                            <option value="پارەدانەوە بۆ کڕیار">پارەدانەوە بۆ کڕیار</option>
+                            <option value="پارەدان بۆ کارمەند">پارەدان بۆ کارمەند</option>
+                            <option value="دیکە">دیکە</option>
+                            <option value="نادیار">نادیار (بێ کاتەگۆری)</option>
+                        </select>
+                    </div>
+                    <button class="btn-export" onclick="exportExcel('expenseTable', 'Expenses_Report')" style="margin-right:auto;"><i class="bi bi-file-earmark-excel-fill"></i> داگرتنی ئێکسڵ</button>
+                    <button class="btn-pdf" onclick="printTable('expenseTable', 'ڕیپۆرتی خەرجییەکان')"><i class="bi bi-printer-fill"></i> چاپکردن (A4)</button>
+                </div>
+
+                <!-- شیکاری کاتەگۆری -->
+                <div id="expenseBreakdown" style="display:none;margin-bottom:15px;">
+                    <div class="tbl-card" style="padding:15px;">
+                        <div style="font-weight:bold;margin-bottom:10px;color:var(--text-main);">شیکاری کاتەگۆری:</div>
+                        <div id="breakdownCards" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+                    </div>
+                </div>
+
+                <div class="tbl-card">
+                    <div class="table-scroll">
+                        <table class="data-table" id="expenseTable">
+                            <thead>
+                                <tr>
+                                    <th>بەروار و کات</th>
+                                    <th>کاتەگۆری</th>
+                                    <th>وردەکاری</th>
+                                    <th>بەکارهێنەر</th>
+                                    <th style="text-align:left;">بڕی خەرجکراو</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expenseTbody">
+                                <tr><td colspan="5" style="text-align:center; padding:30px;">چاوەڕوانی داتا...</td></tr>
+                            </tbody>
+                            <tfoot id="expenseTfoot" style="display:none;">
+                                <tr>
+                                    <td colspan="4" style="text-align: left;">کۆی گشتی خەرجییەکان لەم ماوەیەدا:</td>
+                                    <td class="num" id="ftExpTotal" style="color:var(--danger); text-align:left;">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- تابی ٤: ڕیپۆرتی داخستن (Z-Report) - بۆ هەمووان کراوەیە -->
+        <div class="pan @(isAdmin ? "" : "on")" id="pan-zreport">
+            <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:10px; background:var(--rc-stat); padding:10px; border-radius:10px; border:1px solid var(--border-card);">
+                <label style="font-size:12px; font-weight:bold;">هەڵبژاردنی بەرواری کارکردن:</label>
+                <input type="date" id="zDate" class="rc-inp" onchange="loadZReport()">
+                <button class="btn-pdf" onclick="printZReport()" style="margin-right:auto; border-color:var(--accent); color:var(--accent);"><i class="bi bi-printer"></i> چاپکردنی پسوڵە</button>
+            </div>
+
+            <div class="zreport-wrapper">
+                <div id="print-area">
+                    <div class="thermal-receipt" id="zReceiptCard" style="display:none;">
+                        <div class="r-head">
+                            <img id="zLogo" src="" class="r-logo" style="display:none;" />
+                            <div class="r-title" id="zStoreName">Diamond Center</div>
+                            <div class="r-subtitle">کەشفی ڕۆژانەی قاسە</div>
+                            <div class="r-info">بەروار: <span class="num" id="zRepDate"></span></div>
+                            <div class="r-info">کاتی دەرکردن: <span class="num" id="zPrintTime"></span></div>
+                        </div>
+
+                        <div class="r-opening-box">
+                            <div>
+                                <div class="lbl"><i class="bi bi-piggy-bank"></i> باڵانسی سەرەتای ڕۆژ</div>
+                            </div>
+                            <div class="val num" id="zOpening">0</div>
+                        </div>
+
+                        <!-- بەشی هاتوو -->
+                        <div class="r-section-head in">
+                            <i class="bi bi-arrow-down-circle-fill"></i> پارەی هاتوو
+                        </div>
+                        <div class="r-row" id="rowCashSales"><span>فرۆشتنی نەقد</span><span class="num" id="zCashSales">0</span></div>
+                        <div class="r-row" id="rowInlinePay"><span>واصڵی سەر پسوڵە</span><span class="num" id="zInlinePay">0</span></div>
+                        <div class="r-row" id="rowDebtRec"><span>وەرگرتنەوەی قەرز</span><span class="num" id="zDebtRec">0</span></div>
+                        <div class="r-row" id="rowEditInc"><span>دەستکاری — زیادبوون</span><span class="num" id="zEditInc">0</span></div>
+                        <div class="r-row" id="rowManualIn"><span>هاتوو بە دەستی</span><span class="num" id="zManualIn">0</span></div>
+                        <div class="r-row bold in-total"><span>کۆی هاتوو</span><span class="num" id="zTotalIn">0</span></div>
+
+                        <!-- بەشی دەرچوو -->
+                        <div class="r-section-head out" style="margin-top:12px;">
+                            <i class="bi bi-arrow-up-circle-fill"></i> پارەی دەرچوو
+                        </div>
+                        <div class="r-row" id="rowPurchases"><span>کڕینی کاڵا</span><span class="num" id="zPurchases">0</span></div>
+                        <div class="r-row" id="rowVoidCash"><span>سڕینەوەی پسوڵەی نەقد</span><span class="num" id="zVoidCash">0</span></div>
+                        <div class="r-row" id="rowVoidInline"><span>سڕینەوەی واصڵ</span><span class="num" id="zVoidInline">0</span></div>
+                        <div class="r-row" id="rowRefund"><span>گەڕاندنەوەی واصڵ</span><span class="num" id="zRefund">0</span></div>
+                        <div class="r-row" id="rowEditDec"><span>دەستکاری — کەمبوون</span><span class="num" id="zEditDec">0</span></div>
+                        <div class="r-row" id="rowAdvRefund"><span>پێدانەوەی پێشینە</span><span class="num" id="zAdvRefund">0</span></div>
+                        <div class="r-row" id="rowManualOut"><span>دەرچوو بە دەستی</span><span class="num" id="zManualOut">0</span></div>
+                        <div class="r-row bold out-total"><span>کۆی دەرچوو</span><span class="num" id="zTotalOut">0</span></div>
+
+                        <!-- شیکاری دەرچووی دەستی -->
+                        <div id="zCatSection" style="display:none;margin-top:10px;">
+                            <div style="font-size:11px; font-weight:600; color:#6b7280; padding:0 8px; margin-bottom:4px;">
+                                <i class="bi bi-list-ul"></i> شیکاری دەرچووی دەستی
+                            </div>
+                            <div class="r-cat-list" id="zCatList"></div>
+                        </div>
+
+                        <!-- باڵانسی کۆتایی -->
+                        <div class="r-final-box">
+                            <div class="title">باڵانسی کۆتایی قاسە</div>
+                            <div class="value num" id="zActual">0</div>
+                            <div class="sub">
+                                <span>پێشبینیکراو:</span>
+                                <span class="num" id="zExpected">0</span>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; padding:0 8px; margin-top:10px; font-size:11px; color:#6b7280;">
+                            <span><i class="bi bi-activity"></i> ژمارەی جوڵە:</span>
+                            <span class="num" id="zTransCount">0</span>
+                        </div>
+
+                        <div class="r-foot">
+                            <div style="font-weight:600; color:#4b5563; margin-bottom:4px;">سوپاس بۆ کارکردنت</div>
+                            <div style="font-size:10px; color:#9ca3af;">سیستەمی کۆگا و فرۆشتن</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var isAdmin = @isAdmin.ToString().ToLower();
+
+        var F = function(n) { return Number(n||0).toLocaleString('en-US', { maximumFractionDigits: 0 }); };
+
+        var usIsDark = true;
+        var inChart = null;
+        var outChart = null;
+        var storeInfo = { name: 'Diamond Center', logo: '' };
+
+        const typeMap = {
+            'CashSale': 'فرۆشتنی نەقد',
+            'InlineSalePayment': 'واصڵی سەر پسوڵە',
+            'DebtReceived': 'وەرگرتنەوەی قەرز',
+            'PurchaseOut': 'کڕینی کاڵا',
+            'VoidCashSale': 'سڕینەوەی پسوڵەی نەقد',
+            'VoidInlinePayment': 'سڕینەوەی واصڵی سەر پسوڵە',
+            'RefundDebtPayment': 'گەڕاندنەوەی واصڵ',
+            'SaleEditIncrease': 'دەستکاری — زیادبوون',
+            'SaleEditDecrease': 'دەستکاری — کەمبوون',
+            'AdvanceRefund': 'پێدانەوەی پێشینە',
+            'ManualIn': 'هاتوو بە دەستی',
+            'ManualOut': 'دەرچوو بە دەستی',
+            'OpeningBalance': 'باڵانسی سەرەتا'
+        };
+
+        const typeColorMap = {
+            'CashSale': '#10b981',
+            'InlineSalePayment': '#06b6d4',
+            'DebtReceived': '#059669',
+            'SaleEditIncrease': '#34d399',
+            'ManualIn': '#22c55e',
+            'PurchaseOut': '#f43f5e',
+            'VoidCashSale': '#dc2626',
+            'VoidInlinePayment': '#b91c1c',
+            'RefundDebtPayment': '#e11d48',
+            'SaleEditDecrease': '#f87171',
+            'AdvanceRefund': '#fb7185',
+            'ManualOut': '#ef4444',
+            'OpeningBalance': '#818cf8'
+        };
+
+        function toggleUsTheme() {
+            usIsDark = !usIsDark;
+            var page = document.getElementById('usPage');
+            if (usIsDark) { page.removeAttribute('data-theme'); }
+            else { page.setAttribute('data-theme', 'light'); }
+            document.getElementById('usThemeIcon').className = usIsDark ? 'bi bi-sun' : 'bi bi-moon';
+
+            Chart.defaults.color = usIsDark ? '#94a3b8' : '#6b7280';
+            if(inChart) inChart.update();
+            if(outChart) outChart.update();
+        }
+
+        Chart.defaults.font.family = "'IBM Plex Sans Arabic', sans-serif";
+        Chart.defaults.color = '#94a3b8';
+
+        document.querySelectorAll('.rc-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.rc-tab').forEach(t => t.classList.remove('on'));
+                document.querySelectorAll('.pan').forEach(p => p.classList.remove('on'));
+                this.classList.add('on');
+                document.getElementById(this.dataset.target).classList.add('on');
+            });
+        });
+
+        function setDatesByPreset(val, fromId, toId) {
+            let d = new Date();
+            const fmt = dt => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+
+            let fromStr = '', toStr = fmt(d);
+
+            if (val === 'today') {
+                fromStr = toStr;
+            } else if (val === 'thisWeek') {
+                let day = d.getDay();
+                let diff = (day === 6) ? 0 : (day + 1);
+                let start = new Date(d);
+                start.setDate(d.getDate() - diff);
+                fromStr = fmt(start);
+            } else if (val === 'thisMonth') {
+                fromStr = fmt(new Date(d.getFullYear(), d.getMonth(), 1));
+            }
+
+            if (fromStr) {
+                let fromEl = document.getElementById(fromId);
+                let toEl = document.getElementById(toId);
+                if (fromEl) fromEl.value = fromStr;
+                if (toEl) toEl.value = toStr;
+            }
+        }
+
+        function initDatePresetGroup(target, fromId, toId, customWrapSelector, loaderFn) {
+            let grp = document.querySelector('.rc-btn-group[data-target="' + target + '"]');
+            if (!grp) return;
+            grp.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    grp.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    let val = this.dataset.val;
+                    let customWrap = document.querySelector(customWrapSelector);
+
+                    if (val === 'custom') {
+                        if (customWrap) customWrap.style.display = 'flex';
+                    } else {
+                        if (customWrap) customWrap.style.display = 'none';
+                        setDatesByPreset(val, fromId, toId);
+                        if(loaderFn) loaderFn();
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isAdmin) {
+                setDatesByPreset('thisMonth', 'dFrom', 'dTo');
+                setDatesByPreset('thisMonth', 'lFrom', 'lTo');
+                setDatesByPreset('thisMonth', 'eFrom', 'eTo');
+
+                initDatePresetGroup('dash', 'dFrom', 'dTo', '.custom-dash-date', loadDashboard);
+                initDatePresetGroup('ledger', 'lFrom', 'lTo', '.custom-ledger-date', loadLedger);
+                initDatePresetGroup('expense', 'eFrom', 'eTo', '.custom-expense-date', loadExpenses);
+
+                loadDashboard();
+                loadLedger();
+                loadExpenses();
+            }
+
+            let todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('zDate').value = todayStr;
+
+            fetchStoreInfo();
+            loadZReport();
+        });
+
+        async function fetchStoreInfo() {
+            try {
+                let r = await fetch('?handler=StoreSettings');
+                let d = await r.json();
+                storeInfo.name = d.storeName || "Diamond Center";
+                storeInfo.logo = d.storeLogo || "";
+            } catch(e) {}
+        }
+
+        async function loadDashboard() {
+            if (!isAdmin) return;
+            let from = document.getElementById('dFrom').value;
+            let to = document.getElementById('dTo').value;
+            try {
+                let r = await fetch(`?handler=Dashboard&from=${from}&to=${to}`);
+                if (r.status === 403) return;
+                let d = await r.json();
+
+                if(d.error) return;
+
+                document.getElementById('stBalance').innerText = F(d.currentBalance);
+                document.getElementById('stIn').innerText = F(d.periodIn);
+                document.getElementById('stOut').innerText = F(d.periodOut);
+
+                let incomeData = d.flowBreakdown.filter(x => x.isIncome);
+                let expenseData = d.flowBreakdown.filter(x => !x.isIncome);
+
+                renderChart('inChart', 'inLegend', inChart, incomeData, d.periodIn, 'in');
+                renderChart('outChart', 'outLegend', outChart, expenseData, d.periodOut, 'out');
+            } catch(e) {}
+        }
+
+        function renderChart(canvasId, legendId, existingChart, data, total, dir) {
+            let canvas = document.getElementById(canvasId);
+            let ctx = canvas.getContext('2d');
+
+            if (dir === 'in' && inChart) { inChart.destroy(); inChart = null; }
+            if (dir === 'out' && outChart) { outChart.destroy(); outChart = null; }
+
+            if (data.length === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                document.getElementById(legendId).innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">هیچ داتایەک نییە</div>';
+                return;
+            }
+
+            let labels = data.map(x => typeMap[x.type] || x.type);
+            let vals = data.map(x => x.total);
+            let colors = data.map(x => typeColorMap[x.type] || '#ccc');
+
+            let chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: vals,
+                        backgroundColor: colors,
+                        borderWidth: usIsDark ? 2 : 1,
+                        borderColor: usIsDark ? '#0f172a' : '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    let v = ctx.parsed;
+                                    let pct = total > 0 ? ((v / total) * 100).toFixed(1) : 0;
+                                    return ctx.label + ': ' + F(v) + ' (' + pct + '%)';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            if (dir === 'in') inChart = chart;
+            else outChart = chart;
+
+            let lh = '';
+            data.forEach((x, idx) => {
+                let pct = total > 0 ? ((x.total / total) * 100).toFixed(1) : 0;
+                let name = typeMap[x.type] || x.type;
+                lh += `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-bottom:1px solid var(--border-subtle);">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="width:10px;height:10px;background:${colors[idx]};border-radius:50%;display:inline-block;"></span>
+                            <span style="color:var(--text-primary);">${name}</span>
+                        </div>
+                        <div style="display:flex;gap:10px;align-items:center;">
+                            <span style="color:var(--text-muted);font-size:11px;">${pct}%</span>
+                            <span class="num" style="color:var(--text-primary);font-weight:700;min-width:70px;text-align:left;">${F(x.total)}</span>
+                        </div>
+                       </div>`;
+            });
+            document.getElementById(legendId).innerHTML = lh;
+        }
+
+        async function loadLedger() {
+            if (!isAdmin) return;
+            let from = document.getElementById('lFrom').value;
+            let to = document.getElementById('lTo').value;
+            let type = document.getElementById('lType').value;
+            try {
+                let r = await fetch(`?handler=Ledger&from=${from}&to=${to}&type=${type}`);
+                if (r.status === 403) return;
+                let d = await r.json();
+
+                let h = '';
+                if(d.length === 0) {
+                    h = '<tr><td colspan="7" style="text-align:center; padding:30px;">هیچ جوڵەیەک نییە لەم ماوەیەدا</td></tr>';
+                } else {
+                    d.forEach(i => {
+                        let tName = typeMap[i.type] || i.type;
+                        let badge = i.isIncome ? `<span class="badge bg-in">${tName}</span>` : `<span class="badge bg-out">${tName}</span>`;
+                        let amIn = i.isIncome ? F(i.amount) : '-';
+                        let amOut = !i.isIncome ? F(i.amount) : '-';
+
+                        h += `<tr>
+                                <td dir="ltr" style="text-align:right;">${i.date}</td>
+                                <td>${badge}</td>
+                                <td style="font-size:12px;">${i.description}</td>
+                                <td class="num" style="color:var(--success); font-weight:bold;">${amIn}</td>
+                                <td class="num" style="color:var(--danger); font-weight:bold;">${amOut}</td>
+                                <td class="num" style="color:var(--accent); font-weight:bold;">${F(i.balanceAfter)}</td>
+                                <td style="font-size:12px;color:var(--text-muted);">${i.userName}</td>
+                              </tr>`;
+                    });
+                }
+                document.getElementById('ledgerTbody').innerHTML = h;
+            } catch(e) {}
+        }
+
+        async function loadExpenses() {
+            if (!isAdmin) return;
+            let from = document.getElementById('eFrom').value;
+            let to = document.getElementById('eTo').value;
+            let category = document.getElementById('eCategory').value;
+            try {
+                let r = await fetch(`?handler=Expenses&from=${from}&to=${to}&category=${encodeURIComponent(category)}`);
+                if (r.status === 403) return;
+                let d = await r.json();
+
+                let h = '';
+                if(d.list.length === 0) {
+                    h = '<tr><td colspan="5" style="text-align:center; padding:30px;">هیچ خەرجییەک نییە لەم ماوەیەدا</td></tr>';
+                    document.getElementById('expenseTfoot').style.display = 'none';
+                } else {
+                    d.list.forEach(i => {
+                        let clean = i.cleanDescription || i.description || '-';
+                        if (!clean) clean = '-';
+                        h += `<tr>
+                                <td dir="ltr" style="text-align:right;">${i.date}</td>
+                                <td><span style="background:var(--rc-hover);color:var(--accent);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:bold;">${i.category}</span></td>
+                                <td>${clean}</td>
+                                <td style="font-size:12px;color:var(--text-muted);">${i.userName}</td>
+                                <td class="num" style="color:var(--danger); text-align:left; font-weight:bold;">${F(i.amount)}</td>
+                              </tr>`;
+                    });
+                    document.getElementById('expenseTfoot').style.display = 'table-footer-group';
+                    document.getElementById('ftExpTotal').innerText = F(d.total);
+                }
+                document.getElementById('expenseTbody').innerHTML = h;
+
+                if (!category && d.breakdown && d.breakdown.length > 0) {
+                    let bh = '';
+                    d.breakdown.forEach(b => {
+                        let percent = d.totalAll > 0 ? ((b.total / d.totalAll) * 100).toFixed(1) : 0;
+                        bh += `<div style="flex:1;min-width:150px;background:var(--rc-stat);border:1px solid var(--border-card);border-radius:8px;padding:10px;">
+                                 <div style="font-size:11px;color:var(--text-muted);">${b.category}</div>
+                                 <div class="num" style="font-size:18px;font-weight:bold;color:var(--danger);">${F(b.total)}</div>
+                                 <div style="font-size:11px;color:var(--text-muted);">${b.count} جوڵە — ${percent}%</div>
+                               </div>`;
+                    });
+                    document.getElementById('breakdownCards').innerHTML = bh;
+                    document.getElementById('expenseBreakdown').style.display = 'block';
+                } else {
+                    document.getElementById('expenseBreakdown').style.display = 'none';
+                }
+            } catch(e) {}
+        }
+
+        async function loadZReport() {
+            let dDate = document.getElementById('zDate').value;
+            if(!dDate) { return; }
+
+            try {
+                let r = await fetch(`?handler=ZReport&date=${dDate}`);
+                let d = await r.json();
+
+                if(d.error) return alert(d.error);
+
+                document.getElementById('zReceiptCard').style.display = 'block';
+
+                document.getElementById('zStoreName').innerText = storeInfo.name;
+                if(storeInfo.logo) {
+                    let img = document.getElementById('zLogo');
+                    img.src = storeInfo.logo;
+                    img.style.display = 'inline-block';
+                }
+
+                document.getElementById('zRepDate').innerText = d.date;
+                let t = new Date();
+                document.getElementById('zPrintTime').innerText = t.getHours() + ":" + String(t.getMinutes()).padStart(2,'0');
+
+                document.getElementById('zOpening').innerText = F(d.openingBalance);
+
+                function setRow(rowId, valId, value) {
+                    document.getElementById(valId).innerText = F(value);
+                    document.getElementById(rowId).style.display = (value > 0) ? 'flex' : 'none';
+                }
+
+                setRow('rowCashSales', 'zCashSales', d.cashSales);
+                setRow('rowInlinePay', 'zInlinePay', d.inlinePayments);
+                setRow('rowDebtRec', 'zDebtRec', d.debtReceived);
+                setRow('rowEditInc', 'zEditInc', d.saleEditIncrease);
+                setRow('rowManualIn', 'zManualIn', d.manualIn);
+                document.getElementById('zTotalIn').innerText = F(d.totalIn);
+
+                setRow('rowPurchases', 'zPurchases', d.purchasesOut);
+                setRow('rowVoidCash', 'zVoidCash', d.voidCashSale);
+                setRow('rowVoidInline', 'zVoidInline', d.voidInlinePayment);
+                setRow('rowRefund', 'zRefund', d.refundDebtPayment);
+                setRow('rowEditDec', 'zEditDec', d.saleEditDecrease);
+                setRow('rowAdvRefund', 'zAdvRefund', d.advanceRefund);
+                setRow('rowManualOut', 'zManualOut', d.manualOut);
+                document.getElementById('zTotalOut').innerText = F(d.totalOut);
+
+                if (d.manualOutByCategory && d.manualOutByCategory.length > 0) {
+                    let ch = '';
+                    d.manualOutByCategory.forEach(c => {
+                        ch += `<div class="r-row"><span>» ${c.category}</span><span class="num">${F(c.total)}</span></div>`;
+                    });
+                    document.getElementById('zCatList').innerHTML = ch;
+                    document.getElementById('zCatSection').style.display = 'block';
+                } else {
+                    document.getElementById('zCatSection').style.display = 'none';
+                }
+
+                document.getElementById('zExpected').innerText = F(d.expectedClosingBalance);
+                document.getElementById('zActual').innerText = F(d.actualLastBalance);
+                document.getElementById('zTransCount').innerText = d.transactionCount;
+
+            } catch(e) {
+                alert('هەڵەیەک ڕوویدا لە دروستکردنی ڕیپۆرتەکە');
+            }
+        }
+
+        function printZReport() {
+            if(document.getElementById('zReceiptCard').style.display === 'none') {
+                alert('تکایە سەرەتا ڕیپۆرتەکە دروست بکە'); return;
+            }
+            window.print();
+        }
+
+        function exportExcel(tableId, fileName) {
+            let table = document.getElementById(tableId);
+            if(!table || table.innerText.includes('چاوەڕوانی') || table.innerText.includes('هیچ')) {
+                alert('داتا نییە بۆ داگرتن!'); return;
+            }
+
+            let csv = [];
+            csv.push('\uFEFF');
+
+            let headers = [];
+            table.querySelectorAll('thead th').forEach(th => { headers.push(`"${th.innerText}"`); });
+            csv.push(headers.join(','));
+
+            table.querySelectorAll('tbody tr, tfoot tr').forEach(tr => {
+                let row = [];
+                tr.querySelectorAll('td').forEach(td => { row.push(`"${td.innerText.replace(/"/g, '""')}"`); });
+                csv.push(row.join(','));
+            });
+
+            let blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName + "_" + new Date().toISOString().split('T')[0] + ".csv";
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function printTable(tableId, titleStr) {
+            let table = document.getElementById(tableId);
+            if(!table || table.innerText.includes('چاوەڕوانی') || table.innerText.includes('هیچ')) {
+                alert('داتا نییە بۆ چاپکردن!'); return;
+            }
+
+            let tblClone = table.cloneNode(true);
+            let tft = tblClone.querySelector('tfoot');
+            let tbd = tblClone.querySelector('tbody');
+            if(tft && tft.style.display !== 'none') {
+                Array.from(tft.querySelectorAll('tr')).forEach(tr => {
+                    tr.style.backgroundColor = '#eef2ff';
+                    tr.style.fontWeight = 'bold';
+                    tbd.appendChild(tr);
+                });
+                tft.remove();
+            } else if (tft) { tft.remove(); }
+
+            var h = '\x3C!DOCTYPE html\x3E\x3Chtml dir="rtl"\x3E\x3Chead\x3E\x3Ctitle\x3E' + titleStr + '\x3C/title\x3E';
+            h += '\x3Cstyle\x3E';
+            h += '@@page { size: A4; margin: 15mm; } ';
+            h += 'body { font-family: Tahoma, Arial, sans-serif; font-size: 13px; color: #000; background: #fff; margin: 0; padding: 0; } ';
+            h += '.header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; } ';
+            h += '.header h2 { margin: 0 0 5px; font-size: 24px; font-weight: bold; } ';
+            h += '.report-title { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; text-decoration: underline; } ';
+            h += 'table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; } ';
+            h += 'th { background-color: #eee; border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold; } ';
+            h += 'td { border: 1px solid #000; padding: 6px 8px; } ';
+            h += '.num { font-family: monospace; font-size: 13px; direction: ltr; text-align: left; } ';
+            h += '\x3C/style\x3E\x3C/head\x3E\x3Cbody\x3E';
+
+            h += '\x3Cdiv class="header"\x3E\x3Ch2\x3E' + storeInfo.name + '\x3C/h2\x3E\x3C/div\x3E';
+            h += '\x3Cdiv class="report-title"\x3E' + titleStr + '\x3C/div\x3E';
+
+            h += tblClone.outerHTML;
+            h += '\x3C/body\x3E\x3C/html\x3E';
+
+            var printWin = window.open('about:blank', '_blank');
+            if (printWin) {
+                printWin.document.open();
+                printWin.document.write(h);
+                printWin.document.close();
+                setTimeout(function() { printWin.focus(); printWin.print(); }, 500);
+            } else { alert('تکایە ڕێگە بدە بە کرانەوەی پەنجەرەی نوێ'); }
+        }
+    </script>
+}

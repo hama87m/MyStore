@@ -1,0 +1,1043 @@
+@page
+@model MyStore.Pages.Reports.ProfitModel
+@{
+    ViewData["Title"] = "ڕیپۆرتی قازانج";
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    /* ══ هێنانی فۆنتەکە ══ */
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    /* ══ تاریک / ڕووناک ══ */
+    :root {
+        --rc-page: #0b1120;
+        --rc-card: rgba(15,23,42,.7);
+        --rc-stat: rgba(15,23,42,.6);
+        --rc-thead: #151e32;
+        --rc-hover: rgba(99,102,241,.04);
+        --rc-input: rgba(30,41,59,.8);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --border-focus: rgba(129,140,248,.5);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --success: #6ee7b7;
+        --danger: #fda4af;
+        --warning: #fcd34d;
+        --info: #93c5fd;
+        --gradient-top: linear-gradient(135deg,rgba(30,27,75,.4),rgba(49,46,129,.3),rgba(30,27,75,.2));
+    }
+
+    [data-theme="light"] {
+        --rc-page: #eef1f6;
+        --rc-card: #ffffff;
+        --rc-stat: #ffffff;
+        --rc-thead: #f8f9fb;
+        --rc-hover: rgba(99,102,241,.03);
+        --rc-input: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --border-focus: rgba(99,102,241,.45);
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --success: #047857;
+        --danger: #be123c;
+        --warning: #b45309;
+        --info: #2563eb;
+        --gradient-top: linear-gradient(135deg,rgba(238,242,255,.95),rgba(224,231,255,.7),rgba(238,242,255,.5));
+    }
+
+    .rc-page {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif !important;
+        background: var(--rc-page);
+        color: var(--text-primary);
+        height: 100vh;
+        overflow: hidden;
+        width: 100%;
+        position: relative;
+        transition: background .35s, color .35s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .rc-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+        }
+
+    .rc-in {
+        position: relative;
+        z-index: 1;
+        padding: 12px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* ══ هێدەر و تابانەکان ══ */
+    .rc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+        margin-bottom: 4px;
+    }
+
+        .rc-top h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 2px;
+        }
+
+        .rc-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+    .btn-back {
+        background: var(--rc-stat);
+        color: var(--text-primary);
+        border: 1px solid var(--border-card);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .rc-tabs {
+        display: flex;
+        gap: 4px;
+        background: var(--rc-stat);
+        padding: 4px;
+        border-radius: 10px;
+        border: 1px solid var(--border-card);
+        flex-shrink: 0;
+    }
+
+    .rc-tab {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all .2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .rc-tab.on {
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+        }
+
+    .us-theme-toggle {
+        padding: 6px;
+        border-radius: 10px;
+        background: var(--rc-stat);
+        border: 1px solid var(--border-card);
+        color: var(--text-primary);
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ══ تولبار و فلتەر ══ */
+    .rc-toolbar {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .f-grp {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        position: relative;
+    }
+
+        .f-grp label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+    .rc-inp {
+        height: 32px;
+        padding: 0 10px;
+        background: var(--rc-input);
+        border: 1px solid var(--border-card);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 12px;
+        outline: none;
+        width: 100%;
+    }
+
+    .btn-search {
+        background: linear-gradient(135deg, var(--accent), #4f46e5);
+        color: #fff;
+        border: none;
+        height: 32px;
+        padding: 0 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* ══ دیزاینی دوگمەکانی بەروار ══ */
+    .rc-btn-group {
+        display: inline-flex;
+        background: var(--rc-input);
+        border: 1px solid var(--border-card);
+        border-radius: 8px;
+        padding: 4px;
+        gap: 2px;
+    }
+
+        .rc-btn-group button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+            .rc-btn-group button:hover {
+                color: var(--text-primary);
+            }
+
+            .rc-btn-group button.active {
+                background: linear-gradient(135deg, var(--accent), #4f46e5);
+                color: #fff;
+                box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+            }
+
+    /* ══ ئامارەکان ══ */
+    .rc-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .rc-st {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 18px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .rc-st-lbl {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .rc-st-val {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: monospace;
+        line-height: 1;
+    }
+
+    .rc-st-ico {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    /* ══ خشتە و چارت ══ */
+    .pan {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+        gap: 10px;
+    }
+
+        .pan.on {
+            display: flex;
+            animation: fadeIn .3s;
+        }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .tbl-card {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .table-scroll {
+        flex: 1;
+        overflow: auto;
+        min-height: 0;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--rc-card);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--text-muted);
+        border-radius: 6px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--text-muted) var(--rc-card);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: right;
+    }
+
+        .data-table th {
+            padding: 12px 14px;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--rc-thead);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            word-break: break-word;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--rc-hover);
+        }
+
+    .num {
+        font-family: monospace;
+        font-weight: 600;
+        white-space: nowrap;
+        direction: ltr;
+        unicode-bidi: embed;
+    }
+
+    .chart-box {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 10px;
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 400px;
+    }
+
+    /* ⭐️ ستایلەکانی پەیوەست بە گەڕان و هەڵبژاردنی کاڵاکان (Tags) ⭐️ */
+    .dropdown-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--rc-input);
+        border: 1px solid var(--border-card);
+        border-radius: 6px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 100;
+        display: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        margin-top: 4px;
+    }
+
+    .dropdown-item {
+        padding: 8px 12px;
+        font-size: 12px;
+        color: var(--text-primary);
+        cursor: pointer;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--rc-hover);
+        }
+
+    .selected-tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px 0;
+        width: 100%;
+    }
+
+    .selected-tag {
+        background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(79,70,229,0.2));
+        border: 1px solid var(--border-focus);
+        color: var(--text-primary);
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tag-remove {
+        cursor: pointer;
+        color: var(--danger);
+        font-weight: bold;
+        transition: transform 0.2s;
+    }
+
+        .tag-remove:hover {
+            transform: scale(1.2);
+        }
+</style>
+
+<div class="rc-page" id="usPage">
+    <div class="rc-in">
+
+        <div class="rc-top">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <a href="/Reports" class="btn-back"><i class="bi bi-arrow-right"></i> گەڕانەوە</a>
+                <div>
+                    <h1>ڕیپۆرتی قازانجەکان</h1>
+                    <p>شیکاری قازانجی گشتی و بەراوردی کاڵاکان</p>
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="rc-tabs">
+                    <button class="rc-tab on" data-target="pan-all"><i class="bi bi-cash-stack"></i> قازانجی گشتی</button>
+                    <button class="rc-tab" data-target="pan-item"><i class="bi bi-box-seam"></i> قازانجی کاڵا</button>
+                    <button class="rc-tab" data-target="pan-compare"><i class="bi bi-bar-chart-steps"></i> بەراوردی کاڵاکان</button>
+                </div>
+                <button type="button" class="us-theme-toggle" onclick="toggleUsTheme()">
+                    <i class="bi bi-sun" id="usThemeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═════ تابی ١: قازانجی گشتی ═════ -->
+        <div class="pan on" id="pan-all">
+            <div class="rc-toolbar">
+                <div class="custom-all-date" style="display:none; align-items:center; gap:6px;">
+                    <div class="f-grp"><label>لە:</label><input type="date" class="rc-inp" id="allFrom" onchange="loadAllProfit()"></div>
+                    <div class="f-grp"><label>تا:</label><input type="date" class="rc-inp" id="allTo" onchange="loadAllProfit()"></div>
+                </div>
+                <div class="rc-btn-group" data-target="all">
+                    <button type="button" data-val="thisWeek">ئەم هەفتە</button>
+                    <button type="button" data-val="thisMonth" class="active">ئەم مانگە</button>
+                    <button type="button" data-val="thisYear">ئەمساڵ</button>
+                    <button type="button" data-val="custom"><i class="bi bi-calendar3"></i> بەروار</button>
+                </div>
+                <button class="btn-search" onclick="loadAllProfit()" style="margin-right:auto;"><i class="bi bi-arrow-clockwise"></i> نوێکردنەوە</button>
+            </div>
+
+            <div class="rc-stats">
+                <div class="rc-st">
+                    <div><div class="rc-st-lbl">کۆی فرۆش</div><div class="rc-st-val" style="color:var(--info);"><span class="num" id="stAllSales">0</span></div></div>
+                    <div class="rc-st-ico" style="background:rgba(147,197,253,.1); color:var(--info);"><i class="bi bi-cart"></i></div>
+                </div>
+                <div class="rc-st">
+                    <div><div class="rc-st-lbl">کۆی تێچوو (سەرمایە)</div><div class="rc-st-val" style="color:var(--danger);"><span class="num" id="stAllCost">0</span></div></div>
+                    <div class="rc-st-ico" style="background:rgba(251,113,133,.1); color:var(--danger);"><i class="bi bi-arrow-down-circle"></i></div>
+                </div>
+                <div class="rc-st" style="border: 1px solid var(--success); background: linear-gradient(135deg, rgba(52,211,153,0.05), transparent);">
+                    <div><div class="rc-st-lbl">قازانجی پوخت</div><div class="rc-st-val" style="color:var(--success);"><span class="num" id="stAllProfit">0</span></div></div>
+                    <div class="rc-st-ico" style="background:var(--success); color:#fff; box-shadow: 0 4px 15px rgba(52,211,153,0.4);"><i class="bi bi-piggy-bank"></i></div>
+                </div>
+            </div>
+
+            <div class="tbl-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>بەروار</th><th>ژ. پسوڵە</th><th>کڕیار</th><th style="text-align:center;">بڕی فرۆش</th><th style="text-align:center;">تێچوو</th><th style="text-align:center;">قازانج</th></tr></thead>
+                        <tbody id="tbAll">
+                            <tr><td colspan="6" style="text-align:center;padding:30px;">چاوەڕوانی داتا...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═════ تابی ٢: قازانجی کاڵا ═════ -->
+        <div class="pan" id="pan-item">
+            <div class="rc-toolbar">
+                <div class="custom-itm-date" style="display:none; align-items:center; gap:6px;">
+                    <div class="f-grp"><label>لە:</label><input type="date" class="rc-inp" id="itmFrom" onchange="loadItemProfit()"></div>
+                    <div class="f-grp"><label>تا:</label><input type="date" class="rc-inp" id="itmTo" onchange="loadItemProfit()"></div>
+                </div>
+                <div class="rc-btn-group" data-target="item">
+                    <button type="button" data-val="thisWeek">ئەم هەفتە</button>
+                    <button type="button" data-val="thisMonth" class="active">ئەم مانگە</button>
+                    <button type="button" data-val="thisYear">ئەمساڵ</button>
+                    <button type="button" data-val="custom"><i class="bi bi-calendar3"></i> بەروار</button>
+                </div>
+
+                <div style="width:1px; height:20px; background:var(--border-card); margin:0 5px;"></div>
+
+                <div class="f-grp" style="width: 280px;">
+                    <label>گەڕان بۆ کاڵا:</label>
+                    <div style="position:relative; width:100%;">
+                        <input type="text" class="rc-inp" id="itmSearchInput" placeholder="بە ناو یان باڕکۆد بگەڕێ..." autocomplete="off">
+                        <div class="dropdown-list" id="itmDropdown"></div>
+                    </div>
+                    <input type="hidden" id="itmSelectedId">
+                </div>
+            </div>
+
+            <div class="rc-stats">
+                <div class="rc-st">
+                    <div><div class="rc-st-lbl">کۆی دانەی فرۆشراو</div><div class="rc-st-val" style="color:var(--text-primary);"><span class="num" id="stItmQty">0</span> <span style="font-size:12px; font-weight:normal;">دانە</span></div></div>
+                    <div class="rc-st-ico" style="background:var(--rc-input); color:var(--text-secondary);"><i class="bi bi-boxes"></i></div>
+                </div>
+                <div class="rc-st">
+                    <div><div class="rc-st-lbl">قازانج لە یەک دانە (بە تێکڕا)</div><div class="rc-st-val" style="color:var(--accent);"><span class="num" id="stItmAvg">0</span></div></div>
+                    <div class="rc-st-ico" style="background:rgba(129,140,248,.1); color:var(--accent);"><i class="bi bi-calculator"></i></div>
+                </div>
+                <div class="rc-st" style="border: 1px dashed var(--success);">
+                    <div><div class="rc-st-lbl">کۆی قازانجی ئەم کاڵایە</div><div class="rc-st-val" style="color:var(--success);"><span class="num" id="stItmProfit">0</span></div></div>
+                    <div class="rc-st-ico" style="background:rgba(52,211,153,.1); color:var(--success);"><i class="bi bi-graph-up-arrow"></i></div>
+                </div>
+            </div>
+
+            <div class="tbl-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>بەروار</th><th>ژ. پسوڵە</th><th style="text-align:center;">دانە</th><th style="text-align:center;">نرخی کڕین (تێکڕا)</th><th style="text-align:center;">نرخی فرۆش (تێکڕا)</th><th style="text-align:center;">کۆی قازانج</th></tr></thead>
+                        <tbody id="tbItem">
+                            <tr><td colspan="6" style="text-align:center;padding:30px;">تکایە کاڵایەک هەڵبژێرە...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═════ تابی ٣: بەراوردی کاڵاکان ═════ -->
+        <div class="pan" id="pan-compare">
+            <div class="rc-toolbar" style="align-items:flex-start; flex-direction:column;">
+                <div style="display:flex; align-items:center; gap:10px; width:100%; flex-wrap:wrap;">
+                    <div class="custom-cmp-date" style="display:none; align-items:center; gap:6px;">
+                        <div class="f-grp"><label>لە:</label><input type="date" class="rc-inp" id="cmpFrom" onchange="loadComparison()"></div>
+                        <div class="f-grp"><label>تا:</label><input type="date" class="rc-inp" id="cmpTo" onchange="loadComparison()"></div>
+                    </div>
+                    <div class="rc-btn-group" data-target="compare">
+                        <button type="button" data-val="thisWeek">ئەم هەفتە</button>
+                        <button type="button" data-val="thisMonth" class="active">ئەم مانگە</button>
+                        <button type="button" data-val="thisYear">ئەمساڵ</button>
+                        <button type="button" data-val="custom"><i class="bi bi-calendar3"></i> بەروار</button>
+                    </div>
+
+                    <div style="width:1px; height:20px; background:var(--border-card); margin:0 5px;"></div>
+
+                    <div class="f-grp" style="width: 280px;">
+                        <label>زیادکردنی کاڵا بۆ بەراورد:</label>
+                        <div style="position:relative; width:100%;">
+                            <input type="text" class="rc-inp" id="cmpSearchInput" placeholder="بە ناو یان باڕکۆد بگەڕێ..." autocomplete="off">
+                            <div class="dropdown-list" id="cmpDropdown"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- شوێنی نیشاندانی کاڵا هەڵبژێردراوەکان (Tags) -->
+                <div class="selected-tags-container" id="cmpTagsContainer">
+                    <!-- تاگەکان لێرە دروست دەبن -->
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3 style="font-size:14px; margin:0 0 20px 0; display:flex; align-items:center; gap:8px; color:var(--text-primary);">
+                    <i class="bi bi-trophy-fill" style="color:var(--warning);"></i> بەراوردی کاڵا هەڵبژێردراوەکان (زۆرترین ٥)
+                </h3>
+                <div style="position:relative; flex:1; width:100%;">
+                    <canvas id="compareChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var F = function(n) {
+            return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
+        };
+
+        var globalProducts = [];
+        var compareSelectedIds = [];
+
+        var usIsDark = true;
+        function toggleUsTheme() {
+            usIsDark = !usIsDark;
+            var page = document.getElementById('usPage');
+            if (usIsDark) { page.removeAttribute('data-theme'); }
+            else { page.setAttribute('data-theme', 'light'); }
+            document.getElementById('usThemeIcon').className = usIsDark ? 'bi bi-sun' : 'bi bi-moon';
+
+            Chart.defaults.color = usIsDark ? '#94a3b8' : '#6b7280';
+            if(myChart && myChart.options.scales.y) {
+                myChart.options.scales.y.grid.color = usIsDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                myChart.update();
+            }
+        }
+
+        document.querySelectorAll('.rc-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.rc-tab').forEach(t => t.classList.remove('on'));
+                document.querySelectorAll('.pan').forEach(p => p.classList.remove('on'));
+
+                this.classList.add('on');
+                document.getElementById(this.dataset.target).classList.add('on');
+
+                if(this.dataset.target === 'pan-compare' && myChart) {
+                    myChart.resize();
+                }
+            });
+        });
+
+        // لۆژیکی دەرکردنی بەروارەکان بەپێی دوگمەکان
+        function setDatesByPreset(val, fromId, toId) {
+            let d = new Date();
+            const fmt = dt => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+
+            let fromStr = '', toStr = fmt(d);
+
+            if (val === 'thisWeek') {
+                // ڕۆژی شەممە وەک سەرەتای هەفتە دیاری دەکات
+                let day = d.getDay(); // یەکشەممە=0, دووشەممە=1, ... , هەینی=5, شەممە=6
+                let diff = (day === 6) ? 0 : (day + 1); // ئەگەر شەممە بێت 0، ئەگەر ڕۆژانی تر بێت دەگەڕێتەوە بۆ شەممە
+                let start = new Date(d);
+                start.setDate(d.getDate() - diff);
+                fromStr = fmt(start);
+            } else if (val === 'thisMonth') {
+                fromStr = fmt(new Date(d.getFullYear(), d.getMonth(), 1));
+            } else if (val === 'thisYear') {
+                fromStr = fmt(new Date(d.getFullYear(), 0, 1));
+            }
+
+            if (fromStr) {
+                document.getElementById(fromId).value = fromStr;
+                document.getElementById(toId).value = toStr;
+            }
+        }
+
+        function initDatePresetGroup(target, fromId, toId, customWrapSelector, loaderFn) {
+            let grp = document.querySelector('.rc-btn-group[data-target="' + target + '"]');
+            if (!grp) return;
+            grp.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    grp.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    let val = this.dataset.val;
+                    let customWrap = document.querySelector(customWrapSelector);
+
+                    if (val === 'custom') {
+                        if (customWrap) customWrap.style.display = 'flex';
+                    } else {
+                        if (customWrap) customWrap.style.display = 'none';
+                        setDatesByPreset(val, fromId, toId);
+                        if(loaderFn) loaderFn();
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // دیفۆڵت: ئەم مانگە بۆ هەرسێ تابەکە
+            setDatesByPreset('thisMonth', 'allFrom', 'allTo');
+            setDatesByPreset('thisMonth', 'itmFrom', 'itmTo');
+            setDatesByPreset('thisMonth', 'cmpFrom', 'cmpTo');
+
+            // چالاککردنی گروپی دوگمەکانی بەروار
+            initDatePresetGroup('all', 'allFrom', 'allTo', '.custom-all-date', loadAllProfit);
+            initDatePresetGroup('item', 'itmFrom', 'itmTo', '.custom-itm-date', loadItemProfit);
+            initDatePresetGroup('compare', 'cmpFrom', 'cmpTo', '.custom-cmp-date', loadComparison);
+
+            Chart.defaults.font.family = "'IBM Plex Sans Arabic', sans-serif";
+            Chart.defaults.color = '#94a3b8';
+
+            loadProductsList();
+            setupSearchInputs();
+
+            // داخستنی درۆپداونەکان گەر لە دەرەوەیان کلیک کرا
+            document.addEventListener('click', function(e) {
+                if(!e.target.closest('#itmSearchInput') && !e.target.closest('#itmDropdown')) {
+                    document.getElementById('itmDropdown').style.display = 'none';
+                }
+                if(!e.target.closest('#cmpSearchInput') && !e.target.closest('#cmpDropdown')) {
+                    document.getElementById('cmpDropdown').style.display = 'none';
+                }
+            });
+        });
+
+        // ⭐️ لۆژیکی گەڕان و باڕکۆد ⭐️
+        async function loadProductsList() {
+            try {
+                let r = await fetch('?handler=ProductsList');
+                globalProducts = await r.json();
+
+                loadAllProfit();
+
+                // زیادکردنی ٣ کاڵای یەکەم بۆ بەراورد بە شێوەی دیفاڵت
+                if(globalProducts.length > 0) {
+                    for(let i=0; i<Math.min(3, globalProducts.length); i++) {
+                        addCompareTag(globalProducts[i].productId, globalProducts[i].name);
+                    }
+                }
+            } catch(e) { console.error("Error loading products:", e); }
+        }
+
+        function setupSearchInputs() {
+            let itmInput = document.getElementById('itmSearchInput');
+            let cmpInput = document.getElementById('cmpSearchInput');
+
+            itmInput.addEventListener('input', function() { showDropdown(this.value, 'itmDropdown', selectItemProduct); });
+            cmpInput.addEventListener('input', function() { showDropdown(this.value, 'cmpDropdown', addCompareTagFromSearch); });
+
+            // گەڕان بە Enter (زۆر گرنگە بۆ سکانەری باڕکۆد چونکە خۆی ئینتەر دەکات)
+            itmInput.addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') {
+                    let term = this.value.toLowerCase().trim();
+                    let exactMatch = globalProducts.find(p => (p.barcode && p.barcode.toLowerCase() === term) || p.name.toLowerCase() === term);
+                    if(exactMatch) selectItemProduct(exactMatch.productId, exactMatch.name);
+                    else {
+                        let matches = filterProducts(term);
+                        if(matches.length > 0) selectItemProduct(matches[0].productId, matches[0].name);
+                    }
+                }
+            });
+
+            cmpInput.addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') {
+                    let term = this.value.toLowerCase().trim();
+                    let exactMatch = globalProducts.find(p => (p.barcode && p.barcode.toLowerCase() === term) || p.name.toLowerCase() === term);
+                    if(exactMatch) addCompareTagFromSearch(exactMatch.productId, exactMatch.name);
+                    else {
+                        let matches = filterProducts(term);
+                        if(matches.length > 0) addCompareTagFromSearch(matches[0].productId, matches[0].name);
+                    }
+                }
+            });
+        }
+
+        function filterProducts(term) {
+            term = term.toLowerCase();
+            return globalProducts.filter(p =>
+                p.name.toLowerCase().includes(term) ||
+                (p.barcode && p.barcode.toLowerCase().includes(term))
+            );
+        }
+
+        function showDropdown(term, dropdownId, callbackFunc) {
+            let dp = document.getElementById(dropdownId);
+            if(!term.trim()) { dp.style.display = 'none'; return; }
+
+            let matches = filterProducts(term);
+            let h = '';
+
+            if(matches.length === 0) {
+                h = '<div class="dropdown-item" style="color:var(--text-muted); cursor:default;">نەدۆزرایەوە</div>';
+            } else {
+                matches.slice(0, 10).forEach(p => {
+                    let barcodeText = p.barcode ? ` <span style="color:var(--text-muted); font-size:10px;">(${p.barcode})</span>` : '';
+                    h += `<div class="dropdown-item" onclick="window['${callbackFunc.name}'](${p.productId}, '${p.name}')">${p.name}${barcodeText}</div>`;
+                });
+            }
+
+            dp.innerHTML = h;
+            dp.style.display = 'block';
+        }
+
+        function selectItemProduct(id, name) {
+            document.getElementById('itmSelectedId').value = id;
+            document.getElementById('itmSearchInput').value = name;
+            document.getElementById('itmDropdown').style.display = 'none';
+            loadItemProfit(); // گەڕانی ئۆتۆماتیکی
+        }
+
+        // ⭐️ لۆژیکی تاگەکانی بەراورد ⭐️
+        function addCompareTagFromSearch(id, name) {
+            document.getElementById('cmpSearchInput').value = '';
+            document.getElementById('cmpDropdown').style.display = 'none';
+            addCompareTag(id, name);
+        }
+
+        function addCompareTag(id, name) {
+            if(compareSelectedIds.includes(id)) return; // ئەگەر هەبوو دووبارەی مەکەرەوە
+            if(compareSelectedIds.length >= 5) {
+                alert('ناتوانیت لە ٥ کاڵا زیاتر بەراورد بکەیت لە یەک کاتدا');
+                return;
+            }
+
+            compareSelectedIds.push(id);
+            renderCompareTags();
+            loadComparison(); // نوێکردنەوەی ئۆتۆماتیکی چارت
+        }
+
+        function removeCompareTag(id) {
+            compareSelectedIds = compareSelectedIds.filter(x => x !== id);
+            renderCompareTags();
+            loadComparison(); // نوێکردنەوەی ئۆتۆماتیکی چارت
+        }
+
+        function renderCompareTags() {
+            let container = document.getElementById('cmpTagsContainer');
+            let h = '';
+
+            if(compareSelectedIds.length === 0) {
+                container.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">هیچ کاڵایەک دیاری نەکراوە</span>';
+                return;
+            }
+
+            compareSelectedIds.forEach(id => {
+                let p = globalProducts.find(x => x.productId === id);
+                if(p) {
+                    h += `<div class="selected-tag">
+                            ${p.name}
+                            <i class="bi bi-x tag-remove" onclick="removeCompareTag(${id})"></i>
+                          </div>`;
+                }
+            });
+            container.innerHTML = h;
+        }
+
+        // 1. قازانجی گشتی
+        async function loadAllProfit() {
+            let from = document.getElementById('allFrom').value;
+            let to = document.getElementById('allTo').value;
+            try {
+                let r = await fetch(`?handler=AllProfit&from=${from}&to=${to}`);
+                let d = await r.json();
+
+                document.getElementById('stAllSales').textContent = F(d.summary.totalSales);
+                document.getElementById('stAllCost').textContent = F(d.summary.totalCost);
+                document.getElementById('stAllProfit').textContent = F(d.summary.totalProfit);
+
+                let h = '';
+                if (d.sales.length === 0) {
+                    h = '<tr><td colspan="6" style="text-align:center;padding:30px;">هیچ فرۆشێک نییە لەم ماوەیەدا</td></tr>';
+                } else {
+                    d.sales.forEach(s => {
+                        h += `<tr><td dir="ltr" style="text-align:right; font-size:11px;">${s.date}</td><td><span class="num" style="color:var(--text-primary); font-weight:bold;">#${s.saleId}</span></td><td style="font-weight:bold;">${s.customerName}</td><td style="text-align:center;"><span class="num">${F(s.sales)}</span></td><td style="text-align:center;"><span class="num" style="color:var(--danger);">${F(s.cost)}</span></td><td style="text-align:center;"><span class="num" style="color:var(--success); font-weight:bold;">${F(s.profit)}</span></td></tr>`;
+                    });
+                }
+                document.getElementById('tbAll').innerHTML = h;
+            } catch(e) { console.error("Error loading all profit:", e); }
+        }
+
+        // 2. قازانجی یەک کاڵا
+        async function loadItemProfit() {
+            let from = document.getElementById('itmFrom').value;
+            let to = document.getElementById('itmTo').value;
+            let pId = document.getElementById('itmSelectedId').value;
+
+            if(!pId) {
+                // تەنها پەڕەکە پاک دەکاتەوە ئەگەر کاڵا نەبوو
+                document.getElementById('tbItem').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;">تکایە کاڵایەک هەڵبژێرە...</td></tr>';
+                return;
+            }
+
+            try {
+                let r = await fetch(`?handler=ItemProfit&from=${from}&to=${to}&productId=${pId}`);
+                let d = await r.json();
+
+                document.getElementById('stItmQty').textContent = F(d.summary.totalQty);
+                document.getElementById('stItmAvg').textContent = F(d.summary.avgProfit);
+                document.getElementById('stItmProfit').textContent = F(d.summary.totalProfit);
+
+                let h = '';
+                if (d.items.length === 0) {
+                    h = '<tr><td colspan="6" style="text-align:center;padding:30px;">ئەم کاڵایە نەفرۆشراوە لەم ماوەیەدا</td></tr>';
+                } else {
+                    d.items.forEach(i => {
+                        h += `<tr><td dir="ltr" style="text-align:right; font-size:11px;">${i.date}</td><td><span class="num">#${i.saleId}</span></td><td style="text-align:center;"><span class="num" style="color:var(--text-primary); font-weight:bold;">${i.qty}</span></td><td style="text-align:center;"><span class="num">${F(i.buyPrice)}</span></td><td style="text-align:center;"><span class="num">${F(i.sellPrice)}</span></td><td style="text-align:center;"><span class="num" style="color:var(--success); font-weight:bold;">${F(i.itemProfit)}</span></td></tr>`;
+                    });
+                }
+                document.getElementById('tbItem').innerHTML = h;
+            } catch(e) { console.error("Error loading item profit:", e); }
+        }
+
+        // 3. بەراوردی کاڵاکان
+        let myChart = null;
+        async function loadComparison() {
+            let from = document.getElementById('cmpFrom').value;
+            let to = document.getElementById('cmpTo').value;
+
+            if(compareSelectedIds.length === 0) {
+                if(myChart) { myChart.destroy(); myChart = null; }
+                return;
+            }
+
+            try {
+                let pIds = compareSelectedIds.join(',');
+                let r = await fetch(`?handler=Comparison&from=${from}&to=${to}&productIds=${pIds}`);
+                let d = await r.json();
+
+                let ctx = document.getElementById('compareChart').getContext('2d');
+                if(myChart) myChart.destroy();
+
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: d.labels,
+                        datasets: [
+                            {
+                                label: 'کۆی فرۆش',
+                                data: d.salesData,
+                                backgroundColor: 'rgba(56, 189, 248, 0.8)', // شین بۆ فرۆش
+                                borderRadius: 6,
+                                borderWidth: 0
+                            },
+                            {
+                                label: 'کۆی قازانج',
+                                data: d.profitData,
+                                backgroundColor: 'rgba(16, 185, 129, 0.8)', // سەوز بۆ قازانج
+                                borderRadius: 6,
+                                borderWidth: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { font: { family: "'IBM Plex Sans Arabic'" }, color: usIsDark ? '#94a3b8' : '#6b7280' }
+                            },
+                            tooltip: {
+                                titleFont: { family: "'IBM Plex Sans Arabic'", size: 14 },
+                                bodyFont: { family: "'IBM Plex Sans Arabic'", size: 13 },
+                                padding: 12,
+                                callbacks: {
+                                    label: function(context) {
+                                        let labelName = context.dataset.label || '';
+                                        return ' ' + labelName + ': ' + F(context.parsed.y) + ' د.ع';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: usIsDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: "'IBM Plex Sans Arabic'" } }
+                            }
+                        }
+                    }
+                });
+            } catch(e) { console.error("Error loading comparison:", e); }
+        }
+    </script>
+}

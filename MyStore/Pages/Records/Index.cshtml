@@ -1,0 +1,1566 @@
+@page
+@model MyStore.Pages.Records.IndexModel
+@{
+    ViewData["Title"] = "تۆمارکردنەکان";
+    var t = Model.ActiveTab ?? "p";
+    // ئەگەر کشێر بێت و هەوڵبدات بچێتە تابی دابینکەر، دەیگەڕێنینەوە بۆ کاڵاکان
+    if (Model.IsCashier && t == "s") t = "p";
+}
+
+<style>
+    /* ══ هێنانی فۆنتەکە ══ */
+    @@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+    main, .container, .container-fluid, .p-3, .p-4, .pb-3, .content-wrapper, .body-content {
+        padding: 0 !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    /* ══ تاریک ══ */
+    :root {
+        --rc-page: #0b1120;
+        --rc-card: rgba(15,23,42,.7);
+        --rc-stat: rgba(15,23,42,.6);
+        --rc-thead: rgba(15,23,42,.5);
+        --rc-hover: rgba(99,102,241,.04);
+        --rc-input: rgba(30,41,59,.8);
+        --border-card: rgba(148,163,184,.08);
+        --border-subtle: rgba(148,163,184,.06);
+        --border-input: rgba(148,163,184,.12);
+        --border-focus: rgba(129,140,248,.5);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --accent: #818cf8;
+        --accent-text: #a5b4fc;
+        --accent-bg: rgba(99,102,241,.12);
+        --accent-border: rgba(99,102,241,.2);
+        --success: #6ee7b7;
+        --success-bg: rgba(52,211,153,.1);
+        --danger: #fda4af;
+        --danger-bg: rgba(251,113,133,.1);
+        --warning: #fcd34d;
+        --warning-bg: rgba(252,211,77,.1);
+        --info: #93c5fd;
+        --info-bg: rgba(59,130,246,.1);
+        --cyan: #67e8f9;
+        --cyan-bg: rgba(6,182,212,.1);
+        --gradient-top: linear-gradient(135deg,rgba(30,27,75,.4),rgba(49,46,129,.3),rgba(30,27,75,.2));
+        --shadow-sm: none;
+    }
+
+    /* ══ ڕووناک ══ */
+    [data-theme="light"] {
+        --rc-page: #eef1f6;
+        --rc-card: #ffffff;
+        --rc-stat: #ffffff;
+        --rc-thead: #f8f9fb;
+        --rc-hover: rgba(99,102,241,.03);
+        --rc-input: #ffffff;
+        --border-card: #dde0e7;
+        --border-subtle: #eaecf0;
+        --border-input: rgba(0,0,0,.12);
+        --border-focus: rgba(99,102,241,.45);
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #4b5563;
+        --text-dim: #6b7280;
+        --accent: #6366f1;
+        --accent-text: #4338ca;
+        --accent-bg: rgba(99,102,241,.06);
+        --accent-border: rgba(99,102,241,.12);
+        --success: #047857;
+        --success-bg: rgba(4,120,87,.08);
+        --danger: #be123c;
+        --danger-bg: rgba(190,18,60,.06);
+        --warning: #b45309;
+        --warning-bg: rgba(217,119,6,.08);
+        --info: #2563eb;
+        --info-bg: rgba(59,130,246,.08);
+        --cyan: #0891b2;
+        --cyan-bg: rgba(6,182,212,.08);
+        --gradient-top: linear-gradient(135deg,rgba(238,242,255,.95),rgba(224,231,255,.7),rgba(238,242,255,.5));
+        --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+    }
+
+    /* ══ ڕێکخستنی بنەڕەتی ══ */
+    .rc-page {
+        direction: rtl;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        background: var(--rc-page);
+        color: var(--text-primary);
+        min-height: 100vh;
+        position: relative;
+        transition: background .35s, color .35s;
+    }
+
+        .rc-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 260px;
+            background: var(--gradient-top);
+            pointer-events: none;
+            transition: background .35s;
+        }
+
+    .rc-in {
+        position: relative;
+        z-index: 1;
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 100vh;
+    }
+
+    /* ══ هێدەر ══ */
+    .rc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        flex-shrink: 0;
+    }
+
+        .rc-top h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 2px;
+        }
+
+        .rc-top p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+    .rc-top-ico {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#6366f1,#818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        font-size: 14px;
+    }
+
+    /* ══ تابەکانی هێدەر (دیزاینی نوێ و بچووککراوە) ══ */
+    .header-tabs {
+        display: flex;
+        gap: 16px;
+        background: transparent;
+        padding: 0;
+        border: none;
+    }
+
+    .ht-tab {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 4px;
+        border: none;
+        border-radius: 0;
+        cursor: pointer;
+        background: transparent !important;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.2s;
+        font-family: inherit;
+        position: relative;
+    }
+
+        .ht-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .ht-tab.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .ht-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: transparent;
+            border-radius: 2px 2px 0 0;
+            transition: background 0.2s;
+        }
+
+        .ht-tab.active::after {
+            background: var(--accent);
+        }
+
+        .ht-tab .cnt {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 20px;
+            background: rgba(148,163,184,.1);
+            color: inherit;
+            transition: all 0.3s;
+        }
+
+        .ht-tab.active .cnt {
+            background: var(--accent-bg);
+            color: var(--accent);
+        }
+
+    /* ══ دوگمەی سەرەکی ══ */
+    .btn-act-primary {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 32px;
+        padding: 0 16px;
+        border-radius: 8px;
+        border: none;
+        color: #ffffff !important;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        font-family: inherit;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+        .btn-act-primary i {
+            font-size: 14px;
+        }
+
+        .btn-act-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s ease;
+        }
+
+        .btn-act-primary:hover {
+            transform: translateY(-2px);
+        }
+
+            .btn-act-primary:hover::after {
+                left: 150%;
+            }
+
+    .btn-p {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+        .btn-p:hover {
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+
+    .btn-c {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    }
+
+        .btn-c:hover {
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+        }
+
+    .btn-s {
+        background: linear-gradient(135deg, #059669, #10b981);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+        .btn-s:hover {
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+        }
+
+    /* ══ کارتی ئامار (ڕێک وەک دەفتەری قەرزەکان) ══ */
+    .rc-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .rc-st {
+        background: var(--rc-stat);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 14px 16px;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .rc-st:hover {
+            border-color: var(--accent-border);
+            transform: translateY(-1px);
+        }
+
+    .rc-st-lbl {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-weight: 400;
+        margin-bottom: 6px;
+    }
+
+    .rc-st-val {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1;
+        transition: color .35s;
+    }
+
+    .rc-st-sub {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 4px;
+    }
+
+    .rc-st-ico {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .c-indigo {
+        color: var(--accent-text);
+    }
+
+    .bg-indigo {
+        background: var(--accent-bg);
+        color: var(--accent);
+    }
+
+    .c-emerald {
+        color: var(--success);
+    }
+
+    .bg-emerald {
+        background: var(--success-bg);
+        color: var(--success);
+    }
+
+    .c-rose {
+        color: var(--danger);
+    }
+
+    .bg-rose {
+        background: var(--danger-bg);
+        color: var(--danger);
+    }
+
+    .c-amber {
+        color: var(--warning);
+    }
+
+    .bg-amber {
+        background: var(--warning-bg);
+        color: var(--warning);
+    }
+
+    .c-info {
+        color: var(--info);
+    }
+
+    .bg-info-c {
+        background: var(--info-bg);
+        color: var(--info);
+    }
+
+    /* ══ کارتی سەرەکی ══ */
+    .tbl-card {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 14px;
+        overflow: hidden;
+        transition: all .35s;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        position: relative;
+    }
+
+    .tab-panel {
+        display: none;
+        flex: 1;
+        min-height: 0;
+        flex-direction: column;
+    }
+
+        .tab-panel.active {
+            display: flex;
+        }
+
+    /* ══ تولبار ══ */
+    .rc-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-subtle);
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .rc-inp {
+        height: 32px;
+        padding: 0 10px;
+        background: var(--rc-input);
+        border: 1px solid var(--border-input);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 11px;
+        font-family: inherit;
+        outline: none;
+        transition: all .25s;
+    }
+
+        .rc-inp:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-bg);
+        }
+
+        .rc-inp::placeholder {
+            color: var(--text-dim);
+            opacity: .7;
+        }
+
+    .rc-btn {
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: inherit;
+        transition: all .2s;
+        border: none;
+        text-decoration: none;
+    }
+
+    .rc-btn-ghost {
+        background: var(--rc-input);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-card);
+    }
+
+        .rc-btn-ghost:hover {
+            background: var(--rc-hover);
+            color: var(--text-primary);
+        }
+
+    /* ══ خشتە و سکڕۆڵ ══ */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--text-muted) var(--rc-card);
+    }
+
+    .table-scroll {
+        flex: 1;
+        overflow: auto;
+        min-height: 0;
+    }
+
+        .table-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .table-scroll::-webkit-scrollbar-track {
+            background: var(--rc-card);
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: var(--text-dim);
+            border-radius: 6px;
+        }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 640px;
+    }
+
+        .data-table th {
+            padding: 10px 14px;
+            text-align: right;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--rc-thead);
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            transition: all .35s;
+        }
+
+        .data-table td {
+            padding: 8px 14px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+            transition: all .35s;
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr {
+            transition: background .15s;
+        }
+
+            .data-table tbody tr:hover {
+                background: var(--rc-hover);
+            }
+
+            .data-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .data-table tbody tr.archived td {
+                opacity: .5;
+            }
+
+    /* ══ باجەکان (Badges) ══ */
+    .bso {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        background: var(--success-bg);
+        color: var(--success);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .bsl {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        background: var(--warning-bg);
+        color: var(--warning);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .bsz {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        background: var(--danger-bg);
+        color: var(--danger);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .b-on {
+        background: var(--success-bg);
+        color: var(--success);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .b-off {
+        background: rgba(148,163,184,.08);
+        color: var(--text-dim);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .b-bp {
+        background: var(--danger-bg);
+        color: var(--danger);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .b-bn {
+        background: var(--danger-bg);
+        color: var(--danger);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .b-bz {
+        background: rgba(148,163,184,.08);
+        color: var(--text-dim);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .b-cnt {
+        background: var(--info-bg);
+        color: var(--info);
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .unit-chips {
+        display: flex;
+        gap: 3px;
+        flex-wrap: wrap;
+    }
+
+    .uc {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+
+    .uc-k {
+        background: var(--info-bg);
+        color: var(--info);
+    }
+
+    .uc-d {
+        background: var(--accent-bg);
+        color: var(--accent-text);
+    }
+
+    .uc-b {
+        background: var(--warning-bg);
+        color: var(--warning);
+    }
+
+    .profit-pos {
+        color: var(--success);
+        font-weight: 700;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    /* ══ دوگمەکانی ناو خشتە ══ */
+    .act-grp {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+    }
+
+    .act-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        transition: all .2s;
+        cursor: pointer;
+        background: transparent;
+    }
+
+    .ab-e {
+        color: var(--info);
+        background: var(--info-bg);
+        border-color: rgba(59, 130, 246, 0.2);
+    }
+
+        .ab-e:hover {
+            background: var(--info);
+            color: #fff;
+        }
+
+    .ab-d {
+        color: var(--danger);
+        background: var(--danger-bg);
+        border-color: rgba(251,113,133,0.2);
+    }
+
+        .ab-d:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+    .act-btn:disabled {
+        opacity: .3;
+        cursor: not-allowed;
+    }
+
+    /* ══ لۆدینگ ══ */
+    .tbl-loading {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: rgba(11,17,32,.5);
+        z-index: 10;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+
+    [data-theme="light"] .tbl-loading {
+        background: rgba(255,255,255,.7);
+    }
+
+    .tbl-loading.show {
+        display: flex;
+    }
+
+    .spin {
+        width: 28px;
+        height: 28px;
+        border: 3px solid var(--border-card);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin .7s linear infinite;
+    }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .tbl-wrap-rel {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: var(--text-dim);
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+            opacity: .4;
+        }
+
+    /* ══ Fullscreen ══ */
+    .tbl-card.is-fullscreen {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 2147483647 !important;
+        border-radius: 0 !important;
+        background-color: var(--rc-page) !important;
+        padding: 16px !important;
+    }
+
+        .tbl-card.is-fullscreen .table-scroll {
+            flex: 1;
+            max-height: none !important;
+        }
+
+    /* ══ مۆدالەکان ══ */
+    .rc-modal .modal-content {
+        background: var(--rc-card);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        overflow: hidden;
+        color: var(--text-primary);
+        box-shadow: 0 15px 35px rgba(0,0,0,.3);
+    }
+
+    .rc-modal .modal-body {
+        background: var(--rc-card);
+        padding: 20px;
+    }
+
+    .rc-modal .modal-footer {
+        background: var(--rc-stat);
+        border-top: 1px solid var(--border-subtle);
+        padding: 12px 20px;
+    }
+
+    .mh-pu {
+        background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(129,140,248,.08));
+        border-bottom: 1px solid var(--accent-border);
+        padding: 15px 20px;
+    }
+
+    .mh-am {
+        background: linear-gradient(135deg, rgba(252,211,77,.15), rgba(217,119,6,.1));
+        border-bottom: 1px solid rgba(252,211,77,.15);
+        padding: 15px 20px;
+    }
+
+    .mh-gr {
+        background: linear-gradient(135deg, rgba(52,211,153,.12), rgba(4,120,87,.08));
+        border-bottom: 1px solid rgba(52,211,153,.15);
+        padding: 15px 20px;
+    }
+
+    .mh-re {
+        background: linear-gradient(135deg, rgba(251,113,133,.15), rgba(190,18,60,.1));
+        border-bottom: 1px solid rgba(251,113,133,.15);
+        padding: 15px 20px;
+    }
+
+    .modal-header {
+        border: none;
+    }
+
+        .modal-header .modal-title {
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-header .btn-close {
+            filter: var(--close-filter,invert(1));
+            opacity: .6;
+            font-size: 12px;
+        }
+
+    .f-wrap {
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+        .f-wrap label {
+            position: absolute;
+            top: 7px;
+            right: 10px;
+            font-size: 9px;
+            color: var(--text-dim);
+            font-weight: 700;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        .f-wrap input, .f-wrap textarea {
+            width: 100%;
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 22px 10px 8px;
+            font-size: 12px;
+            outline: none;
+            transition: border .15s;
+            background: var(--rc-input);
+            color: var(--text-primary);
+            font-family: inherit;
+            resize: none;
+        }
+
+            .f-wrap input:focus, .f-wrap textarea:focus {
+                border-color: var(--border-focus);
+                box-shadow: 0 0 0 3px var(--accent-bg);
+            }
+
+    .barcode-wrap {
+        position: relative;
+    }
+
+    .btn-gen-barcode {
+        position: absolute;
+        left: 6px;
+        bottom: 6px;
+        height: 24px;
+        background: var(--accent-bg);
+        color: var(--accent);
+        border: none;
+        border-radius: 6px;
+        padding: 0 8px;
+        font-size: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        z-index: 5;
+    }
+
+        .btn-gen-barcode:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+    .f-wrap.has-btn input {
+        padding-left: 90px;
+    }
+
+    .f-r2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .f-r3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+    }
+
+    .f-full {
+        grid-column: 1 / -1;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0 20px;
+        height: 32px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: inherit;
+        transition: all .2s;
+    }
+
+        .btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16,185,129,.3);
+        }
+
+    .err-msg {
+        font-size: 12px;
+        min-height: 16px;
+        margin-top: 5px;
+    }
+
+    /* ══ Responsive ══ */
+    @@media(max-width:1200px) {
+        .rc-stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @@media(max-width:768px) {
+        .rc-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .rc-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .rc-top {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .header-tabs {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border-subtle);
+            width: 100%;
+            padding-bottom: 4px;
+        }
+    }
+
+    @@media(max-width:576px) {
+        .rc-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .rc-in {
+            padding: 12px;
+        }
+    }
+</style>
+
+<div class="rc-page">
+    <div class="rc-in">
+
+        <!-- ══ هێدەری سەرەکی ══ -->
+        <div class="rc-top">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="rc-top-ico"><i class="bi bi-journal-text"></i></div>
+                <div>
+                    <h1>تۆمارکردنەکان</h1>
+                    <p>کاڵاکان · کڕیارەکان @(!Model.IsCashier ? "· دابینکەران" : "")</p>
+                </div>
+            </div>
+
+            <!-- ══ دوگمەکانی تاب ══ -->
+            <div class="header-tabs">
+                <button class="ht-tab @(t == "p" ? "active" : "")" id="tab-p" onclick="switchTab('p')">
+                    <i class="bi bi-box"></i> کاڵاکان <span class="cnt" id="cnt-p">@Model.TotalCountP</span>
+                </button>
+                <button class="ht-tab @(t == "c" ? "active" : "")" id="tab-c" onclick="switchTab('c')">
+                    <i class="bi bi-people"></i> کڕیارەکان <span class="cnt" id="cnt-c">@Model.TotalCountC</span>
+                </button>
+                @if (!Model.IsCashier)
+                {
+                    <button class="ht-tab @(t == "s" ? "active" : "")" id="tab-s" onclick="switchTab('s')">
+                        <i class="bi bi-building"></i> دابینکەران <span class="cnt" id="cnt-s">@Model.TotalCountS</span>
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- ══ کارتی ئامارەکان ══ -->
+        <div class="rc-stats" id="stats-p" style="@(t == "p" ? "" : "display:none;")">
+            <div class="rc-st"><div><div class="rc-st-lbl">کۆی کاڵا</div><div class="rc-st-val c-indigo">@Model.P_Total</div></div><div class="rc-st-ico bg-indigo"><i class="bi bi-box"></i></div></div>
+            <div class="rc-st"><div><div class="rc-st-lbl">چالاک</div><div class="rc-st-val c-emerald">@Model.P_Active</div></div><div class="rc-st-ico bg-emerald"><i class="bi bi-check-circle"></i></div></div>
+            <div class="rc-st"><div><div class="rc-st-lbl">ستۆکی کەم</div><div class="rc-st-val c-amber">@Model.P_LowStock</div></div><div class="rc-st-ico bg-amber"><i class="bi bi-exclamation-triangle"></i></div></div>
+        </div>
+
+        <div class="rc-stats" id="stats-c" style="@(t == "c" ? "" : "display:none;")">
+            <div class="rc-st"><div><div class="rc-st-lbl">کۆی کڕیار</div><div class="rc-st-val c-indigo">@Model.C_Total</div></div><div class="rc-st-ico bg-indigo"><i class="bi bi-people"></i></div></div>
+            <div class="rc-st"><div><div class="rc-st-lbl">قەرزدار</div><div class="rc-st-val c-rose">@Model.C_DebtCount</div></div><div class="rc-st-ico bg-rose"><i class="bi bi-person-exclamation"></i></div></div>
+            <div class="rc-st"><div><div class="rc-st-lbl">کۆی قەرز</div><div class="rc-st-val c-rose">@Model.C_TotalDebt.ToString("N0")</div><div class="rc-st-sub">دینار</div></div><div class="rc-st-ico bg-rose"><i class="bi bi-cash-coin"></i></div></div>
+        </div>
+
+        @if (!Model.IsCashier)
+        {
+            <div class="rc-stats" id="stats-s" style="@(t == "s" ? "" : "display:none;")">
+                <div class="rc-st"><div><div class="rc-st-lbl">کۆی دابینکەر</div><div class="rc-st-val c-emerald">@Model.S_Total</div></div><div class="rc-st-ico bg-emerald"><i class="bi bi-building"></i></div></div>
+                <div class="rc-st"><div><div class="rc-st-lbl">چالاک</div><div class="rc-st-val c-emerald">@Model.S_Active</div></div><div class="rc-st-ico bg-emerald"><i class="bi bi-check-circle"></i></div></div>
+                <div class="rc-st"><div><div class="rc-st-lbl">کۆی پسوڵە</div><div class="rc-st-val c-info">@Model.S_Invoices</div></div><div class="rc-st-ico bg-info-c"><i class="bi bi-receipt"></i></div></div>
+            </div>
+        }
+
+        <!-- ══ خشتەی داتاکان ══ -->
+        <div class="tbl-card" id="main-card">
+
+            @* ══ تابی کاڵاکان ══ *@
+            <div class="tab-panel @(t == "p" ? "active" : "")" id="panel-p">
+                <div class="rc-toolbar">
+                    <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap;">
+                        <button class="btn-act-primary btn-p" onclick="openAddProduct()"><i class="bi bi-box"></i> کاڵای نوێ</button>
+                        <div style="width: 1px; height: 20px; background: var(--border-subtle); margin: 0 4px;"></div>
+
+                        <i class="bi bi-search" style="color:var(--text-dim);font-size:12px;"></i>
+                        <input type="text" id="srch-p" class="rc-inp" placeholder="ناو یان باڕکۆد..." style="width:160px;" value="@Model.SearchP" oninput="onSearch('p')">
+                        <select class="rc-inp" id="sf-select" onchange="setStockFilter(this.value)" style="width:120px;cursor:pointer;">
+                            <option value="all">هەموو کاڵاکان</option>
+                            <option value="low">ستۆک کەم (&lt;5)</option>
+                            <option value="out">بێ ستۆک</option>
+                        </select>
+                        <button class="rc-btn rc-btn-ghost" id="clr-p" onclick="clearSearch('p')" style="display:@(!string.IsNullOrEmpty(Model.SearchP) ? "inline-flex" : "none");padding:0 8px;"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                    <button class="rc-btn rc-btn-ghost" onclick="toggleFs('main-card')" style="padding:0 8px;"><i class="bi bi-arrows-fullscreen" id="fsIcon-p"></i></button>
+                </div>
+                <div class="tbl-wrap-rel">
+                    <div class="tbl-loading" id="load-p"><div class="spin"></div></div>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:4%;text-align:center;">#</th>
+                                    <th>ناوی کاڵا</th>
+                                    <th style="width:12%;">باڕکۆد</th>
+                                    <th style="width:8%;text-align:center;">ستۆک</th>
+                                    <th style="width:15%;">یەکەکان</th>
+                                    <th style="width:10%;text-align:center;">نرخی تاک</th>
+                                    <th style="width:10%;text-align:center;">نرخی جوملە</th>
+                                    <th style="width:8%;text-align:center;">قازانج</th>
+                                    <th style="width:7%;text-align:center;">دۆخ</th>
+                                    @if (!Model.IsCashier)
+                                    {
+                                        <th style="width:9%;text-align:center;">کردار</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-p">
+                                <!-- داتا لێرە زیاد دەکرێت بە جافاسکریپت -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @* ══ تابی کڕیارەکان ══ *@
+            <div class="tab-panel @(t == "c" ? "active" : "")" id="panel-c">
+                <div class="rc-toolbar">
+                    <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap;">
+                        <button class="btn-act-primary btn-c" onclick="openAddCustomer()"><i class="bi bi-person-plus"></i> کڕیاری نوێ</button>
+                        <div style="width: 1px; height: 20px; background: var(--border-subtle); margin: 0 4px;"></div>
+
+                        <i class="bi bi-search" style="color:var(--text-dim);font-size:12px;"></i>
+                        <input type="text" id="srch-c" class="rc-inp" placeholder="ناو یان تەلەفۆن..." style="width:160px;" value="@Model.SearchC" oninput="onSearch('c')">
+                        <button class="rc-btn rc-btn-ghost" id="clr-c" onclick="clearSearch('c')" style="display:@(!string.IsNullOrEmpty(Model.SearchC) ? "inline-flex" : "none");padding:0 8px;"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                    <button class="rc-btn rc-btn-ghost" onclick="toggleFs('main-card')" style="padding:0 8px;"><i class="bi bi-arrows-fullscreen" id="fsIcon-c"></i></button>
+                </div>
+                <div class="tbl-wrap-rel">
+                    <div class="tbl-loading" id="load-c"><div class="spin"></div></div>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:4%;text-align:center;">#</th>
+                                    <th>ناوی کڕیار</th>
+                                    <th style="width:16%;">تەلەفۆن</th>
+                                    <th>ئەدرەس</th>
+                                    <th style="width:15%;text-align:center;">باڵانس</th>
+                                    @if (!Model.IsCashier)
+                                    {
+                                        <th style="width:9%;text-align:center;">کردار</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-c">
+                                <!-- داتا لێرە زیاد دەکرێت بە جافاسکریپت -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @* ══ تابی دابینکەران ══ *@
+            @if (!Model.IsCashier)
+            {
+                <div class="tab-panel @(t == "s" ? "active" : "")" id="panel-s">
+                    <div class="rc-toolbar">
+                        <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap;">
+                            <button class="btn-act-primary btn-s" onclick="openAddSupplier()"><i class="bi bi-building-add"></i> دابینکەری نوێ</button>
+                            <div style="width: 1px; height: 20px; background: var(--border-subtle); margin: 0 4px;"></div>
+
+                            <i class="bi bi-search" style="color:var(--text-dim);font-size:12px;"></i>
+                            <input type="text" id="srch-s" class="rc-inp" placeholder="ناو یان تەلەفۆن..." style="width:160px;" value="@Model.SearchS" oninput="onSearch('s')">
+                            <button class="rc-btn rc-btn-ghost" id="clr-s" onclick="clearSearch('s')" style="display:@(!string.IsNullOrEmpty(Model.SearchS) ? "inline-flex" : "none");padding:0 8px;"><i class="bi bi-x-lg"></i></button>
+                        </div>
+                        <button class="rc-btn rc-btn-ghost" onclick="toggleFs('main-card')" style="padding:0 8px;"><i class="bi bi-arrows-fullscreen" id="fsIcon-s"></i></button>
+                    </div>
+                    <div class="tbl-wrap-rel">
+                        <div class="tbl-loading" id="load-s"><div class="spin"></div></div>
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:4%;text-align:center;">#</th>
+                                        <th>ناوی دابینکەر</th>
+                                        <th style="width:15%;">تەلەفۆن</th>
+                                        <th>ناونیشان</th>
+                                        <th style="width:11%;text-align:center;">پسوڵەکان</th>
+                                        <th style="width:8%;text-align:center;">دۆخ</th>
+                                        <th style="width:10%;text-align:center;">کردار</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-s">
+                                    <!-- داتا لێرە زیاد دەکرێت بە جافاسکریپت -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade rc-modal" id="m-product" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+        <div class="modal-content">
+            <div class="modal-header mh-pu"><h5 class="modal-title"><i class="bi bi-box"></i> <span id="prod-ttl">کاڵای نوێ</span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="prod-id">
+                <div class="f-r2">
+                    <div class="f-wrap f-full"><input type="text" id="prod-name" placeholder=" " maxlength="200"><label>ناوی کاڵا *</label></div>
+
+                    <!-- ══ گۆڕانکاری بۆ دروستکردنی باڕکۆد ══ -->
+                    <div class="f-wrap has-btn barcode-wrap">
+                        <input type="text" id="prod-barcode" placeholder=" " maxlength="100">
+                        <label>باڕکۆد *</label>
+                        <button type="button" class="btn-gen-barcode" onclick="generateProdBarcode()"><i class="bi bi-upc-scan"></i> دروستکردن</button>
+                    </div>
+
+                    <div class="f-wrap"><input type="number" id="prod-sale" placeholder=" " min="0"><label>نرخی تاک *</label></div>
+                    <div class="f-wrap"><input type="number" id="prod-wholesale" placeholder=" " min="0"><label>نرخی جوملە</label></div>
+                </div>
+                <div style="background:var(--rc-stat);border:1px solid var(--border-card);border-radius:8px;padding:12px;margin-bottom:10px;">
+                    <div style="font-size:10px;font-weight:800;color:var(--text-dim);margin-bottom:8px;"><i class="bi bi-boxes" style="color:var(--accent);"></i> یەکەکان</div>
+                    <div class="f-r3">
+                        <div class="f-wrap" style="margin-bottom:0;"><input type="number" id="prod-carton" placeholder=" " min="1" value="1"><label>📦 کارتۆن</label></div>
+                        <div class="f-wrap" style="margin-bottom:0;"><input type="number" id="prod-dozen" placeholder=" " min="1" value="1"><label>🔢 دەرزەن</label></div>
+                        <div class="f-wrap" style="margin-bottom:0;"><input type="number" id="prod-bundle" placeholder=" " min="1" value="1"><label>📎 بەستە</label></div>
+                    </div>
+                </div>
+                <div id="prod-active-row" style="display:none;margin-bottom:6px;"><label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="checkbox" id="prod-active" style="width:16px;height:16px;accent-color:var(--accent);"> <span style="font-weight:600;">چالاکە لە سیستەم</span></label></div>
+                <div id="prod-msg" class="err-msg"></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="rc-btn rc-btn-ghost" data-bs-dismiss="modal">داخستن</button><button type="button" class="btn-save" onclick="saveProd()"><i class="bi bi-check-lg"></i> پاشەکەوتکردن</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade rc-modal" id="m-customer" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+        <div class="modal-content">
+            <div class="modal-header mh-am"><h5 class="modal-title"><i class="bi bi-person"></i> <span id="cust-ttl">کڕیاری نوێ</span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="cust-id">
+                <div class="f-wrap"><input type="text" id="cust-name" placeholder=" " maxlength="200"><label>ناوی کڕیار *</label></div>
+                <div class="f-wrap"><input type="text" id="cust-phone" placeholder=" " maxlength="50"><label>تەلەفۆن</label></div>
+                <div class="f-wrap" style="margin-bottom:6px;"><textarea id="cust-address" rows="2" placeholder=" " maxlength="300"></textarea><label>ئەدرەس</label></div>
+                <div id="cust-msg" class="err-msg"></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="rc-btn rc-btn-ghost" data-bs-dismiss="modal">داخستن</button><button type="button" class="btn-save" onclick="saveCust()"><i class="bi bi-check-lg"></i> پاشەکەوتکردن</button></div>
+        </div>
+    </div>
+</div>
+
+@if (!Model.IsCashier)
+{
+    <div class="modal fade rc-modal" id="m-supplier" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+            <div class="modal-content">
+                <div class="modal-header mh-gr"><h5 class="modal-title"><i class="bi bi-building"></i> <span id="sup-ttl">دابینکەری نوێ</span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" id="sup-id">
+                    <div class="f-wrap"><input type="text" id="sup-name" placeholder=" " maxlength="200"><label>ناوی دابینکەر *</label></div>
+                    <div class="f-wrap"><input type="text" id="sup-phone" placeholder=" " maxlength="50"><label>تەلەفۆن</label></div>
+                    <div class="f-wrap" style="margin-bottom:10px;"><textarea id="sup-address" rows="2" placeholder=" " maxlength="300"></textarea><label>ناونیشان</label></div>
+                    <div id="sup-active-row" style="display:none;margin-bottom:6px;"><label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;"><input type="checkbox" id="sup-active" style="width:16px;height:16px;accent-color:var(--success);"> <span style="font-weight:600;">چالاکە لە سیستەم</span></label></div>
+                    <div id="sup-msg" class="err-msg"></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="rc-btn rc-btn-ghost" data-bs-dismiss="modal">داخستن</button><button type="button" class="btn-save" onclick="saveSup()"><i class="bi bi-check-lg"></i> پاشەکەوتکردن</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade rc-modal" id="m-confirm" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:350px;">
+            <div class="modal-content">
+                <div class="modal-header" id="conf-hdr"><h5 class="modal-title" id="conf-ttl"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body" style="text-align:center;padding:25px 20px;">
+                    <i id="conf-ico" style="font-size:3rem;display:block;margin-bottom:12px;"></i>
+                    <p id="conf-txt" style="font-size:14px;font-weight:700;margin-bottom:6px;"></p>
+                    <p id="conf-sub" style="font-size:11px;color:var(--text-muted);margin:0;"></p>
+                    <div id="conf-msg" class="err-msg mt-2"></div>
+                </div>
+                <div class="modal-footer" style="justify-content:center;">
+                    <button type="button" class="rc-btn rc-btn-ghost" data-bs-dismiss="modal" style="width:80px;">نەخێر</button>
+                    <button type="button" class="btn-save" id="conf-ok" onclick="doConfirm()" style="background:linear-gradient(135deg,#ef4444,#dc2626);width:100px;justify-content:center;">بەڵێ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]').value;
+        const _$ = id => document.getElementById(id);
+
+        // دەستنیشانکردنی ئەوەی داخۆ بەکارهێنەر کشێرە
+        const _isCashier = @Model.IsCashier.ToString().ToLower();
+
+        let _act = null;
+        let _curTab = '@t';
+
+        const _state = {
+          p: { q: '@(Model.SearchP ?? "")' },
+          c: { q: '@(Model.SearchC ?? "")' },
+          s: { q: '@(Model.SearchS ?? "")' }
+        };
+
+        // ══ فەنکشنی دروستکردنی باڕکۆد ══
+        function generateProdBarcode() {
+            var randomDigits = Math.floor(100000000 + Math.random() * 900000000);
+            _$('prod-barcode').value = "200" + randomDigits;
+            _$('prod-barcode').focus();
+        }
+
+        function toggleFs(id) {
+          const card = _$(id); if (!card) return;
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (card.requestFullscreen) card.requestFullscreen();
+            else if (card.webkitRequestFullscreen) card.webkitRequestFullscreen();
+          } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+          }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+          const card = _$('main-card');
+          const icons = [_$('fsIcon-p'), _$('fsIcon-c'), _$('fsIcon-s')];
+          if (document.fullscreenElement === card) {
+              card.classList.add('is-fullscreen');
+              icons.forEach(i => { if(i) i.className = 'bi bi-fullscreen-exit'; });
+          } else {
+              card.classList.remove('is-fullscreen');
+              icons.forEach(i => { if(i) i.className = 'bi bi-arrows-fullscreen'; });
+          }
+        });
+
+        function showMsg(id,txt,ok){const e=_$(id);if(e)e.innerHTML=txt?`<span style="color:${ok?'var(--success)':'var(--danger)'}">${txt}</span>`:''}
+
+        function switchTab(t){
+          const tabs = _isCashier ? ['p','c'] : ['p','c','s'];
+          tabs.forEach(x=>{
+              const tabBtn = _$('tab-'+x);
+              const panel = _$('panel-'+x);
+              const stats = _$('stats-'+x);
+              if(tabBtn) tabBtn.classList.remove('active');
+              if(panel) panel.classList.remove('active');
+              if(stats) stats.style.display = 'none';
+          });
+
+          const actTab = _$('tab-'+t);
+          const actPanel = _$('panel-'+t);
+          const actStats = _$('stats-'+t);
+
+          if(actTab) actTab.classList.add('active');
+          if(actPanel) actPanel.classList.add('active');
+          if(actStats) actStats.style.display = 'grid';
+          _curTab=t;
+        }
+
+        let _timers = {};
+        function onSearch(tab) {
+          const q = _$('srch-'+tab).value;
+          _$('clr-'+tab).style.display = q ? 'inline-flex' : 'none';
+          clearTimeout(_timers[tab]);
+          _timers[tab] = setTimeout(() => loadTab(tab, q), 350);
+        }
+        function clearSearch(tab) { _$('srch-'+tab).value = ''; _$('clr-'+tab).style.display = 'none'; loadTab(tab, ''); }
+
+        let _stockFilter = 'all';
+        function setStockFilter(f) { _stockFilter = f; loadTab('p'); }
+
+        async function refreshStats() {
+          try {
+            const d = await (await fetch('?handler=StatsAjax')).json();
+            if (!d || !d.success) return;
+          } catch(e) { console.warn('refreshStats:', e); }
+        }
+
+        async function loadTab(tab, q) {
+          if (q === undefined) q = _$('srch-'+tab)?.value || '';
+          _state[tab] = { q };
+
+          const loader = _$('load-'+tab); if (loader) loader.classList.add('show');
+          const handler = tab==='p'?'ProductsAjax':tab==='c'?'CustomersAjax':'SuppliersAjax';
+          const sf = (tab === 'p' && _stockFilter !== 'all') ? `&stockFilter=${_stockFilter}` : '';
+
+          const url = `?handler=${handler}&q=${encodeURIComponent(q)}${sf}`;
+
+          let d;
+          try {
+              const r = await fetch(url);
+              const txt = await r.text();
+              try { d = JSON.parse(txt); } catch(e) { return; }
+          } catch(e) {
+              if (loader) loader.classList.remove('show');
+              return;
+          }
+
+          if (loader) loader.classList.remove('show');
+          if (!d || !d.success) return;
+
+          const total = d.total || 0;
+          const rowData = d.rows || [];
+          _state[tab] = { q };
+
+          renderRows(tab, rowData, 1);
+          const cntE = _$('cnt-'+tab);
+          if (cntE) cntE.textContent = total;
+
+          const scr = _$('panel-'+tab)?.querySelector('.table-scroll'); if (scr) scr.scrollTop = 0;
+        }
+
+        // بارکردنی داتا بەپێی دەسەڵات
+        const initialTabs = _isCashier ? ['p','c'] : ['p','c','s'];
+        initialTabs.forEach(t => loadTab(t));
+
+        function renderRows(tab, rows, startIdx) {
+          const tbody = _$('tbody-'+tab);
+          if(!tbody) return;
+
+          if (!rows.length) {
+              const icon=tab==='p'?'box':tab==='c'?'people':'building';
+              const label=tab==='p'?'کاڵایەک نەدۆزرایەوە':tab==='c'?'کڕیارێک نەدۆزرایەوە':'دابینکەرێک نەدۆزرایەوە';
+              tbody.innerHTML=`<tr><td colspan="10" class="empty-state"><i class="bi bi-${icon}"></i><p style="margin:0;font-size:12px;">${label}</p></td></tr>`;
+              return;
+          }
+          if (tab==='p') tbody.innerHTML = rows.map((p,i) => rowP(p, startIdx+i)).join('');
+          if (tab==='c') tbody.innerHTML = rows.map((c,i) => rowC(c, startIdx+i)).join('');
+          if (tab==='s' && !_isCashier) tbody.innerHTML = rows.map((s,i) => rowS(s, startIdx+i)).join('');
+        }
+
+        function fmt(n) { return new Intl.NumberFormat('en').format(Math.round(n)); }
+        function esc(s) { return String(s||'').replace(/'/g,"\\'"); }
+
+        function rowP(p, idx) {
+          const sc = p.currentStock===0?'bsz':p.currentStock<5?'bsl':'bso';
+          const uParts = [];
+          if (p.qtyPerCarton>1) uParts.push(`<span class="uc uc-k">📦 ${p.qtyPerCarton}</span>`);
+          if (p.qtyPerDozen>1)  uParts.push(`<span class="uc uc-d">🔢 ${p.qtyPerDozen}</span>`);
+          if (p.qtyPerBundle>1) uParts.push(`<span class="uc uc-b">📎 ${p.qtyPerBundle}</span>`);
+          const units = uParts.length ? uParts.join('') : '<span style="color:var(--text-dim);font-size:11px;">—</span>';
+          const profitVal = p.salePrice - p.lastPurchasePrice;
+          const profit = p.lastPurchasePrice>0 ? `<span class="profit-pos">+${fmt(profitVal)}</span>` : '<span style="color:var(--text-dim);font-size:11px;">—</span>';
+          const status = p.isActive?'<span class="b-on">چالاک</span>':'<span class="b-off">ئەرشیف</span>';
+
+          // ئەگەر کشێر بێت دوگمەکانی نابێت
+          const actionBtns = _isCashier ? '' : `
+            <td><div class="act-grp">
+              <button class="act-btn ab-e" onclick="editProduct(${p.productId})" title="دەستکاری"><i class="bi bi-pencil"></i></button>
+              <button class="act-btn ab-d" onclick="hardDel('product',${p.productId},'${esc(p.name)}')" title="سڕینەوە"><i class="bi bi-trash"></i></button>
+            </div></td>`;
+
+          return `<tr class="${p.isActive?'':'archived'}">
+            <td style="text-align:center;color:var(--text-dim);font-size:11px;">${idx}</td>
+            <td><span style="font-weight:600;color:var(--text-primary);">${p.name}</span></td>
+            <td><span class="iv-barcode" style="font-family:monospace;font-size:11px;color:var(--text-dim);letter-spacing:.5px;">${p.barcode}</span></td>
+            <td style="text-align:center;"><span class="${sc}">${p.currentStock}</span></td>
+            <td><div class="unit-chips">${units}</div></td>
+            <td style="text-align:center;font-weight:600;color:var(--accent-text);">${fmt(p.salePrice)}</td>
+            <td style="text-align:center;color:var(--text-muted);">${fmt(p.wholesalePrice)}</td>
+            <td style="text-align:center;">${profit}</td>
+            <td style="text-align:center;">${status}</td>
+            ${actionBtns}
+          </tr>`;
+        }
+
+        function rowC(c, idx) {
+          const bc = c.balance<0?'b-bn':c.balance>0?'b-bp':'b-bz';
+          const bl = c.balance<0?`قەرز ${fmt(Math.abs(c.balance))}`:c.balance>0?`قەرز ${fmt(c.balance)}`:'٠';
+          const ph = c.phone?`<span style="font-family:monospace;font-size:11px;display:flex;align-items:center;gap:5px;color:var(--text-secondary);"><i class="bi bi-telephone" style="color:var(--text-dim);font-size:10px;"></i>${c.phone}</span>`:'<span style="color:var(--text-dim);font-size:11px;">—</span>';
+          const ad = c.address?`<span style="color:var(--text-muted);font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;">${c.address}</span>`:'<span style="color:var(--text-dim);font-size:11px;">—</span>';
+
+          const actionBtns = _isCashier ? '' : `
+            <td><div class="act-grp">
+              <button class="act-btn ab-e" onclick="editCustomer(${c.customerId})" title="دەستکاری"><i class="bi bi-pencil"></i></button>
+              <button class="act-btn ab-d" onclick="hardDel('customer',${c.customerId},'${esc(c.name)}')" title="سڕینەوە"><i class="bi bi-trash"></i></button>
+            </div></td>`;
+
+          return `<tr>
+            <td style="text-align:center;color:var(--text-dim);font-size:11px;">${idx}</td>
+            <td><span style="font-weight:600;color:var(--text-primary);">${c.name}</span></td>
+            <td>${ph}</td>
+            <td>${ad}</td>
+            <td style="text-align:center;"><span class="${bc}">${bl}</span></td>
+            ${actionBtns}
+          </tr>`;
+        }
+
+        function rowS(s, idx) {
+          if(_isCashier) return ''; // بۆ دڵنیایی زیاتر
+          const isDef = s.supplierId===1;
+          const ph = s.phone?`<span style="font-family:monospace;font-size:11px;display:flex;align-items:center;gap:5px;color:var(--text-secondary);"><i class="bi bi-telephone" style="color:var(--text-dim);font-size:10px;"></i>${s.phone}</span>`:'<span style="color:var(--text-dim);font-size:11px;">—</span>';
+          const ad = s.address?`<span style="color:var(--text-muted);font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;">${s.address}</span>`:'<span style="color:var(--text-dim);font-size:11px;">—</span>';
+          const status = s.isActive?'<span class="b-on">چالاک</span>':'<span class="b-off">ئەرشیف</span>';
+          const btns = isDef ? '<button class="act-btn ab-e" disabled><i class="bi bi-lock"></i></button><button class="act-btn ab-d" disabled><i class="bi bi-lock"></i></button>' : `<button class="act-btn ab-e" onclick="editSupplier(${s.supplierId})" title="دەستکاری"><i class="bi bi-pencil"></i></button><button class="act-btn ab-d" onclick="hardDel('supplier',${s.supplierId},'${esc(s.name)}')" title="سڕینەوە"><i class="bi bi-trash"></i></button>`;
+
+          return `<tr class="${s.isActive?'':'archived'}">
+            <td style="text-align:center;color:var(--text-dim);font-size:11px;">${idx}</td>
+            <td><span style="font-weight:${isDef?'500':'600'};color:${isDef?'var(--text-dim)':'var(--text-primary)'};">${s.name}</span></td>
+            <td>${ph}</td>
+            <td>${ad}</td>
+            <td style="text-align:center;"><span class="b-cnt">${s.purchaseCount}</span></td>
+            <td style="text-align:center;">${status}</td>
+            <td><div class="act-grp">${btns}</div></td>
+          </tr>`;
+        }
+
+        // ══ CRUD ══
+        function openAddProduct(){ ['prod-id','prod-name','prod-barcode','prod-sale','prod-wholesale'].forEach(i=>_$(i).value=''); _$('prod-carton').value=_$('prod-dozen').value=_$('prod-bundle').value='1'; _$('prod-active-row').style.display='none'; showMsg('prod-msg',''); _$('prod-ttl').textContent='کاڵای نوێ'; new bootstrap.Modal(_$('m-product')).show(); setTimeout(()=>_$('prod-name').focus(),200); }
+        async function editProduct(id){
+            if(_isCashier) return;
+            const d=await(await fetch('?handler=Product&id='+id)).json(); if(!d.success)return; _$('prod-ttl').textContent='دەستکاری کاڵا'; _$('prod-id').value=d.productId; _$('prod-name').value=d.name; _$('prod-barcode').value=d.barcode; _$('prod-sale').value=d.salePrice; _$('prod-wholesale').value=d.wholesalePrice; _$('prod-carton').value=d.qtyPerCarton; _$('prod-dozen').value=d.qtyPerDozen; _$('prod-bundle').value=d.qtyPerBundle; _$('prod-active-row').style.display='block'; _$('prod-active').checked=d.isActive; showMsg('prod-msg',''); new bootstrap.Modal(_$('m-product')).show();
+        }
+        async function saveProd(){
+            const name=(_$('prod-name').value||'').trim(),bc=(_$('prod-barcode').value||'').trim(),sale=_$('prod-sale').value; if(!name||!bc||!sale){showMsg('prod-msg','ناو، باڕکۆد و نرخ پێویستن',false);return;}
+            const isEdit=!!_$('prod-id').value;
+            if(isEdit && _isCashier) return; // کشێر ناتوانێت دەستکاری بکات
+
+            const fd=new FormData(); fd.append('ProductInput.ProductId',_$('prod-id').value||'0'); fd.append('ProductInput.Name',name); fd.append('ProductInput.Barcode',bc); fd.append('ProductInput.SalePrice',sale); fd.append('ProductInput.WholesalePrice',_$('prod-wholesale').value||'0'); fd.append('ProductInput.QtyPerCarton',_$('prod-carton').value||'1'); fd.append('ProductInput.QtyPerDozen',_$('prod-dozen').value||'1'); fd.append('ProductInput.QtyPerBundle',_$('prod-bundle').value||'1'); fd.append('ProductInput.IsActive',isEdit?String(_$('prod-active').checked):'true'); fd.append('__RequestVerificationToken',_tok());
+            const r=await(await fetch('?handler='+(isEdit?'UpdateProduct':'AddProduct'),{method:'POST',body:fd})).json();
+            if(r.success){ bootstrap.Modal.getInstance(_$('m-product'))?.hide(); loadTab('p'); refreshStats(); }
+            else showMsg('prod-msg',r.message||'هەڵە',false);
+        }
+
+        function openAddCustomer(){ ['cust-id','cust-name','cust-phone','cust-address'].forEach(i=>_$(i).value=''); showMsg('cust-msg',''); _$('cust-ttl').textContent='کڕیاری نوێ'; new bootstrap.Modal(_$('m-customer')).show(); setTimeout(()=>_$('cust-name').focus(),200); }
+        async function editCustomer(id){
+            if(_isCashier) return;
+            const d=await(await fetch('?handler=Customer&id='+id)).json(); if(!d.success)return; _$('cust-ttl').textContent='دەستکاری کڕیار'; _$('cust-id').value=d.customerId; _$('cust-name').value=d.name; _$('cust-phone').value=d.phone; _$('cust-address').value=d.address; showMsg('cust-msg',''); new bootstrap.Modal(_$('m-customer')).show();
+        }
+        async function saveCust(){
+            const name=(_$('cust-name').value||'').trim(); if(!name){showMsg('cust-msg','ناوی کڕیار پێویستە',false);return;}
+            const isEdit=!!_$('cust-id').value;
+            if(isEdit && _isCashier) return;
+
+            const fd=new FormData(); fd.append('CustomerInput.CustomerId',_$('cust-id').value||'0'); fd.append('CustomerInput.Name',name); fd.append('CustomerInput.Phone',_$('cust-phone').value||''); fd.append('CustomerInput.Address',_$('cust-address').value||''); fd.append('__RequestVerificationToken',_tok());
+            const r=await(await fetch('?handler='+(isEdit?'UpdateCustomer':'AddCustomer'),{method:'POST',body:fd})).json();
+            if(r.success){ bootstrap.Modal.getInstance(_$('m-customer'))?.hide(); loadTab('c'); refreshStats(); }
+            else showMsg('cust-msg',r.message||'هەڵە',false);
+        }
+
+        function openAddSupplier(){ if(_isCashier) return; ['sup-id','sup-name','sup-phone','sup-address'].forEach(i=>_$(i).value=''); _$('sup-active-row').style.display='none'; showMsg('sup-msg',''); _$('sup-ttl').textContent='دابینکەری نوێ'; new bootstrap.Modal(_$('m-supplier')).show(); setTimeout(()=>_$('sup-name').focus(),200); }
+        async function editSupplier(id){ if(_isCashier) return; const d=await(await fetch('?handler=Supplier&id='+id)).json(); if(!d.success)return; _$('sup-ttl').textContent='دەستکاری دابینکەر'; _$('sup-id').value=d.supplierId; _$('sup-name').value=d.name; _$('sup-phone').value=d.phone; _$('sup-address').value=d.address; _$('sup-active-row').style.display='block'; _$('sup-active').checked=d.isActive; showMsg('sup-msg',''); new bootstrap.Modal(_$('m-supplier')).show(); }
+        async function saveSup(){ if(_isCashier) return; const name=(_$('sup-name').value||'').trim(); if(!name){showMsg('sup-msg','ناوی دابینکەر پێویستە',false);return;} const isEdit=!!_$('sup-id').value; const fd=new FormData(); fd.append('SupplierInput.SupplierId',_$('sup-id').value||'0'); fd.append('SupplierInput.Name',name); fd.append('SupplierInput.Phone',_$('sup-phone').value||''); fd.append('SupplierInput.Address',_$('sup-address').value||''); fd.append('SupplierInput.IsActive',isEdit?String(_$('sup-active').checked):'true'); fd.append('__RequestVerificationToken',_tok()); const r=await(await fetch('?handler='+(isEdit?'UpdateSupplier':'AddSupplier'),{method:'POST',body:fd})).json(); if(r.success){ bootstrap.Modal.getInstance(_$('m-supplier'))?.hide(); loadTab('s'); refreshStats(); } else showMsg('sup-msg',r.message||'هەڵە',false); }
+
+        function hardDel(type,id,name){
+            if(_isCashier) return;
+            _act={t:'delete',type,id}; _$('conf-hdr').className='modal-header mh-re'; _$('conf-ttl').innerHTML='<i class="bi bi-trash"></i> سڕینەوەی تەواو'; _$('conf-ico').className='bi bi-exclamation-triangle'; _$('conf-ico').style.color='var(--warning)'; _$('conf-txt').textContent=`"${name}" بەتەواوی دەسڕێتەوە؟`; _$('conf-sub').textContent='ئەگەر داتای پێوەندی هەبێت، سیستەم ڕەتی دەکاتەوە.'; _$('conf-ok').style.background='linear-gradient(135deg,#ef4444,#dc2626)'; _$('conf-ok').textContent='بەڵێ، بسڕەوە'; showMsg('conf-msg',''); new bootstrap.Modal(_$('m-confirm')).show();
+        }
+
+        async function doConfirm(){
+            if(!_act || _isCashier) return;
+            showMsg('conf-msg',''); const fd=new FormData(); fd.append('__RequestVerificationToken',_tok()); const tab=_act.type==='product'?'p':_act.type==='customer'?'c':'s'; let url=''; if(_act.type==='supplier'){fd.append('DeleteSupplierId',_act.id);url='?handler=DeleteSupplier';} else url='?handler=Delete'+(_act.type==='product'?'Product':'Customer')+'&id='+_act.id; const r=await(await fetch(url,{method:'POST',body:fd})).json(); if(r.success){ bootstrap.Modal.getInstance(_$('m-confirm'))?.hide(); loadTab(tab); refreshStats(); } else showMsg('conf-msg',r.message||'هەڵە',false);
+        }
+    </script>
+}

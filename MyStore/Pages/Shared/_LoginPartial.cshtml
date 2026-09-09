@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<ul class="navbar-nav align-items-center">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var user = await UserManager.GetUserAsync(User);
+        var roles = await UserManager.GetRolesAsync(user);
+        var userRole = roles.FirstOrDefault() ?? "Staff";
+        var userName = user.UserName;
+
+        // ئەگەر ناوەکە ئیمەیڵ بوو، تەنها بەشی پێش @ وەربگرە بۆ جوانی
+        if (userName.Contains("@"))
+        {
+            userName = userName.Split('@')[0];
+        }
+
+        <li class="nav-item d-flex align-items-center">
+            <div class="d-flex flex-column align-items-end me-2" style="line-height: 1.2;">
+                <span class="fw-bold text-dark small">@userName</span>
+                <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">@userRole</span>
+            </div>
+            <i class="fas fa-user-circle fa-2x text-secondary"></i>
+        </li>
+        <li class="nav-item ms-2">
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="دەرچوون">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-primary fw-bold" asp-area="Identity" asp-page="/Account/Login">
+                <i class="fas fa-sign-in-alt me-1"></i> چوونەژوورەوە
+            </a>
+        </li>
+    }
+</ul>
